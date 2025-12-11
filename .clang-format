@@ -1,0 +1,19 @@
+# .clang-format
+BasedOnStyle: Google
+IndentWidth: 4
+
+# K&R Brace Placement: Attach opening brace to the end of the previous line
+BreakBeforeBraces: Attach
+
+# Ensures that the opening brace for typedef structs/classes is on the same line
+# typedef struct { ... } Name;
+BraceWrapping:
+  AfterStruct: true
+
+# Keep the 'else' keyword on a new line, aligned with the 'if'
+# The 'Attach' setting for BreakBeforeBraces already handles 'if/else' style, 
+# but this confirms the new line before the 'else' branch's brace.
+AlwaysBreakBeforeElse: true
+
+# Ensure all trailing return types (C++11/14) are attached
+BreakInheritanceList: BeforeColon
