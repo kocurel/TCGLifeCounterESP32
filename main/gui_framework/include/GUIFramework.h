@@ -56,4 +56,9 @@ void GUILabel_upside_down_en(GUILabel* self, int flag);
 
 #define GUI_DELETE(comp) GUIComponent_delete((GUIComponent*)comp)
 
+#define GUI_SET_FONT_SIZE(label, size) \
+    GUILabel_set_font_size((GUILabel*)label, (uint8_t)size)
+
+#define GUI_SET_TEXT_UPSIDE_DOWN(label, flag) \
+    GUILabel_upside_down_en((GUILabel*)label, (int)flag)
 #endif  // GUIFRAMEWORK_H

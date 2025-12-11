@@ -21,6 +21,9 @@ int run_tests() {
     RUN_TEST(test_Label_is_properly_initiated);
     RUN_TEST(test_Container_add_child_recursive_delete);
     RUN_TEST(test_Nested_Container_Layout);
+    RUN_TEST(test_Safety_Null_Inputs);
+    RUN_TEST(test_VBox_Full_Height_Distribution);
+    RUN_TEST(test_HBox_Full_Width_Distribution);
     return UNITY_END();
 }
 
