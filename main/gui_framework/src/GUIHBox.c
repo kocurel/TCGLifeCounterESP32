@@ -13,7 +13,7 @@ static void GUIHBox_delete(GUIComponent* self) {
         return;
     }
     GUIHBox* hbox = (GUIHBox*)self;
-    GUIContainer_delete(&hbox->base.base);
+    GUIContainer_delete(&hbox->base);
     free(hbox);
 }
 

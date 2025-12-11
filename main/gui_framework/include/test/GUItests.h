@@ -4,4 +4,7 @@
 
 void test_VBox_is_properly_initiated();
 void test_HBox_is_properly_initiated();
+void test_Label_is_properly_initiated();
+void test_Container_add_child_recursive_delete();
+void test_Nested_Container_Layout();
 #endif  // GUITESTS_H

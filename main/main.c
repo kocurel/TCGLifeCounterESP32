@@ -18,6 +18,9 @@ int run_tests() {
     UNITY_BEGIN();
     RUN_TEST(test_VBox_is_properly_initiated);
     RUN_TEST(test_HBox_is_properly_initiated);
+    RUN_TEST(test_Label_is_properly_initiated);
+    RUN_TEST(test_Container_add_child_recursive_delete);
+    RUN_TEST(test_Nested_Container_Layout);
     return UNITY_END();
 }
 

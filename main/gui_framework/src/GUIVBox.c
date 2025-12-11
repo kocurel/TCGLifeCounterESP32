@@ -13,10 +13,7 @@ void GUIVBox_delete(GUIComponent* self) {
         return;
     }
     GUIVBox* vbox = (GUIVBox*)self;
-    if (vbox == NULL) {
-        return;
-    }
-    self->delete(&vbox->base.base);
+    GUIContainer_delete(&vbox->base);
     free(vbox);
 }
 static void GUIVbox_update_layout(GUIComponent* base) {

@@ -3,7 +3,7 @@
 #include <stddef.h>
 
 #include "Debug.h"
-void GUIContainer_delete(GUIComponent* self) {
+void GUIContainer_delete(GUIContainer* self) {
     GUI_TRACE("GUIContainer_delete", "Deleting GUIContainer at address %p",
               self);
     if (self == NULL) {
@@ -58,7 +58,6 @@ void GUIContainer_init(GUIContainer* self, void(layout)(GUIComponent* base)) {
     GUIComponent_init(&self->base);
     self->base.layout = layout;
     self->base.draw = GUIContainer_draw;
-    self->base.delete = GUIContainer_delete;
     self->count = 0;
     self->padding = 0;
     self->spacing = 0;
