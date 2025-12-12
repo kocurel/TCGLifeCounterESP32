@@ -10,6 +10,7 @@
 // --- 1. Define the Data Structure for the Page ---
 typedef struct {
     int selected_index;
+    GUIComponent* focused_component;
     GUIVBox root_vbox;
     GUIHBox row_top;
     GUIHBox row_bot;
@@ -86,56 +87,53 @@ static void MainPage_update() {
     int selected_label_id = data->selected_index;
     uint8_t x, y, w, h;
 
-    // Note: data->lbl_p1 is a struct, so we pass its address (&)
-    if (selected_label_id == 1)
-        GUIComponent_get_xywh((GUIComponent*)&data->lbl_p1, &x, &y, &w, &h);
-    else if (selected_label_id == 2)
-        GUIComponent_get_xywh((GUIComponent*)&data->lbl_p2, &x, &y, &w, &h);
-    else if (selected_label_id == 3)
-        GUIComponent_get_xywh((GUIComponent*)&data->lbl_p3, &x, &y, &w, &h);
-    else if (selected_label_id == 4)
-        GUIComponent_get_xywh((GUIComponent*)&data->lbl_p4, &x, &y, &w, &h);
+    if (data->focused_component != NULL) {
+        uint8_t x, y, w, h;
 
-    GUIRenderer_draw_frame(x, y, w, h);
+        // Get dimensions of the currently focused object directly
+        GUIComponent_get_xywh(data->focused_component, &x, &y, &w, &h);
+
+        // Draw frame around it
+        GUIRenderer_draw_frame(x, y, w, h);
+    }
     GUIRenderer_send_buffer();
 }
 
 static void MainPage_handle_input(ButtonCode button) {
     MainPageData* data = (MainPageData*)current_page.data;
-    if (data == NULL) return;
+    if (data == NULL || data->focused_component == NULL) return;
 
-    int selected_label = data->selected_index;
+    GUIComponent* next_focus = NULL;
 
     switch (button) {
-        case BUTTON_CODE_ACCEPT:
-            break;
-        case BUTTON_CODE_CANCEL:
-            break;
-        case BUTTON_CODE_MENU:
-            break;
-        case BUTTON_CODE_SET:
-            break;
-        // Navigation Logic
-        case BUTTON_CODE_LEFT:
-            if (selected_label == 2) data->selected_index = 1;
-            if (selected_label == 4) data->selected_index = 3;
-            break;
-        case BUTTON_CODE_RIGHT:
-            if (selected_label == 1) data->selected_index = 2;
-            if (selected_label == 3) data->selected_index = 4;
-            break;
         case BUTTON_CODE_UP:
-            if (selected_label == 3) data->selected_index = 1;
-            if (selected_label == 4) data->selected_index = 2;
+            next_focus = data->focused_component->nav_up;
             break;
         case BUTTON_CODE_DOWN:
-            if (selected_label == 1) data->selected_index = 3;
-            if (selected_label == 2) data->selected_index = 4;
+            next_focus = data->focused_component->nav_down;
             break;
+        case BUTTON_CODE_LEFT:
+            next_focus = data->focused_component->nav_left;
+            break;
+        case BUTTON_CODE_RIGHT:
+            next_focus = data->focused_component->nav_right;
+            break;
+
+        case BUTTON_CODE_ACCEPT:
+            // Handle clicking the focused item
+            // e.g., if (data->focused_component ==
+            // (GUIComponent*)&data->lbl_p1) ...
+            break;
+
         default:
             break;
     }
-    MainPage_update();
+
+    // Only update if a valid neighbor exists in that direction
+    if (next_focus != NULL) {
+        data->focused_component = next_focus;
+        MainPage_update();  // Redraw to show new selection
+    }
 }
 
 // --- Initialization (Replaces MainPage_set) ---
@@ -157,6 +155,19 @@ static void MainPage_enter() {
     GUILabel_init(&main_page.lbl_p2, "");
     GUILabel_init(&main_page.lbl_p3, "");
     GUILabel_init(&main_page.lbl_p4, "");
+
+    // Link Top Row (P1 <-> P2)
+    GUI_LINK_HORIZONTAL(&main_page.lbl_p1, &main_page.lbl_p2);
+
+    // Link Bottom Row (P3 <-> P4)
+    GUI_LINK_HORIZONTAL(&main_page.lbl_p3, &main_page.lbl_p4);
+
+    // Link Columns (P1 <-> P3) and (P2 <-> P4)
+    GUI_LINK_VERTICAL(&main_page.lbl_p1, &main_page.lbl_p3);
+    GUI_LINK_VERTICAL(&main_page.lbl_p2, &main_page.lbl_p4);
+
+    // Set initial focus
+    main_page.focused_component = (GUIComponent*)&main_page.lbl_p1;
 
     // 4. Configure Properties
     GUILabel_upside_down_en(&main_page.lbl_p1, true);

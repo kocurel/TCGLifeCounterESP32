@@ -1,7 +1,6 @@
 #ifndef GUILIST_H
 #define GUILIST_H
 
-#include "GUIComponent.h"
 #include "GUIFramework.h"
 
 typedef struct GUIList GUIList;
@@ -12,7 +11,6 @@ typedef struct {
     const char* (*get_item)(void* context, uint32_t index);
     uint32_t (*get_count)(void* context);
 } GUIListDelegate;
-
 
 // Public API
 GUIList* GUIList_new(GUIListDelegate delegate);

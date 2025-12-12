@@ -1,8 +1,7 @@
-#include "GUIComponent.h"
-
 #include <stddef.h>
 
 #include "Debug.h"
+#include "GUIFramework.h"
 
 void GUIComponent_init(GUIComponent* self) {
     GUI_TRACE("GUIComponent_init", "Initiating GUIComponent at address %p",
@@ -16,6 +15,11 @@ void GUIComponent_init(GUIComponent* self) {
     self->height = 0;
     self->draw = NULL;
     self->layout = NULL;
+
+    self->nav_up = NULL;
+    self->nav_down = NULL;
+    self->nav_left = NULL;
+    self->nav_right = NULL;
 }
 
 void GUIComponent_set_pos(GUIComponent* self, uint8_t x, uint8_t y) {

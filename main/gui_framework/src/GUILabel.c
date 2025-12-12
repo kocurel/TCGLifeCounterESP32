@@ -1,7 +1,6 @@
 #include <stdio.h>   // Required for snprintf
 #include <string.h>  // Required for memset (optional but good practice)
 
-#include "GUIComponent.h"
 #include "GUIFramework.h"
 
 // --- Private Delegate ---

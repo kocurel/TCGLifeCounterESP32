@@ -1,10 +1,8 @@
-#include "GUIContainer.h"
-
 #include <memory.h>
 #include <stddef.h>
 
 #include "Debug.h"
-#include "GUIComponent.h"
+#include "GUIFramework.h"
 
 static void GUIContainer_draw(GUIComponent* self) {
     GUI_TRACE("GUIContainer_draw", "Drawing GUIContainer at address %p", self);
