@@ -30,8 +30,6 @@ typedef enum {
     BUTTON_CODE_MENU = BUTTON_MENU
 } ButtonCode;
 
-typedef struct Button;
-
 void Button_assign_callback(ButtonCode button, void (*callback)(void));
 
 void Button_handle_press(ButtonCode button);

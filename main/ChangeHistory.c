@@ -5,38 +5,6 @@
 #include "esp_heap_caps.h"
 #include "memory.h"
 
-void ChangeHistory_initialize(ChangeHistory* history) {
-    history->head = 0;
-    history->count = 0;
-}
-
-ChangeHistory* ChangeHistory_create() {
-    ChangeHistory* newHistory = (ChangeHistory*)malloc(sizeof(ChangeHistory));
-    for (int i = 0; i < HISTORY_MAX_CAPACITY - 1; i++) {
-        ValueChange emptyValueChange = {0, 0, 0, 0};
-        newHistory->changes[i] = emptyValueChange;
-        newHistory->count = 0;
-        newHistory->head = 0;
-    }
-    return newHistory;
-}
-
-void ChangeHistory_add_change(ChangeHistory* history, ValueChange new_change) {
-    // 1. Write the new change to the current head position
-    history->changes[history->head] = new_change;
-
-    // 2. Advance the head index and wrap it around using the modulo operator
-    history->head = (history->head + 1) % HISTORY_MAX_CAPACITY;
-
-    // 3. Update the count
-    if (history->count < HISTORY_MAX_CAPACITY) {
-        // If the buffer is not full, increment the count
-        history->count++;
-    }
-    // If the buffer IS full, the new item overwrote the oldest item,
-    // so the count stays at HISTORY_MAX_CAPACITY.
-}
-
 ValueChange* ChangeHistory_get_changes(const ChangeHistory* history,
                                        int* out_count) {
     *out_count = history->count;

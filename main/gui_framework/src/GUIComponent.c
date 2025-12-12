@@ -16,7 +16,6 @@ void GUIComponent_init(GUIComponent* self) {
     self->height = 0;
     self->draw = NULL;
     self->layout = NULL;
-    self->delete = NULL;
 }
 
 void GUIComponent_set_pos(GUIComponent* self, uint8_t x, uint8_t y) {
@@ -43,21 +42,8 @@ void GUIComponent_get_xywh(GUIComponent* self, uint8_t* x, uint8_t* y,
 }
 void GUIComponent_draw(GUIComponent* self) {
     GUI_TRACE("GUIComponent_draw", "Drawing GUIComponent at address %p", self);
-    if (self == NULL) {
-        return;
-    }
+
     if (self != NULL && self->draw != NULL) {
         self->draw(self);
-    }
-}
-
-void GUIComponent_delete(GUIComponent* self) {
-    GUI_TRACE("GUIComponent_delete", "Deleting GUIComponent at address %p",
-              self);
-    if (self == NULL) {
-        return;
-    }
-    if (self->delete != NULL) {
-        self->delete(self);
     }
 }

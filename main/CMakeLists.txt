@@ -2,8 +2,8 @@ idf_component_register(SRCS "console_init.c"  "Button.c" "ViewModel.c" "ViewCont
                         "ChangeHistory.c"
                         "DiceRoller.c"
                         "Game.c"
-                        "GameSettings.c"
-                        "Player.c"
+                       
+                       
                        
                         "Button.c"
                         "ViewModel.c"

@@ -10,19 +10,55 @@
 typedef struct GUILabel GUILabel;
 typedef struct GUIHBox GUIHBox;
 typedef struct GUIVBox GUIVBox;
+
 typedef struct GUIComponent GUIComponent;
 typedef struct GUIContainer GUIContainer;
 
-GUIVBox* GUIVBox_new();
-GUIHBox* GUIHBox_new();
-GUILabel* GUILabel_new();
+#define MAX_CONTAINER_CHILDREN 8
+#define LABEL_MAX_SIZE 24
+
+struct GUIComponent {
+    void (*draw)(GUIComponent* self);
+    void (*layout)(GUIComponent* self);
+    uint8_t x;
+    uint8_t y;
+    uint8_t width;
+    uint8_t height;
+};
+
+struct GUIContainer {
+    GUIComponent base;
+    void (*add_child)(GUIContainer* self, GUIComponent* child);
+    GUIComponent* children[MAX_CONTAINER_CHILDREN];
+    int count;
+    int spacing;
+    int padding;
+};
+
+struct GUIHBox {
+    GUIContainer base;
+};
+
+struct GUIVBox {
+    GUIContainer base;
+};
+
+struct GUILabel {
+    GUIComponent base;
+    char text[LABEL_MAX_SIZE];
+    uint8_t font_size;
+    bool isUpsideDown;
+};
+
+void GUIHBox_init(GUIHBox* self);
+void GUIVBox_init(GUIVBox* self);
+void GUILabel_init(GUILabel* self, const char* text);
 
 void GUIComponent_set_pos(GUIComponent* self, uint8_t x, uint8_t y);
 void GUIComponent_set_size(GUIComponent* self, uint8_t width, uint8_t height);
 void GUIComponent_get_xywh(GUIComponent* self, uint8_t* x, uint8_t* y,
                            uint8_t* width, uint8_t* height);
 void GUIComponent_draw(GUIComponent* self);
-void GUIComponent_delete(GUIComponent* self);
 
 void GUIContainer_set_padding(GUIContainer* self, int padding);
 void GUIContainer_set_spacing(GUIContainer* self, int spacing);
@@ -31,7 +67,7 @@ void GUIContainer_update_layout(GUIContainer* self);
 
 void GUILabel_set_text(GUILabel* self, const char* str);
 void GUILabel_set_font_size(GUILabel* self, uint8_t font);
-void GUILabel_upside_down_en(GUILabel* self, int flag);
+void GUILabel_upside_down_en(GUILabel* self, bool flag);
 
 #define GUI_SET_SIZE(comp, w, h) \
     GUIComponent_set_size((GUIComponent*)(comp), (uint8_t)(w), (uint8_t)(h))
@@ -54,11 +90,9 @@ void GUILabel_upside_down_en(GUILabel* self, int flag);
     GUIContainer_set_padding((GUIContainer*)container, (int)padding)
 #define GUI_SET_TEXT(label, text) GUILabel_set_text((GUILabel*)label, text);
 
-#define GUI_DELETE(comp) GUIComponent_delete((GUIComponent*)comp)
-
 #define GUI_SET_FONT_SIZE(label, size) \
     GUILabel_set_font_size((GUILabel*)label, (uint8_t)size)
 
 #define GUI_SET_TEXT_UPSIDE_DOWN(label, flag) \
-    GUILabel_upside_down_en((GUILabel*)label, (int)flag)
+    GUILabel_upside_down_en((GUILabel*)label, (bool)flag)
 #endif  // GUIFRAMEWORK_H

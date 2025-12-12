@@ -28,9 +28,9 @@ int run_tests() {
 }
 
 void app_main(void) {
-    run_tests();
+    // run_tests();
     ViewModel_init();
-    // comamnd line interface
+    //   comamnd line interface
     initialize_console();
 
     /* Register commands */

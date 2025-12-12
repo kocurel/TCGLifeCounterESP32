@@ -1,62 +1,38 @@
-#ifndef GAMEMODEL_H
-#define GAMEMODEL_H
-#include "ChangeHistory.h"
-#include "GameSettings.h"
+#include <stdint.h>
+#define MAX_NUMBER_OF_PLAYERS 4
+#define NUMBER_OF_VALUES 8
+#define PLAYER_NAME_MAX_LENGTH 24
+#define VALUE_NAME_MAX_LENGTH 24
+#define HISTORY_MAX_CAPACITY 2000
 
-/**
- * Initializes the Game with the provided settings.
- * @param game The Game to initialize.
- * @param settings The GameSettings to apply.
- */
+typedef struct Player Player;
+typedef struct ChangeHistory ChangeHistory;
+typedef struct ValueChange ValueChange;
+typedef struct Game Game;
+
+struct Player {
+    char name[PLAYER_NAME_MAX_LENGTH];
+    int32_t values[NUMBER_OF_VALUES];
+};
+
+struct ValueChange {
+    int32_t difference;
+    uint8_t player_index;
+    uint8_t value_index;
+};
+
+struct ChangeHistory {
+    ValueChange changes[HISTORY_MAX_CAPACITY];
+    uint16_t head;
+    uint16_t count;
+};
+
+struct Game {
+    ChangeHistory history;
+    Player players[MAX_NUMBER_OF_PLAYERS];
+    char value_names[NUMBER_OF_VALUES][VALUE_NAME_MAX_LENGTH];
+    uint8_t number_of_players;
+};
 void Game_init();
-
-int32_t Game_get_player_life(int id);
-/**
- * Retrieves the change history as a dynamically allocated array.
- * The caller is responsible for freeing the returned array using free().
- * @param out_count Pointer to an integer where the number of changes will be
- * stored.
- */
-ValueChange* Game_get_change_history_alloc(int* out_count);
-/**
- * Applies a ValueChange to the Game by updating the relevant player's
- * value. Also adds the change to the change history.
- * @param change The ValueChange to apply.
- */
-void Game_apply_ValueChange(ValueChange change);
-/**
- * Sets the number of players in the Game's settings.
- * @param number_of_players The new number of players to set.
- */
-void Game_set_number_of_players(int number_of_players);
-/**
- * Sets the starting life total in the Game's settings.
- * @param starting_life_total The new starting life total to set.
- */
-void Game_set_starting_life_total(int starting_life_total);
-/**
- * Sets the name of a value in the Game's settings
- * @param index The index of the value to set the name for.
- * @param name The new name to set.
- */
-void Game_set_value_name(int index, const char* name);
-/**
- * Sets the name of a player in the Game.
- * @param player_index The index of the player to set the name for.
- * @param name The new name to set.
- */
-void Game_set_player_name(int player_index, const char* name);
-/**
- * Resets the Game to its initial state based on current settings.
- */
-void Game_reset();
-/**
- * Undoes a specified number of changes in the Game's change history.
- * @param num_changes The number of changes to undo.
- */
-void Game_undo_changes(int num_changes);
-/**
- * Retrieves the Players of the Game.
- */
-// const Players* Game_get_Players(model);
-#endif  // GAMEMODEL_H
+void Game_set_value(int32_t value, uint8_t player_id, uint8_t value_id);
+int32_t Game_get_value(uint8_t player_id, uint8_t value_id);

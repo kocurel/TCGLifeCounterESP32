@@ -1,95 +1,102 @@
 #include "Game.h"
 
-#include "GameSettings.h"
-#include "Player.h"
-
-typedef struct {
-    Player players[4];
-    ChangeHistory change_history;
-} Game;
+#include <stdio.h>   // Required for snprintf
+#include <string.h>  // Required for memset and snprintf
 
 static Game game;
 
 void Game_init() {
-    for (int i = 0; i < 4; i++) {
-        game.players[i].player_values[0] =
-            GameSettings_get_starting_life_total();
+    memset(&game, 0, sizeof(Game));
+
+    game.number_of_players = 4;
+
+    const char* defaults[NUMBER_OF_VALUES] = {"Health",  "Mana",  "Strength",
+                                              "Defense", "Speed", "Gold",
+                                              "XP",      "Level"};
+
+    for (int i = 0; i < NUMBER_OF_VALUES; i++) {
+        snprintf(game.value_names[i], VALUE_NAME_MAX_LENGTH, "%s", defaults[i]);
     }
-    ChangeHistory_initialize(&game.change_history);
+
+    for (int i = 0; i < MAX_NUMBER_OF_PLAYERS; i++) {
+        snprintf(game.players[i].name, PLAYER_NAME_MAX_LENGTH, "Player %d",
+                 i + 1);
+
+        game.players[i].values[0] = 20;
+    }
 }
 
-int32_t Game_get_player_life(int id) {
-    return game.players[id].player_values[0];
+const char* Game_get_value_name(int index) {
+    if (index >= NUMBER_OF_VALUES || index < 0) {
+        // log error
+        return NULL;
+    }
+    return game.value_names[index];
 }
 
-/**
- * Retrieves the change history as a dynamically allocated array.
- * The caller is responsible for freeing the returned array using
- * @param out_count Pointer to an integer where the number of changes will be
- * stored.
- * @returns A pointer to the dynamically allocated array of ValueChange.
- */
-// ValueChange* Game_get_change_history_alloc(const Game* model, int* out_count)
-// {
-//     return ChangeHistory_get_changes(&model->change_history, out_count);
-// }
-/**
- * Applies a ValueChange to the Game by updating the relevant player's
- * value. Also adds the change to the change history.
- * @param change The ValueChange to apply.
- */
-// void Game_apply_ValueChange(Game* model, ValueChange change) {
-// Player_set_value(&model->players.players_data[change.player_index],
-//                  change.value_index, change.new_value);
-// ChangeHistory_add_change(&model->change_history, change);
-// }
-// /**
-//  * Sets the number of players in the Game's settings.
-//  * @param number_of_players The new number of players to set.
-//  */
-// void Game_set_number_of_players(Game* model, int number_of_players) {
-//     GameSettings_set_number_of_players(&model->settings, number_of_players);
-// }
-// /**
-//  * Sets the starting life total in the Game's settings.
-//  * @param starting_life_total The new starting life total to set.
-//  */
-// void Game_set_starting_life_total(Game* model, int starting_life_total) {
-//     GameSettings_set_starting_life_total(&model->settings,
-//     starting_life_total);
-// }
-// /**
-//  * Sets the name of a value in the Game's settings.
-//  * @param index The index of the value to set the name for.
-//  * @param name The new name to set.
-//  */
-// void Game_set_value_name(Game* model, int index, const char* name) {
-//     GameSettings_set_value_name(&model->settings, index, name);
-// }
-// /**
-//  * Sets the name of a player in the Game.
-//  * @param player_index The index of the player to set the name for.
-//  * @param name The new name to set.
-//  */
-// void Game_set_player_name(Game* model, int player_index, const char* name) {
-//     Player_set_name(&model->players.players_data[player_index], name);
-// }
-/**
- * Resets the Game with current settings.
- */
-void Game_reset() {
-    // gameplayers = Players_new(GameSettings_get_number_of_players());
-    ChangeHistory_initialize(&game.change_history);
+void* delegate_get_player_value(void* data_source, int index) {
+    struct Player* p = (Player*)data_source;
+    if (index < 0 || index >= NUMBER_OF_VALUES) {
+        // log error
+        return NULL;
+    }
+    return &p->values[index];
 }
-/**
- * Undoes a specified number of changes in the Game's change history.
- * @param num_changes The number of changes to undo.
- */
-// void Game_undo_changes(Game* model, int num_changes) {
-//     ChangeHistory_undo_changes(&model->change_history, &model->players,
-//                                num_changes);
-// }
-/**
- * Retrieves the Players of the Game.
- */
-// const Players* Game_get_Players(Game* model) { return &model->players; }
+
+int delegate_get_value_count() { return NUMBER_OF_VALUES; }
+
+char* delegate_format_value(void* item, int index) {
+    if (item == NULL || index < 0 || index >= NUMBER_OF_VALUES) {
+        // log error
+        return NULL;
+    }
+    int32_t* value = (int32_t*)item;
+    const char* value_name = Game_get_value_name(index);
+    static char buffer[VALUE_NAME_MAX_LENGTH + 48];
+    sprintf(buffer, "%s: %ld", value_name, *value);
+    return buffer;
+}
+
+void History_add_change(ValueChange new_change) {
+    game.history.changes[game.history.head] = new_change;
+
+    game.history.head = (game.history.head + 1) % HISTORY_MAX_CAPACITY;
+
+    if (game.history.count < HISTORY_MAX_CAPACITY) {
+        game.history.count++;
+    }
+}
+
+void Game_set_value(int32_t new_value, uint8_t player_id, uint8_t value_id) {
+    if (player_id >= MAX_NUMBER_OF_PLAYERS || value_id >= NUMBER_OF_VALUES) {
+        // Log error and return early
+        return;
+    }
+    int32_t* current_value_ptr = &game.players[player_id].values[value_id];
+    int32_t current_value = *current_value_ptr;
+
+    if (new_value == current_value) {
+        return;
+    }
+
+    int32_t difference = new_value - current_value;
+
+    *current_value_ptr = new_value;
+
+    ValueChange change = {.difference = difference,
+                          .player_index = player_id,
+                          .value_index = value_id};
+
+    History_add_change(change);
+}
+
+int32_t Game_get_value(uint8_t player_id, uint8_t value_id) {
+    // 1. Validation (Safety check for both parameters)
+    if (player_id >= MAX_NUMBER_OF_PLAYERS || value_id >= NUMBER_OF_VALUES) {
+        // Log error (or use your Debug.h trace macro) here
+        // Return a safe default (0) to prevent crashing the caller.
+        return 0;
+    }
+    // 2. Access the value
+    return (int32_t)game.players[player_id].values[value_id];
+}
