@@ -1,0 +1,59 @@
+#include "PlayerPage.h"
+
+#include "GUIFramework.h"
+#include "MainPage.h"
+#include "app/GameDelegates.h"
+#include "app/PageManager.h"
+#include "model/Game.h"
+
+static GUIList list = {0};
+static GUILabel player_lbl = {0};
+static bool is_initialized = false;
+
+void PlayerPage_update() {
+    GUIRenderer_clear_buffer();
+    GUI_DRAW(&list);
+    GUI_DRAW(&player_lbl);
+    GUIRenderer_draw_horizontal_line(13);
+    GUIRenderer_send_buffer();
+}
+
+void PlayerPage_handle_input(ButtonCode button) {
+    switch (button) {
+        case BUTTON_CODE_DOWN:
+            GUIList_down(&list);
+            PlayerPage_update();
+            break;
+        case BUTTON_CODE_UP:
+            GUIList_up(&list);
+            PlayerPage_update();
+            break;
+        case BUTTON_CODE_CANCEL:
+            MainPage_enter();
+            break;
+        default:
+            break;
+    }
+}
+
+void PlayerPage_enter(int player_id) {
+    if (!is_initialized) {
+        GUIList_init(&list, Game_get_player(player_id),
+                     delegate_get_value_count, delegate_get_player_value,
+                     delegate_format_player_value);
+        GUI_SET_POS(&list, 0, 14);
+        GUI_SET_SIZE(&list, 118, 44);
+
+        GUILabel_init(&player_lbl, Game_get_player(player_id)->name);
+        GUI_SET_SIZE(&player_lbl, 128, 12);
+        GUI_SET_FONT_SIZE(&player_lbl, 7);
+
+        is_initialized = true;
+    }
+
+    Page new_page = {0};
+    new_page.handle_input = PlayerPage_handle_input;
+    PageManager_switch_page(&new_page);
+
+    PlayerPage_update();
+}

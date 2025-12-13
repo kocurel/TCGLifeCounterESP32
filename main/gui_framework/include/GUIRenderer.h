@@ -23,5 +23,5 @@ uint8_t GUIRenderer_get_string_width(const char* str);
 int8_t GUIRenderer_get_ascent();
 int8_t GUIRenderer_get_descent();
 void GUIRenderer_set_contrast(uint8_t contrast);
-
+void GUIRenderer_draw_horizontal_line(int y);
 #endif  // GUIRENDERER_H

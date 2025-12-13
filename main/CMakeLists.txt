@@ -1,12 +1,13 @@
-idf_component_register(SRCS "console_init.c"  "Button.c" "ViewModel.c" "ViewController.c" "main.c"
-                        "ChangeHistory.c"
-                        "DiceRoller.c"
-                        "Game.c"
+idf_component_register(SRCS "console_init.c"  "model/Button.c"  "ViewController.c" "main.c"
+                        "model/ChangeHistory.c"
+                        "model/DiceRoller.c"
+                        "model/Game.c"
                        
-                        "ViewModel.c"
-
+                        "app/pages/MainPage.c"
+                        "app/pages/PlayerPage.c"
+                        "app/PageManager.c"
+                        "app/GameDelegates.c"
                         PRIV_REQUIRES spi_flash driver console
                         REQUIRES "gui_framework"
-                        INCLUDE_DIRS "../components/u8g2/csrc"
-                                    "../components/u8g2-hal-esp-idf/include"
-                                    ".")
+                        INCLUDE_DIRS "."
+)

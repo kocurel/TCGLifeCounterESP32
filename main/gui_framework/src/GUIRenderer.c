@@ -90,3 +90,7 @@ void GUIRenderer_set_contrast(uint8_t contrast) {
     GUI_TRACE("GUIRenderer_set_contrast", "Setting OLED contrast");
     u8g2_SetContrast(&u8g2_context, contrast);
 }
+
+void GUIRenderer_draw_horizontal_line(int y) {
+    u8g2_DrawHLine(&u8g2_context, 0, y, 128);
+}

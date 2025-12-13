@@ -70,11 +70,11 @@ void GUIContainer_add_child(GUIContainer* self, GUIComponent* child) {
     self->children[self->count++] = child;
 }
 
-void GUIContainer_add_multiple(GUIContainer* self, GUIComponent** children) {
+void GUIContainer_add_multiple(GUIContainer* self, void** children) {
     if (self == NULL || children == NULL) return;
 
     for (int i = 0; children[i] != NULL; i++) {
-        GUIContainer_add_child(self, children[i]);
+        GUIContainer_add_child(self, (GUIComponent*)children[i]);
     }
 }
 

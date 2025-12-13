@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "ViewController.h"
+#include "app/pages/MainPage.h"
 #include "argtable3/argtable3.h"
 #include "console_init.h"
 #include "driver/uart.h"
@@ -11,6 +12,7 @@
 #include "esp_vfs_dev.h"
 #include "gui_framework/include/test/GUItests.h"
 #include "linenoise/linenoise.h"
+#include "model/Game.h"
 #include "soc/soc_caps.h"
 
 int run_tests() {
@@ -28,8 +30,10 @@ int run_tests() {
 
 void app_main(void) {
     // run_tests();
-    ViewModel_init();
-    //   comamnd line interface
+    GUIRenderer_init();
+    Game_init();
+    MainPage_enter();
+    // comamnd line interface
     initialize_console();
 
     /* Register commands */

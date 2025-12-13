@@ -1,7 +1,6 @@
 #include "GUIFramework.h"
 
-#define LIST_ROW_HEIGHT 12
-#define LIST_TEXT_PADDING 2
+#define LIST_ROW_HEIGHT 11
 
 static void GUIList_draw(GUIComponent* base) {
     // 1. Cast Base to Specific
@@ -40,24 +39,17 @@ static void GUIList_draw(GUIComponent* base) {
         // B. Calculate Screen Position
         // relative_y is 0 for the first item on the page, 1 for the second,
         // etc.
-        int relative_y = i * LIST_ROW_HEIGHT;
+        uint8_t relative_y = (i + 1) * LIST_ROW_HEIGHT;
         int x = self->base.x;
         int y = self->base.y + relative_y;
 
-        // C. Draw Selection Indicator
+        GUIRenderer_set_font_size(7);
         if (item_index == self->selected_index) {
-            // Draw a box around the selected item
-            GUIRenderer_draw_frame(x, y, self->base.width, LIST_ROW_HEIGHT);
-
-            // Optional: You could fill the rect or invert colors here
-            // GUIRenderer_fill_rect(x, y, self->base.width, LIST_ROW_HEIGHT);
+            GUIRenderer_draw_str(x, y, ">");
+            x += 8;
         }
 
-        // D. Draw Text
-        // We add a little padding so text isn't stuck to the edge
-        GUIRenderer_set_font_size(10);  // Ensure consistent font size
-        GUIRenderer_draw_str(x + LIST_TEXT_PADDING, y + LIST_TEXT_PADDING,
-                             display_string);
+        GUIRenderer_draw_str(x, y, display_string);
     }
 }
 void GUIList_init(GUIList* self, void* data_source,
@@ -73,7 +65,15 @@ void GUIList_init(GUIList* self, void* data_source,
     self->selected_index = 0;
 }
 
-void GUIList_draw(GUIComponent* self) {
-    GUIList* list = (GUIList*)self;
-    // draw;
+void GUIList_up(GUIList* self) {
+    self->selected_index--;
+    if (self->selected_index < 0) {
+        self->selected_index = 0;
+    }
+}
+
+void GUIList_down(GUIList* self) {
+    self->selected_index++;
+    if (self->selected_index >= self->get_count(self->data_source))
+        self->selected_index = self->get_count(self->data_source) - 1;
 }

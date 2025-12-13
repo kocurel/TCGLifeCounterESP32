@@ -82,7 +82,7 @@ void GUIComponent_draw(GUIComponent* self);
 void GUIContainer_set_padding(GUIContainer* self, int padding);
 void GUIContainer_set_spacing(GUIContainer* self, int spacing);
 void GUIContainer_add_child(GUIContainer* self, GUIComponent* child);
-void GUIContainer_add_multiple(GUIContainer* self, GUIComponent** children);
+void GUIContainer_add_multiple(GUIContainer* self, void** children);
 void GUIContainer_update_layout(GUIContainer* self);
 
 void GUILabel_set_text(GUILabel* self, const char* str);
@@ -90,7 +90,7 @@ void GUILabel_set_font_size(GUILabel* self, uint8_t font);
 void GUILabel_upside_down_en(GUILabel* self, bool flag);
 
 void GUIList_up(GUIList* self);
-void GUIList_down(GUIList* down);
+void GUIList_down(GUIList* self);
 void GUIList_init(GUIList* self, void* data_source,
                   int (*get_count)(void* data),
                   void* (*get_item)(void* data, int index),
@@ -107,7 +107,7 @@ void GUIList_init(GUIList* self, void* data_source,
 
 #define GUI_ADD_CHILDREN(container, ...)                  \
     GUIContainer_add_multiple((GUIContainer*)(container), \
-                              (GUIComponent*[]){__VA_ARGS__, NULL})
+                              (void*[]){__VA_ARGS__, NULL})
 
 #define GUI_UPDATE_LAYOUT(container) \
     GUIContainer_update_layout((GUIContainer*)container)
