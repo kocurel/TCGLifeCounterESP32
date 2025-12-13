@@ -7,15 +7,19 @@
 #include "Debug.h"
 #include "GUIRenderer.h"
 
+// Finalized GUI components
 typedef struct GUILabel GUILabel;
 typedef struct GUIHBox GUIHBox;
 typedef struct GUIVBox GUIVBox;
+typedef struct GUIList GUIList;
 
+// Abstract base GUI components
 typedef struct GUIComponent GUIComponent;
 typedef struct GUIContainer GUIContainer;
 
+// constants
 #define MAX_CONTAINER_CHILDREN 8
-#define LABEL_MAX_SIZE 24
+#define LABEL_MAX_SIZE 32
 
 struct GUIComponent {
     void (*draw)(GUIComponent* self);
@@ -54,6 +58,15 @@ struct GUILabel {
     bool isUpsideDown;
 };
 
+struct GUIList {
+    GUIComponent base;
+    void* data_source;
+    int (*get_count)(void* data);
+    void* (*get_item)(void* data, int index);
+    char* (*item_to_string)(void* data, int index);
+    int selected_index;
+};
+
 void GUIHBox_init(GUIHBox* self);
 void GUIVBox_init(GUIVBox* self);
 void GUILabel_init(GUILabel* self, const char* text);
@@ -75,6 +88,13 @@ void GUIContainer_update_layout(GUIContainer* self);
 void GUILabel_set_text(GUILabel* self, const char* str);
 void GUILabel_set_font_size(GUILabel* self, uint8_t font);
 void GUILabel_upside_down_en(GUILabel* self, bool flag);
+
+void GUIList_up(GUIList* self);
+void GUIList_down(GUIList* down);
+void GUIList_init(GUIList* self, void* data_source,
+                  int (*get_count)(void* data),
+                  void* (*get_item)(void* data, int index),
+                  char* (*item_to_string)(void* data, int index));
 
 #define GUI_SET_SIZE(comp, w, h) \
     GUIComponent_set_size((GUIComponent*)(comp), (uint8_t)(w), (uint8_t)(h))
