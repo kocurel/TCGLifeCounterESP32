@@ -5,9 +5,7 @@
 
 #include "GUIFramework.h"
 #include "Game.h"
-#include "Utils.h"
 
-// --- 1. Define the Data Structure for the Page ---
 typedef struct {
     int selected_index;
     GUIComponent* focused_component;
@@ -20,23 +18,16 @@ typedef struct {
     GUILabel lbl_p4;
 } MainPageData;
 
-// --- 2. Allocate the Page Statically ---
-// This reserves the memory for the entire page logic and UI tree.
-static MainPageData main_page;
+static MainPageData main_page = {0};
 
-// --- Page Interface Wrapper ---
 typedef struct Page Page;
 struct Page {
     void (*handle_input)(ButtonCode);
     void (*exit)();
-    void* data;  // Points to &main_page
+    void* data;
 };
 
-static Page current_page = {
-    .handle_input = NULL,
-    .exit = NULL,
-    .data = NULL,
-};
+static Page current_page = {0};
 
 // --- Forward Declarations ---
 static void MainPage_update(void);
@@ -82,10 +73,6 @@ static void MainPage_update() {
     GUIRenderer_clear_buffer();
     GUI_UPDATE_LAYOUT(&data->root_vbox);  // Recalculate positions
     GUI_DRAW(&data->root_vbox);
-
-    // Draw Selection Frame
-    int selected_label_id = data->selected_index;
-    uint8_t x, y, w, h;
 
     if (data->focused_component != NULL) {
         uint8_t x, y, w, h;
@@ -139,7 +126,6 @@ static void MainPage_handle_input(ButtonCode button) {
 // --- Initialization (Replaces MainPage_set) ---
 static void MainPage_enter() {
     // 1. Reset Data (Optional but good for safety)
-    memset(&main_page, 0, sizeof(MainPageData));
 
     // 2. Set Default State
     main_page.selected_index = 1;
@@ -173,41 +159,29 @@ static void MainPage_enter() {
     GUILabel_upside_down_en(&main_page.lbl_p1, true);
     GUILabel_upside_down_en(&main_page.lbl_p2, true);
 
-    // 5. Build the Tree (Composition)
-    // Pass addresses of parents and children
-    GUI_ADD_CHILD(&main_page.row_top, &main_page.lbl_p1);
-    GUI_ADD_CHILD(&main_page.row_top, &main_page.lbl_p2);
+    GUI_ADD_CHILDREN(&main_page.row_top, &main_page.lbl_p1, &main_page.lbl_p2);
 
-    GUI_ADD_CHILD(&main_page.row_bot, &main_page.lbl_p3);
-    GUI_ADD_CHILD(&main_page.row_bot, &main_page.lbl_p4);
+    GUI_ADD_CHILDREN(&main_page.row_bot, &main_page.lbl_p3, &main_page.lbl_p4);
 
-    GUI_ADD_CHILD(&main_page.root_vbox, &main_page.row_top);
-    GUI_ADD_CHILD(&main_page.root_vbox, &main_page.row_bot);
+    GUI_ADD_CHILDREN(&main_page.root_vbox, &main_page.row_top,
+                     &main_page.row_bot);
 
-    // 6. Layout Settings
     GUI_SET_SIZE(&main_page.root_vbox, 128, 64);
     GUI_SET_PADDING(&main_page.root_vbox, 5);
     GUI_SET_SPACING(&main_page.row_top, 20);
     GUI_SET_SPACING(&main_page.row_bot, 20);
 
-    // 7. Initial Layout Calculation
     GUI_UPDATE_LAYOUT(&main_page.root_vbox);
 
-    // 8. Assign to Current Page
-    current_page.data = &main_page;  // Point to our static instance
+    current_page.data = &main_page;
     current_page.handle_input = MainPage_handle_input;
     current_page.exit = MainPage_exit;
 
-    // 9. Initial Draw
     MainPage_update();
 }
 
 void ViewModel_init() {
-    // Initialize Systems
-    // GameSettings_init(); // Assuming these exist
     Game_init();
     GUIRenderer_init();
-
-    // Start the App
     MainPage_enter();
 }

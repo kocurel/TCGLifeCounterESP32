@@ -1,13 +1,10 @@
 #include "Game.h"
 
-#include <stdio.h>   // Required for snprintf
-#include <string.h>  // Required for memset and snprintf
+#include <stdio.h>  // Required for snprintf
 
-static Game game;
+static Game game = {0};
 
 void Game_init() {
-    memset(&game, 0, sizeof(Game));
-
     game.number_of_players = 4;
 
     const char* defaults[NUMBER_OF_VALUES] = {"Health",  "Mana",  "Strength",

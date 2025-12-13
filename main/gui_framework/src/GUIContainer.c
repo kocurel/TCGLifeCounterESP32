@@ -70,6 +70,14 @@ void GUIContainer_add_child(GUIContainer* self, GUIComponent* child) {
     self->children[self->count++] = child;
 }
 
+void GUIContainer_add_multiple(GUIContainer* self, GUIComponent** children) {
+    if (self == NULL || children == NULL) return;
+
+    for (int i = 0; children[i] != NULL; i++) {
+        GUIContainer_add_child(self, children[i]);
+    }
+}
+
 void GUIContainer_update_layout(GUIContainer* self) {
     GUI_TRACE("GUIContainer_update_layout",
               "Updating layout of GUIContainer at address %p", self);

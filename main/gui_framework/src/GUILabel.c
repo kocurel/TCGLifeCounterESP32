@@ -1,5 +1,4 @@
-#include <stdio.h>   // Required for snprintf
-#include <string.h>  // Required for memset (optional but good practice)
+#include <stdio.h>  // Required for snprintf
 
 #include "GUIFramework.h"
 

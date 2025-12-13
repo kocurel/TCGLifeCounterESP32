@@ -3,9 +3,6 @@ idf_component_register(SRCS "console_init.c"  "Button.c" "ViewModel.c" "ViewCont
                         "DiceRoller.c"
                         "Game.c"
                        
-                       
-                       
-                        "Button.c"
                         "ViewModel.c"
 
                         PRIV_REQUIRES spi_flash driver console

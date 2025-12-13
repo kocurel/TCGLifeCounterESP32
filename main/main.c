@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "Utils.h"
 #include "ViewController.h"
 #include "argtable3/argtable3.h"
 #include "console_init.h"

@@ -69,6 +69,7 @@ void GUIComponent_draw(GUIComponent* self);
 void GUIContainer_set_padding(GUIContainer* self, int padding);
 void GUIContainer_set_spacing(GUIContainer* self, int spacing);
 void GUIContainer_add_child(GUIContainer* self, GUIComponent* child);
+void GUIContainer_add_multiple(GUIContainer* self, GUIComponent** children);
 void GUIContainer_update_layout(GUIContainer* self);
 
 void GUILabel_set_text(GUILabel* self, const char* str);
@@ -83,6 +84,10 @@ void GUILabel_upside_down_en(GUILabel* self, bool flag);
 
 #define GUI_ADD_CHILD(container, child) \
     GUIContainer_add_child((GUIContainer*)(container), (GUIComponent*)(child))
+
+#define GUI_ADD_CHILDREN(container, ...)                  \
+    GUIContainer_add_multiple((GUIContainer*)(container), \
+                              (GUIComponent*[]){__VA_ARGS__, NULL})
 
 #define GUI_UPDATE_LAYOUT(container) \
     GUIContainer_update_layout((GUIContainer*)container)
@@ -102,14 +107,16 @@ void GUILabel_upside_down_en(GUILabel* self, bool flag);
 #define GUI_SET_TEXT_UPSIDE_DOWN(label, flag) \
     GUILabel_upside_down_en((GUILabel*)label, (bool)flag)
 
-// Helper macro to link two components horizontally (Bidirectional)
-// Usage: GUI_LINK_H(&left_item, &right_item);
+// Helper macro to link two components horizontally
+// (Bidirectional) Usage: GUI_LINK_H(&left_item,
+// &right_item);
 #define GUI_LINK_HORIZONTAL(left, right)                         \
     ((GUIComponent*)(left))->nav_right = (GUIComponent*)(right); \
     ((GUIComponent*)(right))->nav_left = (GUIComponent*)(left)
 
-// Helper macro to link two components vertically (Bidirectional)
-// Usage: GUI_LINK_V(&top_item, &bottom_item);
+// Helper macro to link two components vertically
+// (Bidirectional) Usage: GUI_LINK_V(&top_item,
+// &bottom_item);
 #define GUI_LINK_VERTICAL(top, bottom)                          \
     ((GUIComponent*)(top))->nav_down = (GUIComponent*)(bottom); \
     ((GUIComponent*)(bottom))->nav_up = (GUIComponent*)(top)
