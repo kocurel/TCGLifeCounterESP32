@@ -1,5 +1,6 @@
 #include "MainPage.h"
 
+#include "CommanderPage.h"
 #include "GUIFramework.h"
 #include "PlayerPage.h"
 #include "app/PageManager.h"
@@ -78,7 +79,8 @@ static void MainPage_handle_input(ButtonCode button) {
                 PlayerPage_enter(3);
             }
             break;
-
+        case BUTTON_CODE_CANCEL:
+            CommanderPage_enter();
         default:
             break;
     }

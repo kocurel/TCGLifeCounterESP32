@@ -24,4 +24,6 @@ int8_t GUIRenderer_get_ascent();
 int8_t GUIRenderer_get_descent();
 void GUIRenderer_set_contrast(uint8_t contrast);
 void GUIRenderer_draw_horizontal_line(int y);
+
+void GUIRenderer_set_color(uint8_t color);
 #endif  // GUIRENDERER_H

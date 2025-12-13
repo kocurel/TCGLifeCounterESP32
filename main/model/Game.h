@@ -1,4 +1,7 @@
+#ifndef GAME_H
+#define GAME_H
 #include <stdint.h>
+
 #define MAX_NUMBER_OF_PLAYERS 4
 #define NUMBER_OF_VALUES 8
 #define PLAYER_NAME_MAX_LENGTH 24
@@ -13,6 +16,7 @@ typedef struct Game Game;
 struct Player {
     char name[PLAYER_NAME_MAX_LENGTH];
     int32_t values[NUMBER_OF_VALUES];
+    int32_t commander_damage[4];
 };
 
 struct ValueChange {
@@ -38,3 +42,7 @@ void Game_set_value(int32_t value, uint8_t player_id, uint8_t value_id);
 int32_t Game_get_value(uint8_t player_id, uint8_t value_id);
 Player* Game_get_player(int index);
 const char* Game_get_value_name(int index);
+
+int32_t Game_get_commander_damage(int player_id, int source_id);
+
+#endif  // GAME_H

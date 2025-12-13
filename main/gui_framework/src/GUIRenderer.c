@@ -94,3 +94,6 @@ void GUIRenderer_set_contrast(uint8_t contrast) {
 void GUIRenderer_draw_horizontal_line(int y) {
     u8g2_DrawHLine(&u8g2_context, 0, y, 128);
 }
+void GUIRenderer_set_color(uint8_t color) {
+    u8g2_SetDrawColor(&u8g2_context, color);
+}
