@@ -21,6 +21,10 @@ typedef struct GUIContainer GUIContainer;
 #define MAX_CONTAINER_CHILDREN 8
 #define LABEL_MAX_SIZE 32
 
+#define GUI_ALIGMNENT_CENTER 0
+#define GUI_ALIGMNENT_LEFT 1
+#define GUI_ALIGMNENT_RIGHT 2
+
 struct GUIComponent {
     void (*draw)(GUIComponent* self);
     void (*layout)(GUIComponent* self);
@@ -56,6 +60,7 @@ struct GUILabel {
     char text[LABEL_MAX_SIZE];
     uint8_t font_size;
     bool isUpsideDown;
+    uint8_t alignment;
 };
 
 struct GUIList {
@@ -88,6 +93,7 @@ void GUIContainer_update_layout(GUIContainer* self);
 void GUILabel_set_text(GUILabel* self, const char* str);
 void GUILabel_set_font_size(GUILabel* self, uint8_t font);
 void GUILabel_upside_down_en(GUILabel* self, bool flag);
+void GUILabel_set_alignment(GUILabel* self, uint8_t alignment);
 
 void GUIList_up(GUIList* self);
 void GUIList_down(GUIList* self);

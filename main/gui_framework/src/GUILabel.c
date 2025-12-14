@@ -21,10 +21,25 @@ static void GUILabel_draw(GUIComponent* self) {
     // 4. Draw Normal or Rotated
     if (!label->isUpsideDown) {
         GUIRenderer_rotate_text_disable();
-        // Center text in the bounding box
-        printf("%u\n", text_width);
-        uint8_t x = self->x + (self->width - text_width) / 2;
-        uint8_t y = self->y + text_height + (self->height - text_height) / 2;
+        uint8_t x, y;
+        y = self->y + text_height + (self->height - text_height) / 2;
+        switch (label->alignment) {
+            case GUI_ALIGMNENT_CENTER:
+                // Center text in the bounding box
+                x = self->x + (self->width - text_width) / 2;
+                break;
+            case GUI_ALIGMNENT_LEFT:
+                // Align the text to the left
+                x = self->x;
+                break;
+            case GUI_ALIGMNENT_RIGHT:
+                // Align the text to the right
+                x = self->x + self->width - text_width;
+                break;
+            default:
+                x = 0;
+                break;
+        }
         GUI_TRACE(
             "GUILabel_draw",
             "GUILabel dimensions: x:%u y%u w%u h%u\nText at x:%u y:%u w%u h%u",
@@ -49,6 +64,7 @@ void GUILabel_init(GUILabel* self, const char* initial_text) {
 
     self->font_size = 10;
     self->isUpsideDown = false;
+    self->alignment = GUI_ALIGMNENT_CENTER;
 
     if (initial_text) {
         GUILabel_set_text(self, initial_text);
@@ -70,4 +86,8 @@ void GUILabel_set_font_size(GUILabel* self, uint8_t font_size) {
 void GUILabel_upside_down_en(GUILabel* self, bool flag) {
     if (self == NULL) return;
     self->isUpsideDown = flag;
+}
+void GUILabel_set_alignment(GUILabel* self, uint8_t alignment) {
+    if (self == NULL) return;
+    self->alignment = alignment;
 }
