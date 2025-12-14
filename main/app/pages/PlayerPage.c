@@ -18,6 +18,7 @@ void PlayerPage_update() {
     GUIRenderer_draw_horizontal_line(13);
     GUIRenderer_send_buffer();
 }
+static void PlayerPage_callback(int32_t value);
 
 void PlayerPage_handle_input(ButtonCode button) {
     switch (button) {
@@ -33,15 +34,24 @@ void PlayerPage_handle_input(ButtonCode button) {
             MainPage_enter();
             break;
         case BUTTON_CODE_ACCEPT:
+            int value_index =
+                Game_get_value_name(GUIList_get_current_index(&list));
             ValueEditorPage_enter(
-                "Player1", "Value1",
-                Game_get_value(page_player_id,
-                               GUIList_get_current_index(&list)),
-                NULL);
+                Game_get_player_name(page_player_id),
+                Game_get_value_name(GUIList_get_current_index(&list)),
+                value_index, PlayerPage_callback);
             break;
         default:
             break;
     }
+}
+static void PlayerPage_callback(int32_t value) {
+    Game_set_value(value, page_player_id, GUIList_get_current_index(&list));
+    Page new_page = {0};
+    new_page.handle_input = PlayerPage_handle_input;
+    PageManager_switch_page(&new_page);
+
+    PlayerPage_update();
 }
 
 void PlayerPage_enter(int player_id) {

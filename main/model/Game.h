@@ -42,6 +42,7 @@ void Game_init();
 void Game_set_value(int32_t value, uint8_t player_id, uint8_t value_id);
 int32_t Game_get_value(uint8_t player_id, uint8_t value_id);
 Player* Game_get_player(int index);
+const char* Game_get_player_name(int index);
 const char* Game_get_value_name(int index);
 
 int32_t Game_get_commander_damage(int player_id, int source_id);
