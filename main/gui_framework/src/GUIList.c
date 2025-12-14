@@ -77,3 +77,5 @@ void GUIList_down(GUIList* self) {
     if (self->selected_index >= self->get_count(self->data_source))
         self->selected_index = self->get_count(self->data_source) - 1;
 }
+
+int GUIList_get_current_index(GUIList* self) { return self->selected_index; }

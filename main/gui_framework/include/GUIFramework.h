@@ -95,6 +95,7 @@ void GUIList_init(GUIList* self, void* data_source,
                   int (*get_count)(void* data),
                   void* (*get_item)(void* data, int index),
                   char* (*item_to_string)(void* data, int index));
+int GUIList_get_current_index(GUIList* self);
 
 #define GUI_SET_SIZE(comp, w, h) \
     GUIComponent_set_size((GUIComponent*)(comp), (uint8_t)(w), (uint8_t)(h))

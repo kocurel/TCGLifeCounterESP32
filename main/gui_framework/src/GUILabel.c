@@ -2,22 +2,18 @@
 
 #include "GUIFramework.h"
 
-// --- Private Delegate ---
-// This function remains static so it's hidden from other files.
-// It matches the signature: void (*draw)(GUIComponent* self)
 static void GUILabel_draw(GUIComponent* self) {
     if (self == NULL) return;
 
-    // 1. Cast generic component back to specific Label
     GUILabel* label = (GUILabel*)self;
 
     GUI_TRACE("GUILabel_draw", "Drawing GUILabel at address %p", self);
 
-    // 2. Setup Render State
     GUIRenderer_set_font_size(label->font_size);
 
-    // 3. Calculate Layout
+    // subtracting a magic 1 cause string width calculation sucks
     uint8_t text_width = GUIRenderer_get_string_width(label->text) - 1;
+
     int8_t ascent = GUIRenderer_get_ascent();
     int8_t descent = GUIRenderer_get_descent();
     int8_t text_height = ascent - descent;
@@ -44,40 +40,25 @@ static void GUILabel_draw(GUIComponent* self) {
     }
 }
 
-// --- Public Initializer ---
-// Replaces GUILabel_new().
-// Assumes 'self' points to valid static/stack memory.
 void GUILabel_init(GUILabel* self, const char* initial_text) {
     if (self == NULL) return;
-
     GUI_TRACE("GUILabel_init", "Initializing GUILabel at address %p", self);
-
-    // 1. Initialize Base Component
     GUIComponent_init(&self->base);
 
-    // 2. Assign V-Table (The Core Logic)
     self->base.draw = GUILabel_draw;
-    self->base.layout = NULL;  // Labels usually don't layout children
 
-    // 3. Initialize Label-Specific State
     self->font_size = 10;
     self->isUpsideDown = false;
 
-    // 4. Set Text Safely (No strdup!)
     if (initial_text) {
         GUILabel_set_text(self, initial_text);
     } else {
-        self->text[0] = '\0';  // Empty string
+        self->text[0] = '\0';
     }
 }
 
-// --- Public Methods ---
-
 void GUILabel_set_text(GUILabel* self, const char* str) {
     if (self == NULL || str == NULL) return;
-
-    // FIX: Replaced strdup (heap) with snprintf (static buffer)
-    // Ensures we never overflow the LABEL_MAX_SIZE
     snprintf(self->text, LABEL_MAX_SIZE, "%s", str);
 }
 

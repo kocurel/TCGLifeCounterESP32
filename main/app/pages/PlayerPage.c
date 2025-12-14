@@ -2,13 +2,14 @@
 
 #include "GUIFramework.h"
 #include "MainPage.h"
+#include "ValueEditorPage.h"
 #include "app/GameDelegates.h"
 #include "app/PageManager.h"
 #include "model/Game.h"
-
 static GUIList list = {0};
 static GUILabel player_lbl = {0};
 static bool is_initialized = false;
+static int page_player_id = 0;
 
 void PlayerPage_update() {
     GUIRenderer_clear_buffer();
@@ -31,6 +32,13 @@ void PlayerPage_handle_input(ButtonCode button) {
         case BUTTON_CODE_CANCEL:
             MainPage_enter();
             break;
+        case BUTTON_CODE_ACCEPT:
+            ValueEditorPage_enter(
+                "Player1", "Value1",
+                Game_get_value(page_player_id,
+                               GUIList_get_current_index(&list)),
+                NULL);
+            break;
         default:
             break;
     }
@@ -50,7 +58,7 @@ void PlayerPage_enter(int player_id) {
 
         is_initialized = true;
     }
-
+    page_player_id = player_id;
     Page new_page = {0};
     new_page.handle_input = PlayerPage_handle_input;
     PageManager_switch_page(&new_page);
