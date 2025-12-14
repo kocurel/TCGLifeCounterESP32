@@ -2,6 +2,7 @@
 
 #include "CommanderPage.h"
 #include "GUIFramework.h"
+#include "MenuPage.h"
 #include "PlayerPage.h"
 #include "app/PageManager.h"
 #include "model/Game.h"
@@ -81,6 +82,10 @@ static void MainPage_handle_input(ButtonCode button) {
             break;
         case BUTTON_CODE_CANCEL:
             CommanderPage_enter();
+            break;
+        case BUTTON_CODE_MENU:
+            MenuPage_enter();
+            break;
         default:
             break;
     }
