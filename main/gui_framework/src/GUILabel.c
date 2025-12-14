@@ -17,7 +17,7 @@ static void GUILabel_draw(GUIComponent* self) {
     GUIRenderer_set_font_size(label->font_size);
 
     // 3. Calculate Layout
-    uint8_t text_width = GUIRenderer_get_string_width(label->text);
+    uint8_t text_width = GUIRenderer_get_string_width(label->text) - 1;
     int8_t ascent = GUIRenderer_get_ascent();
     int8_t descent = GUIRenderer_get_descent();
     int8_t text_height = ascent - descent;
@@ -26,8 +26,14 @@ static void GUILabel_draw(GUIComponent* self) {
     if (!label->isUpsideDown) {
         GUIRenderer_rotate_text_disable();
         // Center text in the bounding box
+        printf("%u\n", text_width);
         uint8_t x = self->x + (self->width - text_width) / 2;
         uint8_t y = self->y + text_height + (self->height - text_height) / 2;
+        GUI_TRACE(
+            "GUILabel_draw",
+            "GUILabel dimensions: x:%u y%u w%u h%u\nText at x:%u y:%u w%u h%u",
+            self->x, self->y, self->width, self->height, x, y, text_width,
+            text_height);
         GUIRenderer_draw_str(x, y, label->text);
     } else {
         GUIRenderer_rotate_text_enable();

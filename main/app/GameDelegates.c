@@ -22,7 +22,7 @@ char* delegate_format_player_value(void* item, int index) {
     int32_t* value_ptr = (int32_t*)item;
     int32_t value = *value_ptr;
     const char* value_name = Game_get_value_name(index);
-    static char buffer[VALUE_NAME_MAX_LENGTH + 48];
+    static char buffer[VALUE_NAME_MAX_LENGTH + 12];
     sprintf(buffer, "%s: %ld", value_name, value);
     return buffer;
 }

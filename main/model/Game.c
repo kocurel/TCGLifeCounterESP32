@@ -1,16 +1,16 @@
 #include "Game.h"
 
 #include <stdio.h>  // Required for snprintf
-
+#define NUMBER_OF_DEFAULTS 8
 static Game game = {0};
 
 void Game_init() {
     game.number_of_players = 4;
 
-    const char* defaults[NUMBER_OF_VALUES] = {
+    const char* defaults[NUMBER_OF_DEFAULTS] = {
         "HP", "Poison", "Tax", "Energy", "Storm", "Cmd", "XP", "Level"};
 
-    for (int i = 0; i < NUMBER_OF_VALUES; i++) {
+    for (int i = 0; i < NUMBER_OF_DEFAULTS; i++) {
         snprintf(game.value_names[i], VALUE_NAME_MAX_LENGTH, "%s", defaults[i]);
     }
 
@@ -19,6 +19,7 @@ void Game_init() {
                  i + 1);
 
         game.players[i].values[0] = 20;
+        game.players[i].values[1] = 123456;
     }
 }
 
@@ -77,5 +78,18 @@ int32_t Game_get_value(uint8_t player_id, uint8_t value_id) {
 Player* Game_get_player(int index) { return &game.players[index]; }
 
 int32_t Game_get_commander_damage(int player_id, int source_id) {
-    return game.players[player_id].commander_damage[source_id];
+    return game.players[player_id]
+        .values[COMMANDER_DAMAGE_START_INDEX + source_id];
+}
+
+void Game_deal_commander_damage(int player_id, int source_id, int32_t amount) {
+    game.players[player_id].values[COMMANDER_DAMAGE_START_INDEX + source_id] =
+        (game.players[player_id]
+             .values[COMMANDER_DAMAGE_START_INDEX + source_id] +
+         amount) %
+        999;
+
+    // test
+    game.players[player_id].values[COMMANDER_DAMAGE_START_INDEX + source_id] =
+        9999;
 }

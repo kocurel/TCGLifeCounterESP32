@@ -27,6 +27,8 @@ typedef struct {
 
 static CommanderPageData commander_page = {0};
 static bool is_initialized = false;
+#define BUFFER_SIZE 24
+static char buffer[BUFFER_SIZE];
 
 void CommanderPage_clear_selection() {
     if (commander_page.selected_label != NULL) {
@@ -35,7 +37,7 @@ void CommanderPage_clear_selection() {
         GUIComponent_get_xywh((GUIComponent*)commander_page.selected_label, &x,
                               &y, &w, &h);
         GUIRenderer_set_color(0);
-        GUIRenderer_draw_frame(x + 2, y, w - 4, h);
+        GUIRenderer_draw_frame(x, y, w, h);
         GUIRenderer_set_color(1);
     }
     GUIRenderer_send_buffer();
@@ -48,7 +50,7 @@ void CommanderPage_update_selection() {
         GUIComponent_get_xywh((GUIComponent*)commander_page.selected_label, &x,
                               &y, &w, &h);
 
-        GUIRenderer_draw_frame(x + 2, y, w - 4, h);
+        GUIRenderer_draw_frame(x, y, w, h);
     }
     GUIRenderer_send_buffer();
 }
@@ -60,14 +62,7 @@ void CommanderPage_draw() {
             GUI_DRAW(&commander_page.labels[player_id][source_id]);
         }
     }
-    if (commander_page.selected_label != NULL) {
-        uint8_t x, y, w, h;
-
-        GUIComponent_get_xywh((GUIComponent*)commander_page.selected_label, &x,
-                              &y, &w, &h);
-
-        GUIRenderer_draw_frame(x + 2, y, w - 4, h);
-    }
+    CommanderPage_update_selection();
     GUIRenderer_send_buffer();
 }
 
@@ -105,6 +100,21 @@ void CommanderPage_handle_input(ButtonCode button) {
                 CommanderPage_update_selection();
             }
             break;
+
+        case BUTTON_CODE_ACCEPT:
+            ptrdiff_t array_offset =
+                commander_page.selected_label - &commander_page.labels[0][0];
+            int player_id = array_offset / 4;
+            int source_id = array_offset % 4;
+            Game_deal_commander_damage(player_id, source_id, 1);
+            snprintf(buffer, BUFFER_SIZE, "%ld",
+                     Game_get_commander_damage(player_id, source_id));
+            GUI_SET_TEXT(&commander_page.labels[player_id][source_id], buffer);
+            GUI_DRAW(commander_page.selected_label);
+            CommanderPage_clear_selection();
+            CommanderPage_update_selection();
+            GUIRenderer_send_buffer();
+            break;
         default:
             break;
     }
@@ -127,13 +137,12 @@ void CommanderPage_enter() {
         GUIVBox_init(&commander_page.block_p31);
         GUIVBox_init(&commander_page.block_p40);
         GUIVBox_init(&commander_page.block_p41);
-        char buffer[24];
         for (int player_id = 0; player_id < 4; player_id++) {
             for (int source_id = 0; source_id < 4; source_id++) {
                 GUILabel_init(&commander_page.labels[player_id][source_id], "");
                 GUI_SET_FONT_SIZE(&commander_page.labels[player_id][source_id],
-                                  7);
-                snprintf(buffer, 24, "%ld",
+                                  8);
+                snprintf(buffer, BUFFER_SIZE, "%ld",
                          Game_get_commander_damage(player_id, source_id));
                 GUI_SET_TEXT(&commander_page.labels[player_id][source_id],
                              buffer);
@@ -194,9 +203,9 @@ void CommanderPage_enter() {
 
         GUI_SET_SIZE(&commander_page.root, 128, 64);
         GUI_SET_PADDING(&commander_page.root, 2);
-        GUI_SET_SPACING(&commander_page.root, 10);
-        GUI_SET_SPACING(&commander_page.row_top, 10);
-        GUI_SET_SPACING(&commander_page.row_bot, 10);
+        GUI_SET_SPACING(&commander_page.root, 12);
+        GUI_SET_SPACING(&commander_page.row_top, 16);
+        GUI_SET_SPACING(&commander_page.row_bot, 16);
 
         GUI_UPDATE_LAYOUT(&commander_page.root);
 
