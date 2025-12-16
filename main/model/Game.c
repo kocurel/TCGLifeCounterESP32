@@ -2,7 +2,7 @@
 
 #include <stdio.h>  // Required for snprintf
 #define NUMBER_OF_DEFAULTS 8
-static Game game = {0};
+Game game = {0};
 
 void Game_init() {
     game.number_of_players = 4;
@@ -93,4 +93,18 @@ void Game_deal_commander_damage(int player_id, int source_id, int32_t amount) {
     // test
     game.players[player_id].values[COMMANDER_DAMAGE_START_INDEX + source_id] =
         9999;
+}
+
+ChangeHistory* Game_get_change_history() { return &game.history; }
+
+int Game_get_change_history_count() { return game.history.count; }
+
+ValueChange* Game_get_change(int32_t index) {
+    if (index >= game.history.count) {
+        return NULL;
+    }
+    int32_t element_index =
+        (game.history.head - 1 - index + HISTORY_MAX_CAPACITY) %
+        HISTORY_MAX_CAPACITY;
+    return &game.history.changes[element_index];
 }

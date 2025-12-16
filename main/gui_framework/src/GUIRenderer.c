@@ -13,8 +13,8 @@ void GUIRenderer_init() {
     u8g2_esp32_hal.bus.spi.clk = 18;   // Example pin number for CLK
     u8g2_esp32_hal.bus.spi.mosi = 23;  // Example pin number for MOSI
     u8g2_esp32_hal.bus.spi.cs = 5;     // Example pin number for CS
-    u8g2_esp32_hal.dc = 22;            // Example pin number for DC
-    u8g2_esp32_hal.reset = 21;         // Example pin number for RESET
+    u8g2_esp32_hal.dc = 17;            // Example pin number for DC
+    u8g2_esp32_hal.reset = 16;         // Example pin number for RESET
 
     u8g2_esp32_hal_init(u8g2_esp32_hal);
     u8g2_Setup_ssd1309_128x64_noname0_f(&u8g2_context, U8G2_R0,

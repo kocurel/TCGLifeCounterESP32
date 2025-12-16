@@ -34,12 +34,11 @@ void PlayerPage_handle_input(ButtonCode button) {
             MainPage_enter();
             break;
         case BUTTON_CODE_ACCEPT:
-            int value_index =
-                Game_get_value_name(GUIList_get_current_index(&list));
-            ValueEditorPage_enter(
-                Game_get_player_name(page_player_id),
-                Game_get_value_name(GUIList_get_current_index(&list)),
-                value_index, PlayerPage_callback);
+            int value_index = GUIList_get_current_index(&list);
+            ValueEditorPage_enter(Game_get_player_name(page_player_id),
+                                  Game_get_value_name(value_index),
+                                  Game_get_value(page_player_id, value_index),
+                                  PlayerPage_callback);
             break;
         default:
             break;
@@ -58,7 +57,7 @@ void PlayerPage_enter(int player_id) {
     if (!is_initialized) {
         GUIList_init(&list, Game_get_player(player_id),
                      delegate_get_value_count, delegate_get_player_value,
-                     delegate_format_player_value);
+                     delegate_format_player_value, NULL);
         GUI_SET_POS(&list, 0, 14);
         GUI_SET_SIZE(&list, 118, 44);
 

@@ -1,5 +1,6 @@
 #include "MenuPage.h"
 
+#include "ChangeHistoryPage.h"
 #include "GUIFramework.h"
 #include "MainPage.h"
 #include "app/PageManager.h"
@@ -46,6 +47,9 @@ static void MenuPage_handle_input(ButtonCode button) {
             MainPage_enter();
             break;
         case BUTTON_CODE_ACCEPT:
+            if (menu_page.selected_lbl == &menu_page.history_lbl) {
+                ChangeHistoryPage_enter();
+            }
             break;
         default:
             break;
@@ -68,8 +72,8 @@ void MenuPage_enter() {
                          &menu_page.history_lbl, &menu_page.settings_lbl,
                          &menu_page.new_game_lbl);
         GUI_SET_SIZE(&menu_page.title_lbl, 128, 8);
-        GUI_SET_POS(&menu_page.options, 18, 10);
-        GUI_SET_SIZE(&menu_page.options, 92, 52);
+        GUI_SET_POS(&menu_page.options, 16, 10);
+        GUI_SET_SIZE(&menu_page.options, 96, 52);
         GUI_UPDATE_LAYOUT(&menu_page.options);
         is_initialized = true;
         GUI_LINK_VERTICAL(&menu_page.dice_lbl, &menu_page.history_lbl);

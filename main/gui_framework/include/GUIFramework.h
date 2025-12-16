@@ -69,6 +69,8 @@ struct GUIList {
     int (*get_count)(void* data);
     void* (*get_item)(void* data, int index);
     char* (*item_to_string)(void* data, int index);
+    void (*draw_item)(struct GUIList* list, int index, uint8_t x, uint8_t y,
+                      uint8_t width, uint8_t height, bool is_selected);
     int selected_index;
 };
 
@@ -100,7 +102,10 @@ void GUIList_down(GUIList* self);
 void GUIList_init(GUIList* self, void* data_source,
                   int (*get_count)(void* data),
                   void* (*get_item)(void* data, int index),
-                  char* (*item_to_string)(void* data, int index));
+                  char* (*item_to_string)(void* data, int index),
+                  void (*draw_item)(struct GUIList* list, int index, uint8_t x,
+                                    uint8_t y, uint8_t width, uint8_t height,
+                                    bool is_selected));
 int GUIList_get_current_index(GUIList* self);
 
 #define GUI_SET_SIZE(comp, w, h) \

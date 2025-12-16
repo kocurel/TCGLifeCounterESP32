@@ -28,8 +28,8 @@ struct ValueChange {
 
 struct ChangeHistory {
     ValueChange changes[HISTORY_MAX_CAPACITY];
-    uint16_t head;
-    uint16_t count;
+    int32_t head;
+    int32_t count;
 };
 
 struct Game {
@@ -47,4 +47,8 @@ const char* Game_get_value_name(int index);
 
 int32_t Game_get_commander_damage(int player_id, int source_id);
 void Game_deal_commander_damage(int player_id, int source_id, int32_t amount);
+
+ChangeHistory* Game_get_change_history();
+int Game_get_change_history_count();
+ValueChange* Game_get_change(int32_t index);
 #endif  // GAME_H
