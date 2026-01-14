@@ -47,7 +47,7 @@ static void MenuPage_handle_input(ButtonCode button) {
             MainPage_enter();
             break;
         case BUTTON_CODE_ACCEPT:
-            if (menu_page.selected_lbl == &menu_page.history_lbl) {
+            if (menu_page.selected_lbl == (GUIComponent*)&menu_page.history_lbl) {
                 ChangeHistoryPage_enter();
             }
             break;
