@@ -1,4 +1,4 @@
-idf_component_register(SRCS "console_init.c"  "model/Button.c"  "ViewController.c" "main.c"
+idf_component_register(SRCS "keypad.c" "battery.c" "console_init.c"  "model/Button.c"  "ViewController.c" "main.c"
                         "model/ChangeHistory.c"
                         "model/DiceRoller.c"
                         "model/Game.c"
@@ -11,7 +11,7 @@ idf_component_register(SRCS "console_init.c"  "model/Button.c"  "ViewController.
                         "app/pages/ValueEditorPage.c"
                         "app/PageManager.c"
                         "app/GameDelegates.c"
-                        PRIV_REQUIRES spi_flash driver console
+                        PRIV_REQUIRES spi_flash driver console esp_adc
                         REQUIRES "gui_framework"
                         INCLUDE_DIRS "."
 )

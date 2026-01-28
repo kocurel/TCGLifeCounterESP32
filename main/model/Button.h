@@ -10,15 +10,6 @@
 #define BUTTON_SET 0x06
 #define BUTTON_MENU 0x07
 
-#define BUTTON_LEFT_PIN 4
-#define BUTTON_RIGHT_PIN 5
-#define BUTTON_UP_PIN 18
-#define BUTTON_DOWN_PIN 19
-#define BUTTON_ACCEPT_PIN 21
-#define BUTTON_CANCEL_PIN 22
-#define BUTTON_SET_PIN 23
-#define BUTTON_MENU_PIN 25
-
 typedef enum {
     BUTTON_CODE_LEFT = BUTTTON_LEFT,
     BUTTON_CODE_RIGHT = BUTTON_RIGHT,
@@ -29,9 +20,5 @@ typedef enum {
     BUTTON_CODE_SET = BUTTON_SET,
     BUTTON_CODE_MENU = BUTTON_MENU
 } ButtonCode;
-
-void Button_assign_callback(ButtonCode button, void (*callback)(void));
-
-void Button_handle_press(ButtonCode button);
 
 #endif  // BUTTON_H

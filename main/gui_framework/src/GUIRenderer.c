@@ -1,28 +1,45 @@
 #include "GUIRenderer.h"
 
 #include "Debug.h"
+#include "esp_log.h"
 #include "u8g2.h"
 #include "u8g2_esp32_hal.h"
 
+// Static instance of the u8g2 structure
 static u8g2_t u8g2_context;
 
+// I2C Configuration (XIAO ESP32-C3)
+// 0x3C shifted left by 1 is 0x78
+#define I2C_DISPLAY_ADDR_SHIFTED 0x78
+#define I2C_SDA_PIN 6
+#define I2C_SCL_PIN 7
+
+#include "driver/i2c.h"
+#include "esp_log.h"
+
 void GUIRenderer_init() {
-    GUI_TRACE("GUIRenderer_init", "Initializing the u8g2 rendering context");
+ // 1. Initialize the HAL structure
     u8g2_esp32_hal_t u8g2_esp32_hal = U8G2_ESP32_HAL_DEFAULT;
-    // Here you would set the pin numbers as per your hardware configuration
-    u8g2_esp32_hal.bus.spi.clk = 8;    // Example pin number for CLK
-    u8g2_esp32_hal.bus.spi.mosi = 10;  // Example pin number for MOSI
-    u8g2_esp32_hal.bus.spi.cs = 9;     // Example pin number for CS
-    u8g2_esp32_hal.dc = 7;             // Example pin number for DC
-    u8g2_esp32_hal.reset = 21;         // Example pin number for RESET
-
+    u8g2_esp32_hal.bus.i2c.sda = I2C_SDA_PIN;
+    u8g2_esp32_hal.bus.i2c.scl = I2C_SCL_PIN;
     u8g2_esp32_hal_init(u8g2_esp32_hal);
-    u8g2_Setup_ssd1309_128x64_noname0_f(&u8g2_context, U8G2_R0,
-                                        u8g2_esp32_spi_byte_cb,
-                                        u8g2_esp32_gpio_and_delay_cb);
 
+    // Use the "Hardware I2C" constructor (starts with u8g2_Setup_...)
+    u8g2_Setup_ssd1306_i2c_128x64_noname_f(
+        &u8g2_context,
+        U8G2_R0,
+        u8g2_esp32_i2c_byte_cb,
+        u8g2_esp32_gpio_and_delay_cb
+    );
+
+    // 3. Set the Address
+    u8x8_SetI2CAddress(&u8g2_context.u8x8, I2C_DISPLAY_ADDR_SHIFTED);
+
+    // 4. Wake up
     u8g2_InitDisplay(&u8g2_context);
-    u8g2_SetPowerSave(&u8g2_context, 0);  // Wake up display
+    u8g2_SetPowerSave(&u8g2_context, 0); // Wake up display
+    
+    u8g2_ClearBuffer(&u8g2_context);
 }
 
 void GUIRenderer_draw_str(uint8_t x, uint8_t y, const char* text) {
