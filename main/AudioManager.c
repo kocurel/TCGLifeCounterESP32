@@ -5,16 +5,6 @@
 #include "freertos/queue.h"
 #include "freertos/task.h"
 
-#define BUZZER_PIN 20
-#define BUZZER_TIMER LEDC_TIMER_0
-#define BUZZER_MODE LEDC_LOW_SPEED_MODE
-#define BUZZER_CHANNEL LEDC_CHANNEL_0
-#define BUZZER_DUTY_RES LEDC_TIMER_13_BIT  // 13 bit resolution (0-8191)
-#define BUZZER_DUTY_50 2048                // 50% duty cycle for max volume
-
-// Queue configuration
-#define AUDIO_QUEUE_LEN 10
-
 typedef struct {
     uint32_t frequency;
     uint32_t duration;

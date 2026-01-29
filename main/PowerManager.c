@@ -9,6 +9,8 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 // Dla zaawansowanego PM (opcjonalne, wymaga menuconfig)
+#include "AudioManager.h"
+#include "driver/ledc.h"
 #include "esp_pm.h"
 
 static const char* TAG = "PowerManager";
@@ -79,6 +81,8 @@ static void enter_deep_sleep() {
     gpio_set_direction(2, GPIO_MODE_INPUT);
     gpio_pullup_en(2);
     esp_deep_sleep_enable_gpio_wakeup(1ULL << 2, ESP_GPIO_WAKEUP_GPIO_LOW);
+
+    ledc_stop(BUZZER_MODE, BUZZER_CHANNEL, 0);
 
     esp_deep_sleep_start();
 }
