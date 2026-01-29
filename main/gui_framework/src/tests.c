@@ -9,7 +9,6 @@
 //     TEST_ASSERT_NOT_NULL(vbox);
 //     TEST_ASSERT_NOT_NULL(vbox->base.base.layout);
 //     TEST_ASSERT_NOT_NULL(vbox->base.base.draw);
-//     TEST_ASSERT_NOT_NULL(vbox->base.base.delete);
 //     TEST_ASSERT_NOT_NULL(vbox->base.add_child);
 //     TEST_ASSERT_NOT_NULL(vbox->base.children);
 //     TEST_ASSERT_EQUAL_INT32(0, vbox->base.count);
@@ -26,7 +25,6 @@
 //     TEST_ASSERT_NOT_NULL(hbox);
 //     TEST_ASSERT_NOT_NULL(hbox->base.base.layout);
 //     TEST_ASSERT_NOT_NULL(hbox->base.base.draw);
-//     TEST_ASSERT_NOT_NULL(hbox->base.base.delete);
 //     TEST_ASSERT_NOT_NULL(hbox->base.add_child);
 //     TEST_ASSERT_NOT_NULL(hbox->base.children);
 //     TEST_ASSERT_EQUAL_INT32(0, hbox->base.count);
@@ -43,7 +41,6 @@
 //     TEST_ASSERT_NOT_NULL(label);
 //     TEST_ASSERT_NULL(label->base.layout);
 //     TEST_ASSERT_NOT_NULL(label->base.draw);
-//     TEST_ASSERT_NOT_NULL(label->base.delete);
 //     TEST_ASSERT_NOT_NULL(label->text);
 //     TEST_ASSERT_EQUAL_INT32(10, label->font_size);
 //     TEST_ASSERT_FALSE(label->isUpsideDown);
@@ -62,20 +59,6 @@
 // void mock_delete_func(GUIComponent* self) {
 //     test_variable1 += 1;
 //     free(self);  // CRITICAL: This allows the test to be valid memory-wise.
-// }
-
-// // Helper to create a heap-allocated mock component (mimicking GUILabel_new,
-// // etc.)
-// GUIComponent* create_mock_component(void) {
-//     // Allocate the memory on the heap
-//     GUIComponent* comp = (GUIComponent*)malloc(sizeof(GUIComponent));
-//     if (comp == NULL) {
-//         // In a real test, you would assert failure here, but for simplicity:
-//         return NULL;
-//     }
-//     // Initialize its V-table pointer to our spy function
-//     comp->delete = mock_delete_func;
-//     return comp;
 // }
 
 // void test_Container_add_child_recursive_delete() {
@@ -172,9 +155,9 @@
 //     // L2 (Child 1 of HBox)
 //     TEST_ASSERT_EQUAL_UINT8(50, l2->base.width);
 //     TEST_ASSERT_EQUAL_UINT8(50, l2->base.height);
-//     TEST_ASSERT_EQUAL_UINT8(0, l2->base.x);  // Inherits HBox X (0)
-//     TEST_ASSERT_EQUAL_UINT8(
-//         50, l2->base.y);  // Inherits HBox Y (50) - **CRITICAL OFFSET CHECK**
+//     TEST_ASSERT_EQUAL_UINT8(0, l2->base.x);   // Inherits HBox X (0)
+//     TEST_ASSERT_EQUAL_UINT8(50, l2->base.y);  // Inherits HBox Y (50) -
+//                                               // **CRITICAL OFFSET CHECK**
 
 //     // L3 (Child 2 of HBox)
 //     TEST_ASSERT_EQUAL_UINT8(50, l3->base.width);
@@ -230,18 +213,23 @@
 //     GUI_SET_TEXT_UPSIDE_DOWN(null_label, 0);
 
 //     // --- 3. ASSERT ---
-//     // The test reaching this line is the SUCCESS assertion.
-//     // If any function lacked a NULL check, the test would have crashed.
+//     // The test reaching this line is the
+//     // SUCCESS assertion. If any function
+//     // lacked a NULL check, the test
+//     // would have crashed.
 //     TEST_PASS();
 
 //     // --- 4. CLEANUP ---
-//     // Clean up the one component we successfully allocated
+//     // Clean up the one component we
+//     // successfully allocated
 //     GUI_DELETE(real_label);
 //     GUI_DELETE(real_vbox);
 
-//     // Note: If you were modifying a global state variable (like a screen
-//     buffer
-//     // counter), you would assert that variable remained unchanged.
+//     // Note: If you were modifying a
+//     // global state variable (like a
+//     // screen buffer
+//     // counter), you would assert that
+//     // variable remained unchanged.
 // }
 
 // void test_VBox_Full_Height_Distribution() {
@@ -329,9 +317,9 @@
 //     // --- CHILD 1 (Index 0) ---
 //     TEST_ASSERT_EQUAL_UINT8(33, l1->base.width);
 //     TEST_ASSERT_EQUAL_UINT8(50, l1->base.height);  // Full height inherited
-//     TEST_ASSERT_EQUAL_UINT8(10, l1->base.x);       // Start X (10) + Padding
-//     (0) TEST_ASSERT_EQUAL_UINT8(10, l1->base.y);       // Start Y (10) +
-//     Padding (0)
+//     TEST_ASSERT_EQUAL_UINT8(10, l1->base.x);       // Start X (10) +
+//     Padding(0) TEST_ASSERT_EQUAL_UINT8(10, l1->base.y);       // Start Y (10)
+//     + Padding(0)
 
 //     // --- CHILD 2 (Index 1) ---
 //     TEST_ASSERT_EQUAL_UINT8(33, l2->base.width);

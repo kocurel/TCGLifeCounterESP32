@@ -56,4 +56,9 @@ esp_err_t ViewController_register_button_commands(void) {
     return esp_console_cmd_register(&command);
 }
 
+void ViewController_button_handler(ButtonCode button) {
+    printf("Button code: %d\n", button);
+    PageManager_handle_input(button);
+}
+
 // #endif  // CONTROLLER_H

@@ -1,10 +1,11 @@
 #include "MenuPage.h"
 
 #include "ChangeHistoryPage.h"
+#include "DicePage.h"
 #include "GUIFramework.h"
 #include "MainPage.h"
+#include "SettingsPage.h"
 #include "app/PageManager.h"
-
 typedef struct {
     GUIVBox options;
     GUILabel title_lbl;
@@ -47,8 +48,15 @@ static void MenuPage_handle_input(ButtonCode button) {
             MainPage_enter();
             break;
         case BUTTON_CODE_ACCEPT:
-            if (menu_page.selected_lbl == (GUIComponent*)&menu_page.history_lbl) {
+            if (menu_page.selected_lbl ==
+                (GUIComponent*)&menu_page.history_lbl) {
                 ChangeHistoryPage_enter();
+            } else if (menu_page.selected_lbl ==
+                       (GUIComponent*)&menu_page.dice_lbl) {
+                DicePage_enter();
+            } else if (menu_page.selected_lbl ==
+                       (GUIComponent*)&menu_page.settings_lbl) {
+                SettingsPage_enter();
             }
             break;
         default:

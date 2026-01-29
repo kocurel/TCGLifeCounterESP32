@@ -1,12 +1,16 @@
 #include "CommanderPage.h"
 
+#include <stdio.h>
+
+#include "Debug.h"
 #include "GUIFramework.h"
 #include "MainPage.h"
+#include "ValueEditorPage.h"
 #include "app/PageManager.h"
 #include "model/Game.h"
 
 typedef struct {
-    GUILabel labels[4][4];  //[player_index][damge_source_index]
+    GUILabel labels[4][4];
     GUIVBox root;
     GUIHBox row_top;
     GUIHBox row_bot;
@@ -29,98 +33,113 @@ static CommanderPageData commander_page = {0};
 static bool is_initialized = false;
 #define BUFFER_SIZE 24
 static char buffer[BUFFER_SIZE];
+// --- Internal Helpers ---
 
-void CommanderPage_clear_selection() {
-    if (commander_page.selected_label != NULL) {
-        uint8_t x, y, w, h;
-
-        GUIComponent_get_xywh((GUIComponent*)commander_page.selected_label, &x,
-                              &y, &w, &h);
-        GUIRenderer_set_color(0);
-        GUIRenderer_draw_frame(x, y, w, h);
-        GUIRenderer_set_color(1);
-    }
-    GUIRenderer_send_buffer();
+static void CommanderPage_get_ids(int* player_id, int* source_id) {
+    ptrdiff_t offset =
+        commander_page.selected_label - &commander_page.labels[0][0];
+    *player_id = offset / 4;
+    *source_id = offset % 4;
 }
 
-void CommanderPage_update_selection() {
-    if (commander_page.selected_label != NULL) {
-        uint8_t x, y, w, h;
-
-        GUIComponent_get_xywh((GUIComponent*)commander_page.selected_label, &x,
-                              &y, &w, &h);
-
-        GUIRenderer_draw_frame(x, y, w, h);
-    }
-    GUIRenderer_send_buffer();
+static int32_t CommanderPage_get_value_id(int source_id) {
+    // Maps 0-3 to the actual indices in the Player's value array
+    return COMMANDER_DAMAGE_START_INDEX + source_id;
 }
+
+void CommanderPage_handle_input(ButtonCode button);
 
 void CommanderPage_draw() {
     GUIRenderer_clear_buffer();
-    for (int player_id = 0; player_id < 4; player_id++) {
-        for (int source_id = 0; source_id < 4; source_id++) {
-            GUI_DRAW(&commander_page.labels[player_id][source_id]);
+
+    // Refresh all label texts from model to ensure sync after Undo/Redo or
+    // Editor
+    char buf[BUFFER_SIZE];
+    for (int p = 0; p < 4; p++) {
+        for (int s = 0; s < 4; s++) {
+            snprintf(buf, BUFFER_SIZE, "%ld",
+                     (long)Game_get_commander_damage(p, s));
+            GUI_SET_TEXT(&commander_page.labels[p][s], buf);
+            GUI_DRAW(&commander_page.labels[p][s]);
         }
     }
-    CommanderPage_update_selection();
+
+    if (commander_page.selected_label != NULL) {
+        uint8_t x, y, w, h;
+        GUIComponent_get_xywh((GUIComponent*)commander_page.selected_label, &x,
+                              &y, &w, &h);
+        GUIRenderer_draw_frame(x, y, w, h);
+    }
     GUIRenderer_send_buffer();
 }
 
+static void CommanderPage_editor_callback(int32_t new_value) {
+    int p_id, s_id;
+    CommanderPage_get_ids(&p_id, &s_id);
+
+    // 1. Save via the centralized history-enabled method
+    Game_set_value(new_value, p_id, CommanderPage_get_value_id(s_id));
+
+    // 2. Return to this page
+    Page page = {.handle_input = CommanderPage_handle_input};
+    PageManager_switch_page(&page);
+    CommanderPage_draw();
+}
+
 void CommanderPage_handle_input(ButtonCode button) {
+    GUIComponent* next = NULL;
     switch (button) {
         case BUTTON_CODE_UP:
-            if (commander_page.selected_label->base.nav_up != NULL) {
-                CommanderPage_clear_selection();
-                commander_page.selected_label =
-                    (GUILabel*)commander_page.selected_label->base.nav_up;
-                CommanderPage_update_selection();
-            }
+            next = commander_page.selected_label->base.nav_up;
             break;
         case BUTTON_CODE_DOWN:
-            if (commander_page.selected_label->base.nav_down != NULL) {
-                CommanderPage_clear_selection();
-                commander_page.selected_label =
-                    (GUILabel*)commander_page.selected_label->base.nav_down;
-                CommanderPage_update_selection();
-            }
+            next = commander_page.selected_label->base.nav_down;
             break;
         case BUTTON_CODE_LEFT:
-            if (commander_page.selected_label->base.nav_left != NULL) {
-                CommanderPage_clear_selection();
-                commander_page.selected_label =
-                    (GUILabel*)commander_page.selected_label->base.nav_left;
-                CommanderPage_update_selection();
-            }
+            next = commander_page.selected_label->base.nav_left;
             break;
         case BUTTON_CODE_RIGHT:
-            if (commander_page.selected_label->base.nav_right != NULL) {
-                CommanderPage_clear_selection();
-                commander_page.selected_label =
-                    (GUILabel*)commander_page.selected_label->base.nav_right;
-                CommanderPage_update_selection();
-            }
+            next = commander_page.selected_label->base.nav_right;
             break;
 
-        case BUTTON_CODE_ACCEPT:
-            ptrdiff_t array_offset =
-                commander_page.selected_label - &commander_page.labels[0][0];
-            int player_id = array_offset / 4;
-            int source_id = array_offset % 4;
-            Game_deal_commander_damage(player_id, source_id, 1);
-            snprintf(buffer, BUFFER_SIZE, "%ld",
-                     Game_get_commander_damage(player_id, source_id));
-            GUI_SET_TEXT(&commander_page.labels[player_id][source_id], buffer);
-            GUI_DRAW(commander_page.selected_label);
-            CommanderPage_clear_selection();
-            CommanderPage_update_selection();
-            GUIRenderer_send_buffer();
+        case BUTTON_CODE_CANCEL:
+            MainPage_enter();
+            return;
+
+        case BUTTON_CODE_ACCEPT: {
+            int p_id, s_id;
+            CommanderPage_get_ids(&p_id, &s_id);
+            int32_t val_id = CommanderPage_get_value_id(s_id);
+
+            // Increment by 1 using the history-enabled method
+            int32_t current = Game_get_value(p_id, val_id);
+            Game_set_value(current + 1, p_id, val_id);
+            CommanderPage_draw();
             break;
+        }
+
+        case BUTTON_CODE_SET: {
+            int p_id, s_id;
+            CommanderPage_get_ids(&p_id, &s_id);
+            int32_t val_id = CommanderPage_get_value_id(s_id);
+
+            ValueEditorPage_enter(Game_get_player_name(p_id), "Cmd Dmg",
+                                  Game_get_value(p_id, val_id),
+                                  CommanderPage_editor_callback);
+            break;
+        }
         default:
             break;
     }
-}
 
-void CommanderPage_enter() {
+    if (next) {
+        commander_page.selected_label = (GUILabel*)next;
+        CommanderPage_draw();
+    }
+}
+void CommanderPage_enter(int initial_player_id) {
+    LOG_DEBUG("CommanderPage_enter", "initial_player_id: %d",
+              initial_player_id);
     if (!is_initialized) {
         GUIVBox_init(&commander_page.root);
         GUIHBox_init(&commander_page.row_top);
@@ -272,8 +291,14 @@ void CommanderPage_enter() {
 
         is_initialized = true;
     }
+    // SANITY CHECK: Ensure ID is 0-3
+    if (initial_player_id < 0 || initial_player_id > 3) {
+        initial_player_id = 0;
+    }
 
-    commander_page.selected_label = &commander_page.labels[0][0];
+    commander_page.selected_label =
+        &commander_page.labels[initial_player_id][0];
+
     Page new_page = {0};
     new_page.handle_input = CommanderPage_handle_input;
     PageManager_switch_page(&new_page);

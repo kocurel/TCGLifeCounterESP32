@@ -18,27 +18,25 @@ static u8g2_t u8g2_context;
 #include "esp_log.h"
 
 void GUIRenderer_init() {
- // 1. Initialize the HAL structure
+    // 1. Initialize the HAL structure
     u8g2_esp32_hal_t u8g2_esp32_hal = U8G2_ESP32_HAL_DEFAULT;
     u8g2_esp32_hal.bus.i2c.sda = I2C_SDA_PIN;
     u8g2_esp32_hal.bus.i2c.scl = I2C_SCL_PIN;
     u8g2_esp32_hal_init(u8g2_esp32_hal);
 
     // Use the "Hardware I2C" constructor (starts with u8g2_Setup_...)
-    u8g2_Setup_ssd1306_i2c_128x64_noname_f(
-        &u8g2_context,
-        U8G2_R0,
-        u8g2_esp32_i2c_byte_cb,
-        u8g2_esp32_gpio_and_delay_cb
-    );
+    u8g2_Setup_ssd1306_i2c_128x64_noname_f(&u8g2_context, U8G2_R0,
+                                           u8g2_esp32_i2c_byte_cb,
+                                           u8g2_esp32_gpio_and_delay_cb);
 
     // 3. Set the Address
     u8x8_SetI2CAddress(&u8g2_context.u8x8, I2C_DISPLAY_ADDR_SHIFTED);
 
     // 4. Wake up
     u8g2_InitDisplay(&u8g2_context);
-    u8g2_SetPowerSave(&u8g2_context, 0); // Wake up display
-    
+    u8g2_SetPowerSave(&u8g2_context, 0);  // Wake up display
+    u8g2_SetContrast(&u8g2_context, 32);
+
     u8g2_ClearBuffer(&u8g2_context);
 }
 

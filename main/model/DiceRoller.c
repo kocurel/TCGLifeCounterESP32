@@ -8,5 +8,5 @@ int roll_die(int sides) {
     return rand() % sides + 1;
 }
 
-const char* DICE_NAMES[] = {"D3",  "D4",  "D6",  "D8",
-                            "D10", "D12", "D20", "D100"};
+const char* DICE_NAMES[] = {"Coin", "D3",  "D4",  "D6",  "D8",
+                            "D10",  "D12", "D20", "D100"};

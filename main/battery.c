@@ -1,5 +1,7 @@
 #include "battery.h"
 
+#include "Debug.h"
+#include "System.h"
 #include "driver/gpio.h"
 #include "esp_adc/adc_oneshot.h"
 #include "esp_log.h"
@@ -8,11 +10,9 @@
 #include "freertos/task.h"
 
 // Constants
-#define BATTERY_ADC_CHANNEL \
-    ADC_CHANNEL_3  // GPIO 3 on ESP32-C3 is ADC1 Channel 3
-#define BATTERY_ADC_ATTEN \
-    ADC_ATTEN_DB_12       // Range: 0V to ~1.5V (Perfect for 1.37V)
-#define NO_OF_SAMPLES 64  // Oversampling for stability
+#define BATTERY_ADC_CHANNEL ADC_CHANNEL_3
+#define BATTERY_ADC_ATTEN ADC_ATTEN_DB_12
+#define NO_OF_SAMPLES 64  // Oversampling
 
 typedef struct {
     uint16_t voltage;
@@ -22,16 +22,13 @@ typedef struct {
 // Standard discharge curve for 3.7V LiPo (approximate)
 static const battery_level_t lipo_table[] = {
     {4200, 100},
-    {4100, 90},
-    {4000, 80},
-    {3900, 70},
+    {4100, 100},
+    {4000, 90},
     {3800, 60},
-    {3700, 50},
-    {3600, 40},  // Discharge curve starts dropping
+    {3700, 40},
+    {3600, 15},  // Discharge curve starts dropping
                  // faster here
-    {3500, 25},
-    {3420, 15},  // Critical low warning area
-    {3360, 5},   // Approaching LDO dropout limit
+    {3420, 5},   // Critical low warning area
     {3300, 0}    // Hard Floor (Regulator stops regulating)
 };
 
@@ -122,7 +119,16 @@ int read_battery_voltage_mv(void) {
     return pin_mv;
 }
 
-int read_battery_level() {
+void read_battery_level() {
+    LOG_DEBUG("read_battery_level", "Reading battery level");
     int mv = read_battery_voltage_mv();
-    return get_battery_percentage(mv);
+    int battery_level = get_battery_percentage(mv);
+    System_set_battery_percentage(battery_level);
+}
+
+void battery_scan_task(void* pvParameters) {
+    while (1) {
+        read_battery_level();
+        vTaskDelay(pdMS_TO_TICKS(30000));
+    }
 }
