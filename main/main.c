@@ -37,6 +37,10 @@ void app_main(void) {
     gpio_set_level(21, 0);
     gpio_hold_dis(21);
 
+    LOG_DEBUG("app_main", "Initializing display.");
+    GUIRenderer_init();
+
+    SettingsModel_init();
     // --- Subsystem Init ---
     PowerManager_init();  // Starts the background 20s check task
 
@@ -45,9 +49,6 @@ void app_main(void) {
 
     LOG_DEBUG("app_main", "Initializing audio.");
     AudioManager_init();
-
-    LOG_DEBUG("app_main", "Initializing display.");
-    GUIRenderer_init();
 
     LOG_DEBUG("app_main", "Initializing keypad.");
     keypad_init();
@@ -60,7 +61,6 @@ void app_main(void) {
     Game_init();
     MainPage_enter();
     AudioManager_play_sound(SOUND_GAME_START);
-    SettingsModel_init();
 
     ButtonCode received_key;
 

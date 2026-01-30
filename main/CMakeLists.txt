@@ -10,6 +10,8 @@ idf_component_register(SRCS
                         "model/Tests.c"
 
                         "app/pages/ChangeHistoryPage.c"
+                        "app/pages/PlayerSettingsPage.c"
+                        "app/pages/KeyboardPage.c"
                         "app/pages/ConfirmPage.c"
                         "app/pages/DeviceSettingsPage.c"
                         "app/pages/CommanderPage.c"

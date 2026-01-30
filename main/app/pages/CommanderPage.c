@@ -150,7 +150,7 @@ void CommanderPage_handle_input(ButtonCode button) {
             if (is_me_field) return;  // BLOKADA: nie można modyfikować ME
 
             int32_t val_id = CommanderPage_get_value_id(s_id);
-            ValueEditorPage_enter(Game_get_player_name(p_id), "Cmd Dmg",
+            ValueEditorPage_enter(Game_get_player_name(p_id), "Cmd Dmg", val_id,
                                   Game_get_value(p_id, val_id),
                                   CommanderPage_editor_callback);
             break;

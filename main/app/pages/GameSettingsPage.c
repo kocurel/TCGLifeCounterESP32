@@ -13,9 +13,10 @@
 // --- Constants & Enums ---
 enum {
     OPT_START_LIFE,
+    OPT_PLAYER_COUNT,  // <--- NOWA OPCJA
     OPT_DEAD_AT_ZERO,
     OPT_CMD_DMG_RULE,
-    OPT_COUNT  // Teraz wynosi 3, automatycznie skróci listę w UI
+    OPT_COUNT,
 };
 
 // --- State ---
@@ -34,6 +35,11 @@ static char* settings_item_to_string(void* item, int index) {
         case OPT_START_LIFE:
             snprintf(s_list_buffer, sizeof(s_list_buffer), "Start Life: %d",
                      s->starting_life);
+            break;
+
+        case OPT_PLAYER_COUNT:  // <--- Wyświetlanie liczby graczy
+            snprintf(s_list_buffer, sizeof(s_list_buffer), "Players: %d",
+                     s->player_count);
             break;
 
         case OPT_DEAD_AT_ZERO:
@@ -62,7 +68,6 @@ static void modify_setting(int index, int direction) {
 
             int current_idx = 0;
             bool found = false;
-
             for (int i = 0; i < count; i++) {
                 if (s_draft_settings.starting_life == values[i]) {
                     current_idx = i;
@@ -70,18 +75,26 @@ static void modify_setting(int index, int direction) {
                     break;
                 }
             }
-
-            if (!found) current_idx = 3;  // Default to 40
+            if (!found) current_idx = 3;
 
             if (direction > 0) {
                 current_idx = (current_idx + 1) % count;
             } else {
                 current_idx = (current_idx - 1 + count) % count;
             }
-
             s_draft_settings.starting_life = values[current_idx];
             break;
         }
+
+        case OPT_PLAYER_COUNT:
+            // Prosty toggle między 2 a 4.
+            // Jeśli będziesz chciała dodać 3, można użyć tablicy wartości.
+            if (s_draft_settings.player_count == 2) {
+                s_draft_settings.player_count = 4;
+            } else {
+                s_draft_settings.player_count = 2;
+            }
+            break;
 
         case OPT_DEAD_AT_ZERO:
             s_draft_settings.dead_at_zero = !s_draft_settings.dead_at_zero;
@@ -99,7 +112,8 @@ static void GameSettingsPage_update_ui() {
     GUIRenderer_clear_buffer();
     GUI_DRAW(&options_list);
 
-    int visual_index = GUIList_get_current_index(&options_list) % 5;
+    // Dynamiczna ramka zaznaczenia
+    int visual_index = GUIList_get_current_index(&options_list) % OPT_COUNT;
     GUIRenderer_draw_frame(0, visual_index * 11 + 6, 128, 12);
 
     GUIRenderer_send_buffer();
@@ -126,6 +140,8 @@ static void GameSettingsPage_handle_input(ButtonCode button) {
         case BUTTON_CODE_ACCEPT:
             AudioManager_play_sound(SOUND_UI_SELECT);
             SettingsModel_save(s_draft_settings);
+            // Tutaj wracamy do menu - MainPage przy wejściu samo sprawdzi
+            // player_count
             MenuPage_enter();
             return;
         default:

@@ -7,6 +7,7 @@
 #define BRIGHTNESS_MIN 0
 #define BRIGHTNESS_MAX 128
 #define BRIGHTNESS_STEP 32
+#define PLAYER_NAME_MAX_LEN 16
 
 typedef struct {
     // --- Device (Sprzęt) ---
@@ -17,13 +18,19 @@ typedef struct {
     bool sound_enabled;
 
     // --- Game Rules (Zasady) ---
-    uint16_t starting_life;  // Obsługuje MTG (40) i YGO (8000)
-    bool dead_at_zero;       // Czy 0 HP = przegrana
-    bool cmd_dmg_rule;       // Czy 21 Commander Damage = przegrana
+    uint16_t starting_life;
+    uint8_t player_count;
+    bool dead_at_zero;
+    bool cmd_dmg_rule;
+
+    // --- Persistent Player Names ---
+    char player_names[4][PLAYER_NAME_MAX_LEN];
 } GameSettings;
 
 void SettingsModel_init();
 GameSettings SettingsModel_get();
 void SettingsModel_save(GameSettings new_settings);
+void SettingsModel_save_player_name(int player_id,
+                                    const char* name);  // Nowa funkcja
 
 #endif
