@@ -33,6 +33,7 @@ static CommanderPageData commander_page = {0};
 static bool is_initialized = false;
 #define BUFFER_SIZE 24
 static char buffer[BUFFER_SIZE];
+
 // --- Internal Helpers ---
 
 static void CommanderPage_get_ids(int* player_id, int* source_id) {
@@ -47,19 +48,43 @@ static int32_t CommanderPage_get_value_id(int source_id) {
     return COMMANDER_DAMAGE_START_INDEX + source_id;
 }
 
+// Logic to update Cmd Damage AND adjust HP automatically
+static void CommanderPage_apply_change(int p_id, int s_id,
+                                       int32_t new_cmd_val) {
+    int32_t val_id = CommanderPage_get_value_id(s_id);
+    int32_t old_cmd_val = Game_get_value(p_id, val_id);
+
+    // Calculate how much life was lost (or gained if undoing)
+    int32_t diff = new_cmd_val - old_cmd_val;
+
+    if (diff != 0) {
+        // 1. Update the Commander Damage counter
+        Game_set_value(new_cmd_val, p_id, val_id);
+
+        // 2. Adjust HP (Index 0) inversely
+        // If diff is positive (took damage), HP goes down.
+        // If diff is negative (correction), HP goes up.
+        int32_t current_hp = Game_get_value(p_id, 0);
+        Game_set_value(current_hp - diff, p_id, 0);
+    }
+}
+
 void CommanderPage_handle_input(ButtonCode button);
 
 void CommanderPage_draw() {
     GUIRenderer_clear_buffer();
 
-    // Refresh all label texts from model to ensure sync after Undo/Redo or
-    // Editor
     char buf[BUFFER_SIZE];
     for (int p = 0; p < 4; p++) {
         for (int s = 0; s < 4; s++) {
-            snprintf(buf, BUFFER_SIZE, "%ld",
-                     (long)Game_get_commander_damage(p, s));
-            GUI_SET_TEXT(&commander_page.labels[p][s], buf);
+            // Jeśli gracz bije samego siebie -> wyświetlamy ME
+            if (p == s) {
+                GUI_SET_TEXT(&commander_page.labels[p][s], "ME");
+            } else {
+                snprintf(buf, BUFFER_SIZE, "%ld",
+                         (long)Game_get_commander_damage(p, s));
+                GUI_SET_TEXT(&commander_page.labels[p][s], buf);
+            }
             GUI_DRAW(&commander_page.labels[p][s]);
         }
     }
@@ -77,17 +102,22 @@ static void CommanderPage_editor_callback(int32_t new_value) {
     int p_id, s_id;
     CommanderPage_get_ids(&p_id, &s_id);
 
-    // 1. Save via the centralized history-enabled method
-    Game_set_value(new_value, p_id, CommanderPage_get_value_id(s_id));
+    // Use logic helper to update Cmd + HP
+    CommanderPage_apply_change(p_id, s_id, new_value);
 
-    // 2. Return to this page
+    // Return to this page
     Page page = {.handle_input = CommanderPage_handle_input};
     PageManager_switch_page(&page);
     CommanderPage_draw();
 }
-
 void CommanderPage_handle_input(ButtonCode button) {
     GUIComponent* next = NULL;
+
+    // Pobieramy ID, żeby sprawdzić czy nie jesteśmy na polu "ME"
+    int p_id, s_id;
+    CommanderPage_get_ids(&p_id, &s_id);
+    bool is_me_field = (p_id == s_id);
+
     switch (button) {
         case BUTTON_CODE_UP:
             next = commander_page.selected_label->base.nav_up;
@@ -107,22 +137,19 @@ void CommanderPage_handle_input(ButtonCode button) {
             return;
 
         case BUTTON_CODE_ACCEPT: {
-            int p_id, s_id;
-            CommanderPage_get_ids(&p_id, &s_id);
-            int32_t val_id = CommanderPage_get_value_id(s_id);
+            if (is_me_field) return;  // BLOKADA: nie można modyfikować ME
 
-            // Increment by 1 using the history-enabled method
+            int32_t val_id = CommanderPage_get_value_id(s_id);
             int32_t current = Game_get_value(p_id, val_id);
-            Game_set_value(current + 1, p_id, val_id);
+            CommanderPage_apply_change(p_id, s_id, current + 1);
             CommanderPage_draw();
             break;
         }
 
         case BUTTON_CODE_SET: {
-            int p_id, s_id;
-            CommanderPage_get_ids(&p_id, &s_id);
-            int32_t val_id = CommanderPage_get_value_id(s_id);
+            if (is_me_field) return;  // BLOKADA: nie można modyfikować ME
 
+            int32_t val_id = CommanderPage_get_value_id(s_id);
             ValueEditorPage_enter(Game_get_player_name(p_id), "Cmd Dmg",
                                   Game_get_value(p_id, val_id),
                                   CommanderPage_editor_callback);
@@ -137,6 +164,7 @@ void CommanderPage_handle_input(ButtonCode button) {
         CommanderPage_draw();
     }
 }
+
 void CommanderPage_enter(int initial_player_id) {
     LOG_DEBUG("CommanderPage_enter", "initial_player_id: %d",
               initial_player_id);

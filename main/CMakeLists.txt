@@ -2,6 +2,7 @@ idf_component_register(SRCS
                         "System.c"
                         "PowerManager.c"
                         "AudioManager.c"
+
                         "keypad.c" "battery.c" "console_init.c"  "model/Button.c"  "ViewController.c" "main.c"
                         "model/DiceRoller.c"
                         "model/Game.c"
@@ -9,7 +10,10 @@ idf_component_register(SRCS
                         "model/Tests.c"
 
                         "app/pages/ChangeHistoryPage.c"
+                        "app/pages/ConfirmPage.c"
+                        "app/pages/DeviceSettingsPage.c"
                         "app/pages/CommanderPage.c"
+                        "app/pages/GameSettingsPage.c"
                         "app/pages/MainPage.c"
                         "app/pages/SettingsPage.c"
                         "app/pages/MenuPage.c"

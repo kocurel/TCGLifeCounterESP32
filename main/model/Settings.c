@@ -1,5 +1,6 @@
 #include "Settings.h"
 
+#include "GUIRenderer.h"
 #include "esp_log.h"
 #include "nvs.h"
 #include "nvs_flash.h"
@@ -7,92 +8,93 @@
 static const char* TAG = "SettingsModel";
 static const char* NVS_NAMESPACE = "game_config";
 
-// Cache ustawień w RAM (dzięki temu gra działa szybko i nie czyta Flasha co
-// chwilę)
 static GameSettings s_current_settings;
 
-// Domyślne wartości, jeśli NVS jest pusty (np. pierwsze uruchomienie)
 static const GameSettings DEFAULT_SETTINGS = {.starting_life = 40,
-                                              .starting_player_count = 4,
-                                              .screen_brightness = 80,
-                                              .sound_enabled = true};
+                                              .screen_brightness = 32,
+                                              .sound_loudness = 50,
+                                              .screen_timeout_min = 2,
+                                              .auto_off_min = 15,
+                                              .sound_enabled = true,
+                                              .dead_at_zero = true,
+                                              .cmd_dmg_rule = true};
 
 void SettingsModel_init() {
-    // 1. Inicjalizacja partycji NVS (wymagane raz w app_main, ale bezpiecznie
-    // tu sprawdzić)
     esp_err_t err = nvs_flash_init();
     if (err == ESP_ERR_NVS_NO_FREE_PAGES ||
         err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
         err = nvs_flash_init();
     }
-    ESP_ERROR_CHECK(err);
 
-    // 2. Otwarcie Namespace
-    nvs_handle_t my_handle;
-    err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &my_handle);
-
+    nvs_handle_t handle;
+    err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &handle);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Error (%s) opening NVS handle!", esp_err_to_name(err));
         s_current_settings = DEFAULT_SETTINGS;
         return;
     }
 
-    // 3. Odczyt wartości
-    // Jeśli klucz nie istnieje (ESP_ERR_NVS_NOT_FOUND), używamy domyślnej
-    uint8_t val_u8;
+    uint8_t val8;
+    uint16_t val16;
 
-    // Starting Life
-    if (nvs_get_u8(my_handle, "start_life", &val_u8) == ESP_OK)
-        s_current_settings.starting_life = val_u8;
-    else
-        s_current_settings.starting_life = DEFAULT_SETTINGS.starting_life;
+    // Odczyt Starting Life (uint16)
+    if (nvs_get_u16(handle, "start_life", &val16) != ESP_OK)
+        val16 = DEFAULT_SETTINGS.starting_life;
+    s_current_settings.starting_life = val16;
 
-    // Player Count
-    if (nvs_get_u8(my_handle, "p_count", &val_u8) == ESP_OK)
-        s_current_settings.starting_player_count = val_u8;
-    else
-        s_current_settings.starting_player_count =
-            DEFAULT_SETTINGS.starting_player_count;
+    // Odczyt parametrów 8-bitowych
+    if (nvs_get_u8(handle, "scr_br", &val8) != ESP_OK)
+        val8 = DEFAULT_SETTINGS.screen_brightness;
+    s_current_settings.screen_brightness = val8;
 
-    // Sound
-    if (nvs_get_u8(my_handle, "sound", &val_u8) == ESP_OK)
-        s_current_settings.sound_enabled = (bool)val_u8;
-    else
-        s_current_settings.sound_enabled = DEFAULT_SETTINGS.sound_enabled;
+    if (nvs_get_u8(handle, "loud", &val8) != ESP_OK)
+        val8 = DEFAULT_SETTINGS.sound_loudness;
+    s_current_settings.sound_loudness = val8;
 
-    // Zamykamy uchwyt
-    nvs_close(my_handle);
+    if (nvs_get_u8(handle, "dim_t", &val8) != ESP_OK)
+        val8 = DEFAULT_SETTINGS.screen_timeout_min;
+    s_current_settings.screen_timeout_min = val8;
 
-    ESP_LOGI(TAG, "Settings Loaded: Life=%d, Players=%d",
-             s_current_settings.starting_life,
-             s_current_settings.starting_player_count);
+    if (nvs_get_u8(handle, "off_t", &val8) != ESP_OK)
+        val8 = DEFAULT_SETTINGS.auto_off_min;
+    s_current_settings.auto_off_min = val8;
+
+    if (nvs_get_u8(handle, "snd_en", &val8) != ESP_OK)
+        val8 = (uint8_t)DEFAULT_SETTINGS.sound_enabled;
+    s_current_settings.sound_enabled = (bool)val8;
+
+    if (nvs_get_u8(handle, "dead0", &val8) != ESP_OK)
+        val8 = (uint8_t)DEFAULT_SETTINGS.dead_at_zero;
+    s_current_settings.dead_at_zero = (bool)val8;
+
+    if (nvs_get_u8(handle, "cmd21", &val8) != ESP_OK)
+        val8 = (uint8_t)DEFAULT_SETTINGS.cmd_dmg_rule;
+    s_current_settings.cmd_dmg_rule = (bool)val8;
+
+    nvs_close(handle);
+
+    GUIRenderer_set_contrast(s_current_settings.screen_brightness);
+    ESP_LOGI(TAG, "Settings initialized and cleaned.");
+}
+
+void SettingsModel_save(GameSettings new_settings) {
+    nvs_handle_t handle;
+    if (nvs_open(NVS_NAMESPACE, NVS_READWRITE, &handle) != ESP_OK) return;
+
+    nvs_set_u16(handle, "start_life", new_settings.starting_life);
+    nvs_set_u8(handle, "scr_br", new_settings.screen_brightness);
+    nvs_set_u8(handle, "loud", new_settings.sound_loudness);
+    nvs_set_u8(handle, "dim_t", new_settings.screen_timeout_min);
+    nvs_set_u8(handle, "off_t", new_settings.auto_off_min);
+    nvs_set_u8(handle, "snd_en", (uint8_t)new_settings.sound_enabled);
+    nvs_set_u8(handle, "dead0", (uint8_t)new_settings.dead_at_zero);
+    nvs_set_u8(handle, "cmd21", (uint8_t)new_settings.cmd_dmg_rule);
+
+    nvs_commit(handle);
+    nvs_close(handle);
+
+    s_current_settings = new_settings;
+    GUIRenderer_set_contrast(s_current_settings.screen_brightness);
 }
 
 GameSettings SettingsModel_get() { return s_current_settings; }
-
-void SettingsModel_save(GameSettings new_settings) {
-    nvs_handle_t my_handle;
-    esp_err_t err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &my_handle);
-    if (err != ESP_OK) return;
-
-    // Aktualizujemy NVS tylko jeśli wartości się zmieniły (oszczędzanie flasha)
-    if (new_settings.starting_life != s_current_settings.starting_life)
-        nvs_set_u8(my_handle, "start_life", new_settings.starting_life);
-
-    if (new_settings.starting_player_count !=
-        s_current_settings.starting_player_count)
-        nvs_set_u8(my_handle, "p_count", new_settings.starting_player_count);
-
-    if (new_settings.sound_enabled != s_current_settings.sound_enabled)
-        nvs_set_u8(my_handle, "sound", (uint8_t)new_settings.sound_enabled);
-
-    // Commit jest konieczny, aby zapisać zmiany fizycznie
-    err = nvs_commit(my_handle);
-    nvs_close(my_handle);
-
-    // Aktualizujemy cache w RAM
-    s_current_settings = new_settings;
-
-    ESP_LOGI(TAG, "Settings Saved");
-}

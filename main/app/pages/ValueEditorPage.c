@@ -3,6 +3,7 @@
 #include <stdio.h>   // For snprintf
 #include <string.h>  // For memset
 
+#include "AudioManager.h"
 #include "GUIFramework.h"
 #include "app/PageManager.h"
 
@@ -122,6 +123,7 @@ void ValueEditorPage_handle_input(ButtonCode button) {
             break;
 
         case BUTTON_CODE_ACCEPT:  // Assuming you have an Accept/OK button
+            AudioManager_play_sound(SOUND_UI_SELECT);
             if (ctx.on_complete_callback) {
                 ctx.on_complete_callback(ctx.current_value);
             }
@@ -129,6 +131,7 @@ void ValueEditorPage_handle_input(ButtonCode button) {
 
         // Optional: Cancel support (return original value)
         case BUTTON_CODE_CANCEL:
+            AudioManager_play_sound(SOUND_UI_CANCEL);
             if (ctx.on_complete_callback) {
                 ctx.on_complete_callback(ctx.entry_value);
             }

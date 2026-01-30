@@ -1,11 +1,13 @@
 #include "MenuPage.h"
 
 #include "ChangeHistoryPage.h"
+#include "ConfirmPage.h"
 #include "DicePage.h"
 #include "GUIFramework.h"
 #include "MainPage.h"
 #include "SettingsPage.h"
 #include "app/PageManager.h"
+#include "model/Game.h"
 typedef struct {
     GUIVBox options;
     GUILabel title_lbl;
@@ -30,6 +32,13 @@ static void MenuPage_draw() {
     }
     GUIRenderer_send_buffer();
 }
+
+static void on_game_reset_confirmed() {
+    Game_reset();
+    // Po wykonaniu Game_reset(), ConfirmPage sam wróci do MainPage (patrz
+    // handle_input powyżej)
+}
+
 static void MenuPage_handle_input(ButtonCode button) {
     switch (button) {
         case BUTTON_CODE_UP:
@@ -57,6 +66,9 @@ static void MenuPage_handle_input(ButtonCode button) {
             } else if (menu_page.selected_lbl ==
                        (GUIComponent*)&menu_page.settings_lbl) {
                 SettingsPage_enter();
+            } else if (menu_page.selected_lbl ==
+                       (GUIComponent*)&menu_page.new_game_lbl) {
+                ConfirmPage_enter("Reset game?", on_game_reset_confirmed);
             }
             break;
         default:

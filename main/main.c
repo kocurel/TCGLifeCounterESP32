@@ -4,6 +4,7 @@
 #include "AudioManager.h"
 #include "PowerManager.h"
 #include "ViewController.h"
+#include "app/pages/ConfirmPage.h"
 #include "app/pages/MainPage.h"
 #include "battery.h"
 #include "console_init.h"
@@ -13,7 +14,14 @@
 #include "gui_framework/include/test/GUItests.h"
 #include "keypad.h"
 #include "model/Game.h"
+#include "model/Settings.h"
 #include "model/Tests.h"
+
+// Callback wywoływany, gdy użytkownik potwierdzi chęć wyłączenia
+static void on_power_off_confirmed() {
+    LOG_DEBUG("app_main", "Power off confirmed. Entering deep sleep.");
+    PowerManager_deep_sleep();
+}
 
 void app_main(void) {
     // --- Hardware Wakeup / Init Logic ---
@@ -52,33 +60,35 @@ void app_main(void) {
     Game_init();
     MainPage_enter();
     AudioManager_play_sound(SOUND_GAME_START);
+    SettingsModel_init();
 
     ButtonCode received_key;
 
     // --- Main Event Loop ---
+    // --- Main Event Loop ---
     while (1) {
         if (xQueueReceive(get_keypad_queue(), &received_key, portMAX_DELAY)) {
-            // Sprawdź stan PRZED resetem timera (bo reset go obudzi)
             bool was_sleeping = PowerManager_is_display_off();
-
-            // To obudzi ekran (fizycznie)
             PowerManager_reset_timer();
 
             if (was_sleeping) {
-                // SCENARIUSZ: Ekran spał.
-                // Tylko go obudziliśmy. Ignorujemy logikę gry.
-                LOG_DEBUG("app_main",
-                          "Wakeup from Display Sleep - Input consumed");
-                continue;  // Pomijamy resztę pętli
+                continue;
             }
 
-            // SCENARIUSZ: Ekran był aktywny. Przetwarzamy przycisk.
+            // --- ZMIANA TUTAJ ---
             if (received_key == BUTTON_CODE_POWER) {
-                PowerManager_deep_sleep();
-                // Manual deep sleep
-                // Możemy wywołać wewnętrzną funkcję (jeśli ją upublicznisz) lub
-                // zostawić timeout
+                LOG_DEBUG("app_main",
+                          "Power button pressed - showing confirm page");
+
+                // Używamy naszej nowej strony potwierdzenia!
+                // Jeśli użytkownik wybierze "Nie" (CANCEL), ConfirmPage
+                // automatycznie wróci do MainPage.
+                ConfirmPage_enter("Power off the device?",
+                                  on_power_off_confirmed);
+
             } else {
+                // Wszystkie inne przyciski idą do standardowego kontrolera
+                // stron
                 ViewController_button_handler(received_key);
             }
         }

@@ -8,6 +8,7 @@
 #include "ValueEditorPage.h"  // Added for the editor
 #include "app/PageManager.h"
 #include "model/Game.h"
+#include "model/Settings.h"
 
 typedef struct {
     GUIComponent* focused_component;
@@ -42,6 +43,28 @@ static int MainPage_get_focused_player_id() {
 static void MainPage_update();
 static void MainPage_handle_input(ButtonCode button);
 
+static bool MainPage_is_player_dead(int player_id) {
+    GameSettings settings = SettingsModel_get();
+
+    // Sprawdź warunek 0 HP
+    if (settings.dead_at_zero && Game_get_value(player_id, 0) <= 0) {
+        return true;
+    }
+
+    // Sprawdź warunek Commander Damage (21)
+    if (settings.cmd_dmg_rule) {
+        for (int source = 0; source < 4; source++) {
+            if (source != player_id) {  // Nie liczymy obrażeń od samego siebie
+                if (Game_get_commander_damage(player_id, source) >= 21) {
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 // Callback invoked by ValueEditorPage when the user saves a value
 static void MainPage_editor_callback(int32_t new_value) {
     int player_id = MainPage_get_focused_player_id();
@@ -59,24 +82,25 @@ static void MainPage_editor_callback(int32_t new_value) {
 static void MainPage_update() {
     char str[32];
 
-    snprintf(str, sizeof(str), "%ld", (long)Game_get_value(0, 0));
-    GUI_SET_TEXT(&main_page.lbl_p1, str);
+    // Iterujemy po wszystkich 4 etykietach graczy
+    GUILabel* labels[4] = {&main_page.lbl_p1, &main_page.lbl_p2,
+                           &main_page.lbl_p3, &main_page.lbl_p4};
 
-    snprintf(str, sizeof(str), "%ld", (long)Game_get_value(1, 0));
-    GUI_SET_TEXT(&main_page.lbl_p2, str);
+    for (int i = 0; i < 4; i++) {
+        if (MainPage_is_player_dead(i)) {
+            GUI_SET_TEXT(labels[i], "KO");
+        } else {
+            snprintf(str, sizeof(str), "%ld", (long)Game_get_value(i, 0));
+            GUI_SET_TEXT(labels[i], str);
+        }
+    }
 
-    snprintf(str, sizeof(str), "%ld", (long)Game_get_value(2, 0));
-    GUI_SET_TEXT(&main_page.lbl_p3, str);
-
-    snprintf(str, sizeof(str), "%ld", (long)Game_get_value(3, 0));
-    GUI_SET_TEXT(&main_page.lbl_p4, str);
-
+    // Reszta rysowania baterii i ramek pozostaje bez zmian...
     int battery_level = System_get_battery_percentage();
     snprintf(str, sizeof(str), "%d%%", battery_level);
     GUI_SET_TEXT(&main_page.lbl_battery_level, str);
 
     GUIRenderer_clear_buffer();
-
     GUI_DRAW(&main_page.root_vbox);
     GUI_DRAW(&main_page.lbl_battery_level);
 

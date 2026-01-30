@@ -3,7 +3,9 @@
 #include <stdio.h>
 
 #include "AudioManager.h"
+#include "DeviceSettingsPage.h"
 #include "GUIFramework.h"
+#include "GameSettingsPage.h"
 #include "MenuPage.h"
 #include "app/PageManager.h"
 
@@ -132,15 +134,4 @@ void SettingsPage_enter() {
     Page new_page = {.handle_input = SettingsPage_handle_input, .exit = NULL};
     PageManager_switch_page(&new_page);
     SettingsPage_update();
-}
-
-// --- Stubs ---
-void GameSettingsPage_enter() {
-    printf("[STUB] Entering Game Settings\n");
-    SettingsPage_enter();  // Go back for now
-}
-
-void DeviceSettingsPage_enter() {
-    printf("[STUB] Entering Device Settings\n");
-    SettingsPage_enter();  // Go back for now
 }

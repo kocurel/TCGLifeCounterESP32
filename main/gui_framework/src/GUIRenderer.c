@@ -112,3 +112,7 @@ void GUIRenderer_draw_horizontal_line(int y) {
 void GUIRenderer_set_color(uint8_t color) {
     u8g2_SetDrawColor(&u8g2_context, color);
 }
+
+void GUIRenderer_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2) {
+    u8g2_DrawLine(&u8g2_context, x1, y1, x2, y2);
+}

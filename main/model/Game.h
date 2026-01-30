@@ -48,7 +48,7 @@ struct Game {
 void Game_init(void);
 void Game_set_value(int32_t value, uint8_t player_id, uint8_t value_id);
 int32_t Game_get_value(uint8_t player_id, uint8_t value_id);
-
+void Game_reset();
 /* --- Getters --- */
 Player* Game_get_player(uint8_t index);
 const char* Game_get_player_name(uint8_t index);

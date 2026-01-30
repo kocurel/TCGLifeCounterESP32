@@ -5,6 +5,9 @@
 #include "freertos/queue.h"
 #include "freertos/task.h"
 
+// Cache głośności (0-100)
+static uint8_t s_volume_percent = 50;
+
 typedef struct {
     uint32_t frequency;
     uint32_t duration;
@@ -12,30 +15,32 @@ typedef struct {
 
 static QueueHandle_t s_audio_queue = NULL;
 
-// Background task that processes sound requests sequentially
 static void audio_task(void* arg) {
     ToneRequest req;
-
     while (1) {
-        // Block indefinitely until a sound is requested
         if (xQueueReceive(s_audio_queue, &req, portMAX_DELAY)) {
-            // 1. Configure Frequency
-            ledc_set_freq(BUZZER_MODE, BUZZER_TIMER, req.frequency);
+            // Obliczamy wypełnienie na podstawie głośności
+            // Max duty dla 13-bit to 8191. 50% (max głośność) to 4095.
+            uint32_t max_audible_duty = 4095;
+            uint32_t calculated_duty =
+                (max_audible_duty * s_volume_percent) / 100;
 
-            // 2. Set Duty (Volume ON) - 50% duty cycle is standard for buzzers
-            ledc_set_duty(BUZZER_MODE, BUZZER_CHANNEL, BUZZER_DUTY_50);
+            ledc_set_freq(BUZZER_MODE, BUZZER_TIMER, req.frequency);
+            ledc_set_duty(BUZZER_MODE, BUZZER_CHANNEL, calculated_duty);
             ledc_update_duty(BUZZER_MODE, BUZZER_CHANNEL);
 
-            // 3. Wait for duration
             vTaskDelay(pdMS_TO_TICKS(req.duration));
 
-            // 4. Stop Sound (Volume OFF)
             ledc_stop(BUZZER_MODE, BUZZER_CHANNEL, 0);
-
-            // Small gap between notes to ensure distinct "beeps"
             vTaskDelay(pdMS_TO_TICKS(20));
         }
     }
+}
+
+// Nowa funkcja do zmiany głośności
+void AudioManager_set_volume(uint8_t volume_percent) {
+    if (volume_percent > 100) volume_percent = 100;
+    s_volume_percent = volume_percent;
 }
 
 void AudioManager_init(void) {

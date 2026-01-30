@@ -1,8 +1,10 @@
 #include "Game.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 
 #include "Assert.h"
+#include "Settings.h"
 
 #define NUMBER_OF_DEFAULTS 8
 Game game = {0};
@@ -203,3 +205,25 @@ void Game_seek_history(int32_t target_index) {
 }
 
 void Game_set_cursor(int32_t index) { Game_seek_history(index); }
+
+void Game_reset() {
+    // Pobieramy aktualne ustawienia (np. czy gramy w YGO 8000 czy MTG 40)
+    GameSettings settings = SettingsModel_get();
+
+    for (int p = 0; p < 4; p++) {
+        // 1. Reset HP (Zauważ: używamy Game_set_value, żeby reset był widoczny
+        // w historii!)
+        Game_set_value(settings.starting_life, p, 0);
+
+        // 2. Reset wszystkich liczników Commander Damage dla każdego gracza
+        for (int s = 0; s < 4; s++) {
+            int32_t cmd_dmg_index = COMMANDER_DAMAGE_START_INDEX + s;
+            Game_set_value(0, p, cmd_dmg_index);
+        }
+    }
+
+    // Opcjonalnie: Jeśli nie chcemy, by reset można było "cofnąć" przez Undo:
+    // Game_clear_history();
+
+    printf("[GAME] Reset complete. New HP: %d\n", settings.starting_life);
+}
