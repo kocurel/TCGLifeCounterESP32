@@ -1,13 +1,16 @@
 #include "MenuPage.h"
 
+#include "AudioManager.h"
 #include "ChangeHistoryPage.h"
 #include "ConfirmPage.h"
 #include "DicePage.h"
 #include "GUIFramework.h"
 #include "MainPage.h"
 #include "SettingsPage.h"
+#include "System.h"
 #include "app/PageManager.h"
 #include "model/Game.h"
+
 typedef struct {
     GUIVBox options;
     GUILabel title_lbl;
@@ -28,28 +31,36 @@ static void MenuPage_draw() {
     if (menu_page.selected_lbl != NULL) {
         uint8_t x, y, w, h;
         GUIComponent_get_xywh(menu_page.selected_lbl, &x, &y, &w, &h);
-        GUIRenderer_draw_frame(x, y + 1, w, h + 1);
+        GUIRenderer_draw_frame(x, y, w, h);
     }
+
+    // --- Sekcja Systemowa ---
+    int bat = System_get_battery_percentage();
+    char bat_buf[12];
+    snprintf(bat_buf, sizeof(bat_buf), "%d%%", bat);
+
+    GUIRenderer_set_font_size(6);
+    // Rysujemy w prawym dolnym rogu, poza obszarem listy
+    GUIRenderer_draw_str(104, 6, bat_buf);
+
     GUIRenderer_send_buffer();
 }
 
-static void on_game_reset_confirmed() {
-    Game_reset();
-    // Po wykonaniu Game_reset(), ConfirmPage sam wróci do MainPage (patrz
-    // handle_input powyżej)
-}
+static void on_game_reset_confirmed() { Game_reset(); }
 
 static void MenuPage_handle_input(ButtonCode button) {
     switch (button) {
         case BUTTON_CODE_UP:
             if (menu_page.selected_lbl->nav_up) {
                 menu_page.selected_lbl = menu_page.selected_lbl->nav_up;
+                AudioManager_play_sound(SOUND_UI_MOVE);
                 MenuPage_draw();
             }
             break;
         case BUTTON_CODE_DOWN:
             if (menu_page.selected_lbl->nav_down) {
                 menu_page.selected_lbl = menu_page.selected_lbl->nav_down;
+                AudioManager_play_sound(SOUND_UI_MOVE);
                 MenuPage_draw();
             }
             break;
@@ -57,9 +68,10 @@ static void MenuPage_handle_input(ButtonCode button) {
             MainPage_enter();
             break;
         case BUTTON_CODE_ACCEPT:
+            AudioManager_play_sound(SOUND_UI_SELECT);
             if (menu_page.selected_lbl ==
                 (GUIComponent*)&menu_page.history_lbl) {
-                ChangeHistoryPage_enter();
+                ChangeHistoryPage_enter(NULL);
             } else if (menu_page.selected_lbl ==
                        (GUIComponent*)&menu_page.dice_lbl) {
                 DicePage_enter();

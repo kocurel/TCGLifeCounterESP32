@@ -1,11 +1,12 @@
 #include "DiceRoller.h"
 
-#include <stdlib.h>
+#include <esp_random.h>
+
 int roll_die(int sides) {
     if (sides <= 0) {
         return 0;
     }
-    return rand() % sides + 1;
+    return (esp_random() % sides) + 1;
 }
 
 const char* DICE_NAMES[] = {"Coin", "D3",  "D4",  "D6",  "D8",

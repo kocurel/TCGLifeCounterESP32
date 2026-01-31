@@ -102,7 +102,8 @@ uint8_t GUIRenderer_get_string_width(const char* str) {
 int8_t GUIRenderer_get_ascent() { return u8g2_GetAscent(&u8g2_context); }
 int8_t GUIRenderer_get_descent() { return u8g2_GetDescent(&u8g2_context); }
 void GUIRenderer_set_contrast(uint8_t contrast) {
-    GUI_TRACE("GUIRenderer_set_contrast", "Setting OLED contrast");
+    GUI_TRACE("GUIRenderer_set_contrast", "Setting OLED contrast to %u",
+              contrast);
     u8g2_SetContrast(&u8g2_context, contrast);
 }
 
@@ -115,4 +116,8 @@ void GUIRenderer_set_color(uint8_t color) {
 
 void GUIRenderer_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2) {
     u8g2_DrawLine(&u8g2_context, x1, y1, x2, y2);
+}
+
+void GUIRenderer_draw_pixel(uint8_t x, uint8_t y) {
+    u8g2_DrawPixel(&u8g2_context, x, y);
 }

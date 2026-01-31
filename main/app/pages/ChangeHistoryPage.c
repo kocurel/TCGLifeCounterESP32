@@ -9,14 +9,11 @@
 
 static GUIList history_list = {0};
 static int s_current_history_index = 0;  // Tracks the selected history state
+static void (*return_func)(void) = NULL;
 
-static void ChangeHistoryPage_update() {
+static void ChangeHistoryPage_draw() {
     GUIRenderer_clear_buffer();
     GUI_DRAW(&history_list);
-
-    // Draw selection frame (assumes 5 items per screen)
-    int visual_index = GUIList_get_current_index(&history_list) % 5;
-    GUIRenderer_draw_frame(0, visual_index * 11 + 4, 128, 12);
 
     GUIRenderer_send_buffer();
 }
@@ -40,7 +37,10 @@ static void ChangeHistory_handle_input(ButtonCode button) {
             break;
 
         case BUTTON_CODE_CANCEL:
-            MenuPage_enter();
+            if (return_func) {
+                return_func();
+            } else
+                MenuPage_enter();
             return;  // Exit to avoid update after page switch
 
         case BUTTON_CODE_ACCEPT: {
@@ -52,7 +52,7 @@ static void ChangeHistory_handle_input(ButtonCode button) {
             s_current_history_index =
                 target_undo_index;  // Sync static state with model
 
-            ChangeHistoryPage_update();
+            ChangeHistoryPage_draw();
             AudioManager_play_sound(SOUND_UI_SELECT);
             return;
         }
@@ -62,10 +62,11 @@ static void ChangeHistory_handle_input(ButtonCode button) {
 
     s_current_history_index =
         GUIList_get_current_index(&history_list);  // Track cursor movement
-    ChangeHistoryPage_update();
+    ChangeHistoryPage_draw();
 }
 
-void ChangeHistoryPage_enter() {
+void ChangeHistoryPage_enter(void (*return_dest)(void)) {
+    return_func = return_dest;
     // Sync UI index with current game state (undo steps back)
     s_current_history_index = Game_get_current_undo_index();
 
@@ -88,5 +89,5 @@ void ChangeHistoryPage_enter() {
     new_page.handle_input = ChangeHistory_handle_input;
 
     PageManager_switch_page(&new_page);
-    ChangeHistoryPage_update();
+    ChangeHistoryPage_draw();
 }

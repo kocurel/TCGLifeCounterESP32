@@ -41,7 +41,7 @@ static void ConfirmPage_init_components() {
     is_initialized = true;
 }
 
-void ConfirmPage_draw() {
+static void ConfirmPage_draw() {
     GUIRenderer_clear_buffer();
 
     // Rysowanie etykiet (one same zajmą się centrowaniem/wyrównaniem)

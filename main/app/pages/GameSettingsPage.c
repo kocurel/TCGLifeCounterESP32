@@ -6,7 +6,7 @@
 #include "AudioManager.h"
 #include "GUIFramework.h"
 #include "GUIRenderer.h"
-#include "MenuPage.h"
+#include "SettingsPage.h"
 #include "app/PageManager.h"
 #include "model/Settings.h"
 
@@ -15,6 +15,7 @@ enum {
     OPT_START_LIFE,
     OPT_PLAYER_COUNT,  // <--- NOWA OPCJA
     OPT_DEAD_AT_ZERO,
+    OPT_CMD_EN,
     OPT_CMD_DMG_RULE,
     OPT_COUNT,
 };
@@ -45,6 +46,10 @@ static char* settings_item_to_string(void* item, int index) {
         case OPT_DEAD_AT_ZERO:
             snprintf(s_list_buffer, sizeof(s_list_buffer), "Dead at 0: %s",
                      s->dead_at_zero ? "Yes" : "No");
+            break;
+        case OPT_CMD_EN:
+            snprintf(s_list_buffer, sizeof(s_list_buffer), "Cmd enabled: %s",
+                     s->cmd_mode_en ? "Yes" : "No");
             break;
 
         case OPT_CMD_DMG_RULE:
@@ -103,12 +108,15 @@ static void modify_setting(int index, int direction) {
         case OPT_CMD_DMG_RULE:
             s_draft_settings.cmd_dmg_rule = !s_draft_settings.cmd_dmg_rule;
             break;
+        case OPT_CMD_EN:
+            s_draft_settings.cmd_mode_en = !s_draft_settings.cmd_mode_en;
+            break;
     }
 }
 
 // --- Page Logic ---
 
-static void GameSettingsPage_update_ui() {
+static void GameSettingsPage_draw() {
     GUIRenderer_clear_buffer();
     GUI_DRAW(&options_list);
 
@@ -135,19 +143,17 @@ static void GameSettingsPage_handle_input(ButtonCode button) {
             break;
         case BUTTON_CODE_CANCEL:
             AudioManager_play_sound(SOUND_UI_CANCEL);
-            MenuPage_enter();
+            SettingsPage_enter();
             return;
         case BUTTON_CODE_ACCEPT:
             AudioManager_play_sound(SOUND_UI_SELECT);
             SettingsModel_save(s_draft_settings);
-            // Tutaj wracamy do menu - MainPage przy wejściu samo sprawdzi
-            // player_count
-            MenuPage_enter();
+            SettingsPage_enter();
             return;
         default:
             break;
     }
-    GameSettingsPage_update_ui();
+    GameSettingsPage_draw();
 }
 
 void GameSettingsPage_enter() {
@@ -165,5 +171,5 @@ void GameSettingsPage_enter() {
     Page page = {.handle_input = GameSettingsPage_handle_input, .exit = NULL};
     PageManager_switch_page(&page);
 
-    GameSettingsPage_update_ui();
+    GameSettingsPage_draw();
 }

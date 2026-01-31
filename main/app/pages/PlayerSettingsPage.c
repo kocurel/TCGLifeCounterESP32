@@ -12,6 +12,7 @@
 enum { OPT_EDIT_NAME, OPT_MONARCH, OPT_CITY_BLESSING, OPT_COUNT };
 
 static GUIList settings_list;
+static GUILabel title;
 static int active_player_id;
 
 static int player_settings_get_count(void* data) { return OPT_COUNT; }
@@ -41,12 +42,9 @@ static char* player_opt_to_str(void* item, int index) {
 
 static void PlayerSettingsPage_draw() {
     GUIRenderer_clear_buffer();
-    GUIRenderer_set_font_size(7);
-    GUIRenderer_draw_str(2, 10, "PLAYER SETTINGS");
-    GUIRenderer_draw_horizontal_line(12);
+    GUI_DRAW(&title);
+    GUIRenderer_draw_horizontal_line(13);
     GUI_DRAW(&settings_list);
-    int visual_index = GUIList_get_current_index(&settings_list);
-    GUIRenderer_draw_frame(0, visual_index * 11 + 14, 128, 12);
     GUIRenderer_send_buffer();
 }
 
@@ -95,9 +93,13 @@ void PlayerSettingsPage_enter(int player_id) {
     active_player_id = player_id;
     static bool initialized = false;
     if (!initialized) {
+        GUILabel_init(&title, "PLAYER SETTINGS");
+        GUI_SET_FONT_SIZE(&title, 7);
+        GUI_SET_SIZE(&title, 128, 12);
+        GUILabel_set_alignment(&title, GUI_ALIGMNENT_CENTER);
         GUIList_init(&settings_list, NULL, player_settings_get_count, NULL,
                      player_opt_to_str, NULL);
-        GUI_SET_POS(&settings_list, 2, 15);
+        GUI_SET_POS(&settings_list, 0, 14);
         GUI_SET_SIZE(&settings_list, 124, 45);
         initialized = true;
     }

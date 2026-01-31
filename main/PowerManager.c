@@ -5,14 +5,12 @@
 #include "driver/gpio.h"
 #include "driver/ledc.h"
 #include "esp_log.h"
+#include "esp_pm.h"
 #include "esp_sleep.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "model/Settings.h"  // <--- Tutaj są nasze czasy
-
-// Opcjonalne PM
-#include "esp_pm.h"
+#include "model/Settings.h"
 
 static const char* TAG = "PowerManager";
 static int64_t last_activity_time = 0;
@@ -30,7 +28,7 @@ static void enter_display_sleep() {
     // 1. Wyłącz renderowanie (OLED Sleep Command)
     GUIRenderer_power_save_enable();
 
-    // 2. Fizyczne odcięcie zasilania ekranu (zgodnie z Twoim PCB)
+    // 2. Fizyczne odcięcie zasilania ekranu
     gpio_set_level(21, 1);
 
     s_display_is_off = true;
@@ -71,7 +69,7 @@ static void enter_deep_sleep() {
 
     // --- Konfiguracja pinów na czas snu (HOLD) ---
 
-    // GPIO 5 (External Control?) -> LOW
+    // GPIO 5 (Power button press level) -> LOW
     gpio_reset_pin(5);
     gpio_set_direction(5, GPIO_MODE_OUTPUT);
     gpio_set_level(5, 0);
@@ -88,9 +86,6 @@ static void enter_deep_sleep() {
 
     // --- Konfiguracja wybudzania ---
 
-    // Wybudzanie dowolnym klawiszem (zakładamy, że podłączony do GPIO 2 z
-    // Pull-up) Dostosuj numer pinu, jeśli Twój główny przycisk wybudzania jest
-    // inny!
     const int WAKEUP_PIN = 2;
     gpio_reset_pin(WAKEUP_PIN);
     gpio_set_direction(WAKEUP_PIN, GPIO_MODE_INPUT);
@@ -155,8 +150,7 @@ void PowerManager_init() {
     gpio_set_level(21, 0);  // Start: Ekran włączony (Active Low logic?)
                             // UWAGA: Jeśli 21=HIGH wyłącza, to 21=0 włącza.
 
-    // Opcjonalnie: Dynamic Frequency Scaling (DFS)
-    // Pozwala zejść z taktowaniem CPU, gdy system "nic nie robi" (idle task)
+    // Dynamic Frequency Scaling (DFS)
 #if CONFIG_PM_ENABLE
     esp_pm_config_esp32c3_t pm_config = {
         .max_freq_mhz = 160,

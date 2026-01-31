@@ -38,13 +38,18 @@ void app_main(void) {
     gpio_hold_dis(21);
 
     LOG_DEBUG("app_main", "Initializing display.");
+
+    // --- Subsystem Init ---
+    LOG_DEBUG("app_main", "Initializing I2C u8g2 context.");
     GUIRenderer_init();
 
+    LOG_DEBUG("app_main", "Initializing settings model.");
     SettingsModel_init();
-    // --- Subsystem Init ---
+
+    LOG_DEBUG("app_main", "Initializing power manager.");
     PowerManager_init();  // Starts the background 20s check task
 
-    LOG_DEBUG("app_main", "System initialized.");
+    LOG_DEBUG("app_main", "Initializing console.");
     xTaskCreate(console_task, "console_cli", 5120, NULL, 5, NULL);
 
     LOG_DEBUG("app_main", "Initializing audio.");
@@ -65,7 +70,6 @@ void app_main(void) {
     ButtonCode received_key;
 
     // --- Main Event Loop ---
-    // --- Main Event Loop ---
     while (1) {
         if (xQueueReceive(get_keypad_queue(), &received_key, portMAX_DELAY)) {
             bool was_sleeping = PowerManager_is_display_off();
@@ -75,20 +79,15 @@ void app_main(void) {
                 continue;
             }
 
-            // --- ZMIANA TUTAJ ---
+            // Power off query
             if (received_key == BUTTON_CODE_POWER) {
                 LOG_DEBUG("app_main",
                           "Power button pressed - showing confirm page");
 
-                // Używamy naszej nowej strony potwierdzenia!
-                // Jeśli użytkownik wybierze "Nie" (CANCEL), ConfirmPage
-                // automatycznie wróci do MainPage.
                 ConfirmPage_enter("Power off the device?",
                                   on_power_off_confirmed);
 
             } else {
-                // Wszystkie inne przyciski idą do standardowego kontrolera
-                // stron
                 ViewController_button_handler(received_key);
             }
         }

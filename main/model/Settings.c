@@ -8,7 +8,6 @@
 #include "nvs.h"
 #include "nvs_flash.h"
 
-static const char* TAG = "SettingsModel";
 static const char* NVS_NAMESPACE = "game_config";
 
 static GameSettings s_current_settings;
@@ -21,9 +20,10 @@ static const GameSettings DEFAULT_SETTINGS = {
     .screen_timeout_min = 2,
     .auto_off_min = 15,
     .sound_enabled = true,
+    .quick_dmg_en = false,
     .dead_at_zero = true,
     .cmd_dmg_rule = true,
-    // Domyślne nazwy (jeśli NVS puste)
+    .cmd_mode_en = false,
     .player_names = {"Player 1", "Player 2", "Player 3", "Player 4"}};
 
 void SettingsModel_init() {
@@ -44,7 +44,7 @@ void SettingsModel_init() {
     uint8_t val8;
     uint16_t val16;
 
-    // --- Ładowanie ustawień liczbowych ---
+    // --- Ładowanie ustawień liczbowych i flag ---
     if (nvs_get_u16(handle, "start_life", &val16) != ESP_OK)
         val16 = DEFAULT_SETTINGS.starting_life;
     s_current_settings.starting_life = val16;
@@ -74,6 +74,10 @@ void SettingsModel_init() {
         val8 = (uint8_t)DEFAULT_SETTINGS.sound_enabled;
     s_current_settings.sound_enabled = (bool)val8;
 
+    if (nvs_get_u8(handle, "q_dmg", &val8) != ESP_OK)
+        val8 = (uint8_t)DEFAULT_SETTINGS.quick_dmg_en;
+    s_current_settings.quick_dmg_en = (bool)val8;
+
     if (nvs_get_u8(handle, "dead0", &val8) != ESP_OK)
         val8 = (uint8_t)DEFAULT_SETTINGS.dead_at_zero;
     s_current_settings.dead_at_zero = (bool)val8;
@@ -81,6 +85,10 @@ void SettingsModel_init() {
     if (nvs_get_u8(handle, "cmd21", &val8) != ESP_OK)
         val8 = (uint8_t)DEFAULT_SETTINGS.cmd_dmg_rule;
     s_current_settings.cmd_dmg_rule = (bool)val8;
+
+    if (nvs_get_u8(handle, "cmd_en", &val8) != ESP_OK)
+        val8 = (uint8_t)DEFAULT_SETTINGS.cmd_mode_en;
+    s_current_settings.cmd_mode_en = (bool)val8;
 
     // --- Ładowanie nazw graczy ---
     char key_buf[8];
@@ -91,7 +99,6 @@ void SettingsModel_init() {
         err = nvs_get_str(handle, key_buf, s_current_settings.player_names[i],
                           &required_size);
         if (err != ESP_OK) {
-            // Jeśli brak w NVS, użyj domyślnej
             strncpy(s_current_settings.player_names[i],
                     DEFAULT_SETTINGS.player_names[i], PLAYER_NAME_MAX_LEN);
         }
@@ -99,7 +106,6 @@ void SettingsModel_init() {
 
     nvs_close(handle);
     GUIRenderer_set_contrast(s_current_settings.screen_brightness);
-    ESP_LOGI(TAG, "Settings initialized.");
 }
 
 void SettingsModel_save(GameSettings new_settings) {
@@ -113,10 +119,11 @@ void SettingsModel_save(GameSettings new_settings) {
     nvs_set_u8(handle, "dim_t", new_settings.screen_timeout_min);
     nvs_set_u8(handle, "off_t", new_settings.auto_off_min);
     nvs_set_u8(handle, "snd_en", (uint8_t)new_settings.sound_enabled);
+    nvs_set_u8(handle, "q_dmg", (uint8_t)new_settings.quick_dmg_en);
     nvs_set_u8(handle, "dead0", (uint8_t)new_settings.dead_at_zero);
     nvs_set_u8(handle, "cmd21", (uint8_t)new_settings.cmd_dmg_rule);
+    nvs_set_u8(handle, "cmd_en", (uint8_t)new_settings.cmd_mode_en);
 
-    // Zapisujemy też nazwy (jeśli robimy pełny zapis)
     char key_buf[8];
     for (int i = 0; i < 4; i++) {
         snprintf(key_buf, sizeof(key_buf), "pn_%d", i);
@@ -130,16 +137,13 @@ void SettingsModel_save(GameSettings new_settings) {
     GUIRenderer_set_contrast(s_current_settings.screen_brightness);
 }
 
-// Funkcja dedykowana do zapisu pojedynczej nazwy (szybka)
 void SettingsModel_save_player_name(int player_id, const char* name) {
     if (player_id < 0 || player_id > 3) return;
 
-    // Aktualizuj RAM
     strncpy(s_current_settings.player_names[player_id], name,
             PLAYER_NAME_MAX_LEN);
     s_current_settings.player_names[player_id][PLAYER_NAME_MAX_LEN - 1] = '\0';
 
-    // Aktualizuj NVS
     nvs_handle_t handle;
     if (nvs_open(NVS_NAMESPACE, NVS_READWRITE, &handle) == ESP_OK) {
         char key_buf[8];

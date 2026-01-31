@@ -48,30 +48,32 @@ static int32_t CommanderPage_get_value_id(int source_id) {
     return COMMANDER_DAMAGE_START_INDEX + source_id;
 }
 
-// Logic to update Cmd Damage AND adjust HP automatically
 static void CommanderPage_apply_change(int p_id, int s_id,
                                        int32_t new_cmd_val) {
+    // 1. Najpierw nakładamy twardy limit (Clamping)
+    if (new_cmd_val > 999) new_cmd_val = 999;
+    if (new_cmd_val < 0) new_cmd_val = 0;
+
     int32_t val_id = CommanderPage_get_value_id(s_id);
     int32_t old_cmd_val = Game_get_value(p_id, val_id);
 
-    // Calculate how much life was lost (or gained if undoing)
+    // 2. Obliczamy różnicę na podstawie JUŻ ograniczonej wartości
     int32_t diff = new_cmd_val - old_cmd_val;
 
     if (diff != 0) {
-        // 1. Update the Commander Damage counter
+        // 3. Aktualizujemy licznik Commander Damage
         Game_set_value(new_cmd_val, p_id, val_id);
 
-        // 2. Adjust HP (Index 0) inversely
-        // If diff is positive (took damage), HP goes down.
-        // If diff is negative (correction), HP goes up.
+        // 4. Inwersyjna korekta HP
+        // Jeśli diff > 0 (obrażenia rosną), życie maleje.
         int32_t current_hp = Game_get_value(p_id, 0);
         Game_set_value(current_hp - diff, p_id, 0);
     }
 }
 
-void CommanderPage_handle_input(ButtonCode button);
+static void CommanderPage_handle_input(ButtonCode button);
 
-void CommanderPage_draw() {
+static void CommanderPage_draw() {
     GUIRenderer_clear_buffer();
 
     char buf[BUFFER_SIZE];
@@ -93,7 +95,11 @@ void CommanderPage_draw() {
         uint8_t x, y, w, h;
         GUIComponent_get_xywh((GUIComponent*)commander_page.selected_label, &x,
                               &y, &w, &h);
-        GUIRenderer_draw_frame(x, y, w, h);
+
+        // [FIX] Draw frame 1 pixel outside the component bounds
+        // to prevent it from touching the text (which is 8px high inside a 12px
+        // box)
+        GUIRenderer_draw_frame(x, y - 1, w, h);
     }
     GUIRenderer_send_buffer();
 }
@@ -110,7 +116,7 @@ static void CommanderPage_editor_callback(int32_t new_value) {
     PageManager_switch_page(&page);
     CommanderPage_draw();
 }
-void CommanderPage_handle_input(ButtonCode button) {
+static void CommanderPage_handle_input(ButtonCode button) {
     GUIComponent* next = NULL;
 
     // Pobieramy ID, żeby sprawdzić czy nie jesteśmy na polu "ME"
@@ -184,11 +190,22 @@ void CommanderPage_enter(int initial_player_id) {
         GUIVBox_init(&commander_page.block_p31);
         GUIVBox_init(&commander_page.block_p40);
         GUIVBox_init(&commander_page.block_p41);
+
         for (int player_id = 0; player_id < 4; player_id++) {
             for (int source_id = 0; source_id < 4; source_id++) {
                 GUILabel_init(&commander_page.labels[player_id][source_id], "");
+
+                // [FIX] Explicitly set size larger than font height (8)
+                // 12px height allows 2px padding top/bottom for the frame
+                // GUI_SET_SIZE(&commander_page.labels[player_id][source_id],
+                // 24,
+                //              12);
                 GUI_SET_FONT_SIZE(&commander_page.labels[player_id][source_id],
                                   8);
+                GUILabel_set_alignment(
+                    &commander_page.labels[player_id][source_id],
+                    GUI_ALIGMNENT_CENTER);
+
                 snprintf(buffer, BUFFER_SIZE, "%ld",
                          Game_get_commander_damage(player_id, source_id));
                 GUI_SET_TEXT(&commander_page.labels[player_id][source_id],

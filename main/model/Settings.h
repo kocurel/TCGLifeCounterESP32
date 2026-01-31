@@ -16,13 +16,14 @@ typedef struct {
     uint8_t screen_timeout_min;
     uint8_t auto_off_min;
     bool sound_enabled;
+    bool quick_dmg_en;  // <--- NOWE: Tryb szybkiego zadawania obrażeń
 
     // --- Game Rules (Zasady) ---
     uint16_t starting_life;
     uint8_t player_count;
     bool dead_at_zero;
     bool cmd_dmg_rule;
-
+    bool cmd_mode_en;
     // --- Persistent Player Names ---
     char player_names[4][PLAYER_NAME_MAX_LEN];
 } GameSettings;
@@ -30,7 +31,6 @@ typedef struct {
 void SettingsModel_init();
 GameSettings SettingsModel_get();
 void SettingsModel_save(GameSettings new_settings);
-void SettingsModel_save_player_name(int player_id,
-                                    const char* name);  // Nowa funkcja
+void SettingsModel_save_player_name(int player_id, const char* name);
 
 #endif

@@ -65,7 +65,6 @@ Player* Game_get_player(uint8_t index);
 const char* Game_get_player_name(uint8_t index);
 const char* Game_get_value_name(uint8_t index);
 int32_t Game_get_commander_damage(int player_id, int source_id);
-void Game_deal_commander_damage(int player_id, int source_id, int32_t amount);
 
 /* --- History & Undo/Redo --- */
 void Game_undo(void);

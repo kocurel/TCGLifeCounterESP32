@@ -2,7 +2,7 @@
 
 #include "GUIFramework.h"
 #include "MainPage.h"
-#include "PlayerSettingsPage.h"  // <--- Dodano nagłówek
+#include "PlayerSettingsPage.h"
 #include "ValueEditorPage.h"
 #include "app/GameDelegates.h"
 #include "app/PageManager.h"
@@ -12,7 +12,7 @@ static GUIList list = {0};
 static GUILabel player_lbl = {0};
 static int page_player_id = 0;
 
-void PlayerPage_update() {
+static void PlayerPage_draw() {
     GUIRenderer_clear_buffer();
     GUI_DRAW(&list);
     GUI_DRAW(&player_lbl);
@@ -22,15 +22,15 @@ void PlayerPage_update() {
 
 static void PlayerPage_callback(int32_t value);
 
-void PlayerPage_handle_input(ButtonCode button) {
+static void PlayerPage_handle_input(ButtonCode button) {
     switch (button) {
         case BUTTON_CODE_DOWN:
             GUIList_down(&list);
-            PlayerPage_update();
+            PlayerPage_draw();
             break;
         case BUTTON_CODE_UP:
             GUIList_up(&list);
-            PlayerPage_update();
+            PlayerPage_draw();
             break;
         case BUTTON_CODE_CANCEL:
             MainPage_enter();
@@ -40,13 +40,13 @@ void PlayerPage_handle_input(ButtonCode button) {
             for (int i = 0; i < 4; i++) {
                 GUIList_up(&list);
             }
-            PlayerPage_update();
+            PlayerPage_draw();
             break;
         case BUTTON_CODE_RIGHT:
             for (int i = 0; i < 4; i++) {
                 GUIList_down(&list);
             }
-            PlayerPage_update();
+            PlayerPage_draw();
             break;
 
         case BUTTON_CODE_ACCEPT: {
@@ -73,7 +73,7 @@ static void PlayerPage_callback(int32_t value) {
     new_page.handle_input = PlayerPage_handle_input;
     PageManager_switch_page(&new_page);
 
-    PlayerPage_update();
+    PlayerPage_draw();
 }
 
 void PlayerPage_enter(int player_id) {
@@ -97,5 +97,5 @@ void PlayerPage_enter(int player_id) {
     new_page.handle_input = PlayerPage_handle_input;
     PageManager_switch_page(&new_page);
 
-    PlayerPage_update();
+    PlayerPage_draw();
 }

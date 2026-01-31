@@ -190,12 +190,6 @@ int32_t Game_get_commander_damage(int player_id, int source_id) {
         .values[COMMANDER_DAMAGE_START_INDEX + source_id];
 }
 
-void Game_deal_commander_damage(int player_id, int source_id, int32_t amount) {
-    int32_t current = Game_get_commander_damage(player_id, source_id);
-    Game_set_value(current + amount, player_id,
-                   COMMANDER_DAMAGE_START_INDEX + source_id);
-}
-
 int32_t Game_get_current_undo_index() {
     return (game.history.head - game.history.cursor + HISTORY_MAX_CAPACITY) %
            HISTORY_MAX_CAPACITY;

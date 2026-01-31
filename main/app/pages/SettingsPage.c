@@ -9,10 +9,6 @@
 #include "MenuPage.h"
 #include "app/PageManager.h"
 
-// --- Forward Declarations for Stubs ---
-void GameSettingsPage_enter();
-void DeviceSettingsPage_enter();
-
 // --- Data Structure ---
 typedef struct {
     GUIComponent* focused_component;
@@ -24,7 +20,7 @@ typedef struct {
 static SettingsPageData settings_page = {0};
 static bool is_initialized = false;
 
-static void SettingsPage_update() {
+static void SettingsPage_draw() {
     GUIRenderer_clear_buffer();
 
     // 1. Draw the container (handles children automatically)
@@ -67,7 +63,6 @@ static void SettingsPage_handle_input(ButtonCode button) {
             return;  // Return immediately to prevent redraw on old page
 
         case BUTTON_CODE_CANCEL:
-            AudioManager_play_sound(SOUND_UI_CANCEL);
             MenuPage_enter();
             return;
 
@@ -78,7 +73,7 @@ static void SettingsPage_handle_input(ButtonCode button) {
     if (next_focus != NULL) {
         AudioManager_play_sound(SOUND_UI_MOVE);
         settings_page.focused_component = next_focus;
-        SettingsPage_update();
+        SettingsPage_draw();
     }
 }
 
@@ -90,9 +85,10 @@ void SettingsPage_enter() {
         GUILabel_init(&settings_page.lbl_device_settings, "Device Settings");
 
         // 2. Setup Container Layout
-        GUI_SET_POS(&settings_page.root_vbox, 0, 10);
-        GUI_SET_SIZE(&settings_page.root_vbox, 128, 54);
-        GUI_SET_SPACING(&settings_page.root_vbox, 12);  // Gap between labels
+        GUI_SET_POS(&settings_page.root_vbox, 0, 0);
+        GUI_SET_SIZE(&settings_page.root_vbox, 128, 64);
+        GUI_SET_SPACING(&settings_page.root_vbox, 6);
+        GUI_SET_PADDING(&settings_page.root_vbox, 4);
 
         // 3. Setup Labels (Center aligned text)
         GUI_SET_FONT_SIZE(&settings_page.lbl_game_settings, 7);
@@ -133,5 +129,5 @@ void SettingsPage_enter() {
 
     Page new_page = {.handle_input = SettingsPage_handle_input, .exit = NULL};
     PageManager_switch_page(&new_page);
-    SettingsPage_update();
+    SettingsPage_draw();
 }

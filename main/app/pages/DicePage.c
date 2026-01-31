@@ -26,7 +26,7 @@ static char* dice_item_to_string(void* item, int index) {
     return (char*)DICE_NAMES[index];
 }
 
-static void DicePage_update_ui() {
+static void DicePage_draw() {
     GUIRenderer_clear_buffer();
 
     // 1. Update Quantity Label (Line 1)
@@ -102,7 +102,7 @@ static void DicePage_handle_input(ButtonCode button) {
         default:
             break;
     }
-    DicePage_update_ui();
+    DicePage_draw();
 }
 
 void DicePage_enter() {
@@ -137,5 +137,5 @@ void DicePage_enter() {
     // 5. Load Page
     Page new_page = {.handle_input = DicePage_handle_input, .exit = NULL};
     PageManager_switch_page(&new_page);
-    DicePage_update_ui();
+    DicePage_draw();
 }

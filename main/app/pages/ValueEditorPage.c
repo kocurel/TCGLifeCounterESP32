@@ -62,7 +62,7 @@ static void update_scale_label() {
     GUI_SET_TEXT(&ctx.scale_lbl, ctx.text_buffer);
 }
 
-void ValueEditorPage_update() {
+static void ValueEditorPage_draw() {
     GUIRenderer_clear_buffer();
 
     // 1. Draw Static Header
@@ -93,7 +93,7 @@ void ValueEditorPage_update() {
     GUIRenderer_send_buffer();
 }
 
-void ValueEditorPage_handle_input(ButtonCode button) {
+static void ValueEditorPage_handle_input(ButtonCode button) {
     int32_t scale = get_current_scale();
 
     switch (button) {
@@ -103,7 +103,7 @@ void ValueEditorPage_handle_input(ButtonCode button) {
             } else {
                 ctx.current_value = MAX_DISPLAY_VAL;
             }
-            ValueEditorPage_update();
+            ValueEditorPage_draw();
             break;
 
         case BUTTON_CODE_DOWN:
@@ -112,14 +112,14 @@ void ValueEditorPage_handle_input(ButtonCode button) {
             } else {
                 ctx.current_value = -MAX_DISPLAY_VAL;
             }
-            ValueEditorPage_update();
+            ValueEditorPage_draw();
             break;
 
         case BUTTON_CODE_LEFT:
             // Increase Step Size (x10) for this specific value_id
             if (s_persistent_scales[ctx.active_value_id] < 100000) {
                 s_persistent_scales[ctx.active_value_id] *= 10;
-                ValueEditorPage_update();
+                ValueEditorPage_draw();
             }
             break;
 
@@ -127,7 +127,7 @@ void ValueEditorPage_handle_input(ButtonCode button) {
             // Decrease Step Size (/10) for this specific value_id
             if (s_persistent_scales[ctx.active_value_id] > 1) {
                 s_persistent_scales[ctx.active_value_id] /= 10;
-                ValueEditorPage_update();
+                ValueEditorPage_draw();
             }
             break;
 
@@ -219,5 +219,5 @@ void ValueEditorPage_enter(const char* title, const char* subtitle,
     PageManager_switch_page(&new_page);
 
     // 5. Initial Draw
-    ValueEditorPage_update();
+    ValueEditorPage_draw();
 }

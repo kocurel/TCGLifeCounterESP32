@@ -4,6 +4,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
+#include "model/Settings.h"
 
 // Cache głośności (0-100)
 static uint8_t s_volume_percent = 50;
@@ -44,6 +45,8 @@ void AudioManager_set_volume(uint8_t volume_percent) {
 }
 
 void AudioManager_init(void) {
+    GameSettings settings = SettingsModel_get();
+    AudioManager_set_volume(settings.sound_loudness);
     // 1. Configure LEDC Timer
     ledc_timer_config_t ledc_timer = {.speed_mode = BUZZER_MODE,
                                       .timer_num = BUZZER_TIMER,

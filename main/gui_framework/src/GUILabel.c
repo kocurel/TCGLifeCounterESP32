@@ -11,7 +11,6 @@ static void GUILabel_draw(GUIComponent* self) {
 
     GUIRenderer_set_font_size(label->font_size);
 
-    // subtracting a magic 1 cause string width calculation sucks
     uint8_t text_width = GUIRenderer_get_string_width(label->text) - 1;
 
     int8_t ascent = GUIRenderer_get_ascent();
@@ -22,39 +21,36 @@ static void GUILabel_draw(GUIComponent* self) {
     if (!label->isUpsideDown) {
         GUIRenderer_rotate_text_disable();
         uint8_t x, y;
-        y = self->y + text_height + (self->height - text_height) / 2;
+
+        // --- FIX IS HERE ---
+        // Use 'ascent' to place the baseline, not 'text_height'
+        y = self->y + ascent + (self->height - text_height) / 2;
+
         switch (label->alignment) {
             case GUI_ALIGMNENT_CENTER:
-                // Center text in the bounding box
                 x = self->x + (self->width - text_width) / 2;
                 break;
             case GUI_ALIGMNENT_LEFT:
-                // Align the text to the left
                 x = self->x;
                 break;
             case GUI_ALIGMNENT_RIGHT:
-                // Align the text to the right
                 x = self->x + self->width - text_width;
                 break;
             default:
                 x = 0;
                 break;
         }
-        GUI_TRACE(
-            "GUILabel_draw",
-            "GUILabel dimensions: x:%u y%u w%u h%u\nText at x:%u y:%u w%u h%u",
-            self->x, self->y, self->width, self->height, x, y, text_width,
-            text_height);
         GUIRenderer_draw_str(x, y, label->text);
     } else {
         GUIRenderer_rotate_text_enable();
         // Calculate rotated origin
         uint8_t x = self->x + (self->width - text_width) / 2 + text_width;
+        // This usually works for upside down because the anchor often flips to
+        // 'top' relative to rotation
         uint8_t y = self->y + (self->height - text_height) / 2;
         GUIRenderer_draw_str(x, y, label->text);
     }
 }
-
 void GUILabel_init(GUILabel* self, const char* initial_text) {
     if (self == NULL) return;
     GUI_TRACE("GUILabel_init", "Initializing GUILabel at address %p", self);
