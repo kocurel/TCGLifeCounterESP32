@@ -27,4 +27,6 @@ void GUIRenderer_draw_horizontal_line(int y);
 void GUIRenderer_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
 void GUIRenderer_set_color(uint8_t color);
 void GUIRenderer_draw_pixel(uint8_t x, uint8_t y);
+// Adds an inverted rectangle (XOR operation) over the existing pixels
+void GUIRenderer_draw_xor_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 #endif  // GUIRENDERER_H

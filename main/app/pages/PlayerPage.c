@@ -14,9 +14,37 @@ static int page_player_id = 0;
 
 static void PlayerPage_draw() {
     GUIRenderer_clear_buffer();
+
+    // 1. Rysowanie standardowych komponentów
     GUI_DRAW(&list);
     GUI_DRAW(&player_lbl);
     GUIRenderer_draw_horizontal_line(13);
+
+    // 2. Wskaźniki przewijania (Pagination Indicators)
+    const int ROW_HEIGHT = 11;
+    // Obliczamy ile wierszy mieści się fizycznie na ekranie
+    int visible_rows = list.base.height / ROW_HEIGHT;
+
+    // Pobieramy aktualny indeks i całkowitą liczbę elementów
+    int current_idx = GUIList_get_current_index(&list);
+
+    // delegate_get_value_count pochodzi z GameDelegates.h
+    // (możesz tu też użyć po prostu NUMBER_OF_VALUES, jeśli masz include
+    // Game.h)
+    int total = NUMBER_OF_VALUES;
+
+    // Rysuj wskaźnik GÓRA (jeśli przewinęliśmy już pierwszą stronę)
+    if (current_idx >= visible_rows) {
+        // Rysujemy piksel na górnej krawędzi listy (y = 14)
+        GUIRenderer_draw_pixel(64, list.base.y + 1);
+    }
+
+    // Rysuj wskaźnik DÓŁ (jeśli nie jesteśmy na końcu)
+    if (current_idx < total - visible_rows) {
+        // Rysujemy piksel tuż pod listą
+        GUIRenderer_draw_pixel(64, list.base.y + list.base.height + 1);
+    }
+
     GUIRenderer_send_buffer();
 }
 

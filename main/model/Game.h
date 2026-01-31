@@ -9,13 +9,13 @@
 #define VALUE_NAME_MAX_LENGTH 12
 #define HISTORY_MAX_CAPACITY 2000
 
-#define NUMBER_OF_VALUES 32
+#define NUMBER_OF_VALUES 36
 
 // Indeksy specjalne w tablicy values[]
 #define INDEX_HP 0
 #define INDEX_MONARCH 8
 #define INDEX_CITY_BLESSING 9
-#define COMMANDER_DAMAGE_START_INDEX 20
+#define COMMANDER_DAMAGE_START_INDEX 32
 
 typedef struct Player Player;
 typedef struct ChangeHistory ChangeHistory;
@@ -59,6 +59,7 @@ bool Game_is_monarch(uint8_t player_id);
 void Game_set_monarch(uint8_t player_id);
 void Game_toggle_blessing(uint8_t player_id);
 void Game_set_player_name(uint8_t player_id, const char* name);
+void Game_set_value_name(int index, const char* name);
 
 /* --- Getters --- */
 Player* Game_get_player(uint8_t index);

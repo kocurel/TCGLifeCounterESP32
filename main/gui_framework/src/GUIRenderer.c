@@ -121,3 +121,13 @@ void GUIRenderer_draw_line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2) {
 void GUIRenderer_draw_pixel(uint8_t x, uint8_t y) {
     u8g2_DrawPixel(&u8g2_context, x, y);
 }
+void GUIRenderer_draw_xor_rect(uint8_t x, uint8_t y, uint8_t w, uint8_t h) {
+    // 0 = Transparent, 1 = Solid, 2 = XOR
+    u8g2_SetDrawColor(&u8g2_context, 2);
+
+    // DrawBox fills the rectangle, applying the XOR operation
+    u8g2_DrawBox(&u8g2_context, x, y, w, h);
+
+    // Restore standard draw color
+    u8g2_SetDrawColor(&u8g2_context, 1);
+}

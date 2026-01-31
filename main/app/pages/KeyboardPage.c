@@ -25,7 +25,7 @@ static const char* kb_chars_num[KB_ROWS][KB_COLS] = {
     {"1", "2", "3", "4", "5", "6", "7"},
     {"8", "9", "0", "!", "@", "#", "$"},
     {"%", "&", "*", "(", ")", "-", "+"},
-    {".", ",", "?", "/", "_", "<", "OK"}};
+    {".", ",", "?", "/", "_", " ", "OK"}};
 
 static char key_labels_cache[KB_ROWS][KB_COLS][4];
 
@@ -51,26 +51,27 @@ static bool is_initialized = false;
 static void update_key_labels() {
     for (int r = 0; r < KB_ROWS; r++) {
         for (int c = 0; c < KB_COLS; c++) {
-            // Zachowujemy funkcjonalność OK i Backspace
+            // [CHANGE 3] Handle OK and the new Space key (Index [3][5])
             if (c == 6 && r == 3) {  // OK
                 snprintf(key_labels_cache[r][c], 4, "OK");
-            } else if (c == 5 && r == 3) {  // <
-                snprintf(key_labels_cache[r][c], 4, "<");
+            } else if (c == 5 && r == 3) {  // [3][5] is now Space
+                // We display "SP" because an empty string " " is invisible
+                snprintf(key_labels_cache[r][c], 4, "SP");
             } else {
-                switch (ctx.mode) {
-                    case KB_MODE_NUM:
-                        snprintf(key_labels_cache[r][c], 4, "%s",
-                                 kb_chars_num[r][c]);
-                        break;
-                    case KB_MODE_UPPER:
-                        snprintf(key_labels_cache[r][c], 4, "%s",
-                                 kb_chars_upper[r][c]);
-                        break;
-                    case KB_MODE_LOWER:
-                        key_labels_cache[r][c][0] =
-                            tolower((unsigned char)kb_chars_upper[r][c][0]);
-                        key_labels_cache[r][c][1] = '\0';
-                        break;
+                // Standard char handling
+                const char* src_char;
+                if (ctx.mode == KB_MODE_NUM) {
+                    src_char = kb_chars_num[r][c];
+                } else {
+                    src_char = kb_chars_upper[r][c];
+                }
+
+                if (ctx.mode == KB_MODE_LOWER && ctx.mode != KB_MODE_NUM) {
+                    key_labels_cache[r][c][0] =
+                        tolower((unsigned char)src_char[0]);
+                    key_labels_cache[r][c][1] = '\0';
+                } else {
+                    snprintf(key_labels_cache[r][c], 4, "%s", src_char);
                 }
             }
             GUI_SET_TEXT(&ctx.keys[r][c], key_labels_cache[r][c]);
@@ -144,10 +145,19 @@ static void KeyboardPage_handle_input(ButtonCode button) {
                 AudioManager_play_sound(SOUND_UI_SELECT);
                 if (ctx.callback) ctx.callback(ctx.buffer);
                 return;
-            } else if (strcmp(val, "<") == 0) {
+            }
+            // [CHANGE 4] Removed "<" check (hardware button used instead)
+            // [CHANGE 5] Add Space Logic
+            else if (strcmp(val, "SP") == 0) {
                 int len = strlen(ctx.buffer);
-                if (len > 0) ctx.buffer[len - 1] = '\0';
-            } else {
+                if (len < MAX_NAME_LEN) {
+                    strcat(ctx.buffer, " ");  // Append real space
+                } else {
+                    AudioManager_play_sound(SOUND_UI_ERROR);
+                }
+            }
+            // Default character append
+            else {
                 int len = strlen(ctx.buffer);
                 if (len < MAX_NAME_LEN)
                     strcat(ctx.buffer, val);

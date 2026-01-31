@@ -11,6 +11,7 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
+#include "esp_timer.h"
 #include "gui_framework/include/test/GUItests.h"
 #include "keypad.h"
 #include "model/Game.h"
@@ -68,28 +69,51 @@ void app_main(void) {
     AudioManager_play_sound(SOUND_GAME_START);
 
     ButtonCode received_key;
+    uint32_t last_time = (uint32_t)(esp_timer_get_time() / 1000);
+    const uint32_t tick_interval_ms = 20;  // Celujemy w 50 FPS dla UI
 
     // --- Main Event Loop ---
     while (1) {
-        if (xQueueReceive(get_keypad_queue(), &received_key, portMAX_DELAY)) {
+        uint32_t now = (uint32_t)(esp_timer_get_time() / 1000);
+        uint32_t delta_ms = now - last_time;
+
+        // 1. Obsługa Ticku (Logika czasowa)
+        // Czekamy na upłynięcie interwału, aby wywołać on_tick
+        if (delta_ms >= tick_interval_ms) {
+            PageManager_tick(delta_ms);
+            last_time = now;
+        }
+
+        // 2. Obsługa Inputu z Timeoutem
+        // Zamiast portMAX_DELAY używamy tick_interval_ms.
+        // Jeśli nie ma przycisku, funkcja wyjdzie po czasie i pozwoli pętli
+        // zrobić kolejny obrót (Tick).
+        if (xQueueReceive(get_keypad_queue(), &received_key,
+                          pdMS_TO_TICKS(tick_interval_ms))) {
             bool was_sleeping = PowerManager_is_display_off();
             PowerManager_reset_timer();
 
             if (was_sleeping) {
+                // Jeśli urządzenie się wybudziło, ignorujemy pierwszy przycisk
+                // (zazwyczaj tak jest lepiej dla UX)
                 continue;
             }
 
-            // Power off query
+            // Obsługa specjalna przycisku Power
             if (received_key == BUTTON_CODE_POWER) {
                 LOG_DEBUG("app_main",
                           "Power button pressed - showing confirm page");
-
                 ConfirmPage_enter("Power off the device?",
                                   on_power_off_confirmed);
-
             } else {
-                ViewController_button_handler(received_key);
+                // Przekazanie do managera stron
+                // Używamy PageManager_handle_input bezpośrednio, jeśli
+                // ViewController to Twój PageManager
+                PageManager_handle_input(received_key);
             }
         }
+
+        // 3. Opcjonalnie: Mały delay dla FreeRTOS, jeśli timeout w kolejce
+        // byłby 0 vTaskDelay(1);
     }
 }

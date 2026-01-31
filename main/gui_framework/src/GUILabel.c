@@ -22,8 +22,6 @@ static void GUILabel_draw(GUIComponent* self) {
         GUIRenderer_rotate_text_disable();
         uint8_t x, y;
 
-        // --- FIX IS HERE ---
-        // Use 'ascent' to place the baseline, not 'text_height'
         y = self->y + ascent + (self->height - text_height) / 2;
 
         switch (label->alignment) {
@@ -43,11 +41,30 @@ static void GUILabel_draw(GUIComponent* self) {
         GUIRenderer_draw_str(x, y, label->text);
     } else {
         GUIRenderer_rotate_text_enable();
-        // Calculate rotated origin
-        uint8_t x = self->x + (self->width - text_width) / 2 + text_width;
-        // This usually works for upside down because the anchor often flips to
-        // 'top' relative to rotation
-        uint8_t y = self->y + (self->height - text_height) / 2;
+
+        uint8_t y = self->y - GUIRenderer_get_descent() +
+                    (self->height - text_height) / 2;
+
+        uint8_t x;
+        switch (label->alignment) {
+            case GUI_ALIGMNENT_CENTER:
+                // (W - w)/2 + w  ==> (W + w)/2
+                x = self->x + (self->width + text_width) / 2;
+                break;
+            case GUI_ALIGMNENT_LEFT:
+                // Wizualnie lewa, więc fizycznie prawa krawędź tekstu dotyka
+                // prawej krawędzi boksu Ale że rysujemy "od tyłu" (zależy od
+                // biblioteki), często to jest:
+                x = self->x + self->width;
+                break;
+            case GUI_ALIGMNENT_RIGHT:
+                // Wizualnie prawa
+                x = self->x + text_width;
+                break;
+            default:
+                x = self->x + text_width;
+                break;
+        }
         GUIRenderer_draw_str(x, y, label->text);
     }
 }

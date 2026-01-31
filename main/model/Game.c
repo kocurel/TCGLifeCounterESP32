@@ -7,12 +7,6 @@
 #include "Assert.h"
 #include "Settings.h"
 
-static const char* DEFAULT_NAMES[] = {
-    "HP",      "Poison",  "CmdTax", "Energy", "Storm", "XP",   "Rad",
-    "Tickets", "Monarch", "City's", "Level",  "Wins",  "Turns"};
-
-#define ACTUAL_DEFAULTS_COUNT (sizeof(DEFAULT_NAMES) / sizeof(DEFAULT_NAMES[0]))
-
 Game game = {0};
 
 void Game_init() {
@@ -21,22 +15,18 @@ void Game_init() {
     game.history.tail = 0;
     game.history.count = 0;
 
+    // Pobieramy ustawienia (które mają już załadowane nazwy z NVS lub domyślne)
     GameSettings settings = SettingsModel_get();
     game.number_of_players = settings.player_count;
 
-    // 1. Nazwy liczników
+    // 1. Nazwy liczników - TERAZ Z USTAWIEŃ
     for (int i = 0; i < NUMBER_OF_VALUES; i++) {
-        if (i < ACTUAL_DEFAULTS_COUNT) {
-            snprintf(game.value_names[i], VALUE_NAME_MAX_LENGTH, "%s",
-                     DEFAULT_NAMES[i]);
-        } else {
-            snprintf(game.value_names[i], VALUE_NAME_MAX_LENGTH, "Val %d", i);
-        }
+        snprintf(game.value_names[i], VALUE_NAME_MAX_LENGTH, "%s",
+                 settings.value_names[i]);
     }
 
-    // 2. Inicjalizacja graczy (ZMIANA: Ładowanie nazw z NVS)
+    // 2. Inicjalizacja graczy (Nazwy również z ustawień)
     for (int i = 0; i < MAX_NUMBER_OF_PLAYERS; i++) {
-        // Używamy nazwy zapisanej w ustawieniach
         snprintf(game.players[i].name, PLAYER_NAME_MAX_LENGTH, "%s",
                  settings.player_names[i]);
 
@@ -46,6 +36,19 @@ void Game_init() {
     }
 
     Game_reset();
+}
+
+// ... (reszta funkcji bez zmian) ...
+
+// [NOWA FUNKCJA] Implementacja settera dla nazw zmiennych
+void Game_set_value_name(int index, const char* name) {
+    if (index < 0 || index >= NUMBER_OF_VALUES) return;
+    if (name == NULL) return;
+
+    // Zapisz w strukturze gry (RAM)
+    strncpy(game.value_names[index], name, VALUE_NAME_MAX_LENGTH);
+    // Upewnij się, że string jest zakończony zerem
+    game.value_names[index][VALUE_NAME_MAX_LENGTH - 1] = '\0';
 }
 
 // --- Status Management ---
