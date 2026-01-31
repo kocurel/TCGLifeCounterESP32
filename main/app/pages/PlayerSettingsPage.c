@@ -7,16 +7,23 @@
 #include "PlayerPage.h"
 #include "app/PageManager.h"
 #include "model/Game.h"
-#include "model/Settings.h"  // Dodane dla zapisu ustawień
+#include "model/Settings.h"
 
+/* --- Constants & Enums --- */
 enum { OPT_EDIT_NAME, OPT_MONARCH, OPT_CITY_BLESSING, OPT_COUNT };
 
+/* --- Private State --- */
 static GUIList settings_list;
 static GUILabel title;
 static int active_player_id;
 
+/* --- List Delegates --- */
+
 static int player_settings_get_count(void* data) { return OPT_COUNT; }
 
+/**
+ * Maps player-specific options to displayable strings
+ */
 static char* player_opt_to_str(void* item, int index) {
     static char buf[32];
     Player* p = Game_get_player(active_player_id);
@@ -29,31 +36,42 @@ static char* player_opt_to_str(void* item, int index) {
             snprintf(buf, sizeof(buf), "Monarch: %s",
                      Game_is_monarch(active_player_id) ? "YES" : "No");
             break;
-        case OPT_CITY_BLESSING:
+        case OPT_CITY_BLESSING: {
             int32_t blessing =
                 Game_get_value(active_player_id, INDEX_CITY_BLESSING);
             snprintf(buf, sizeof(buf), "Blessing: %s", blessing ? "ON" : "Off");
             break;
+        }
         default:
             return "";
     }
     return buf;
 }
 
+/* --- Drawing --- */
+
 static void PlayerSettingsPage_draw() {
     GUIRenderer_clear_buffer();
+
     GUI_DRAW(&title);
     GUIRenderer_draw_horizontal_line(13);
     GUI_DRAW(&settings_list);
+
     GUIRenderer_send_buffer();
 }
 
+/* --- Callbacks & Input Handling --- */
+
+/**
+ * Callback triggered when the KeyboardPage finishes a rename operation.
+ * Updates both the volatile game state and persistent NVS storage.
+ */
 static void on_name_complete(const char* new_name) {
     if (new_name) {
-        // 1. Zapisz w bieżącej grze (RAM)
+        // Update active game session
         Game_set_player_name(active_player_id, new_name);
 
-        // 2. Zapisz trwale w NVS (Flash)
+        // Update persistent settings in NVS
         SettingsModel_save_player_name(active_player_id, new_name);
     }
     PlayerSettingsPage_enter(active_player_id);
@@ -89,21 +107,30 @@ static void handle_input(ButtonCode btn) {
     PlayerSettingsPage_draw();
 }
 
+/* --- Page Lifecycle --- */
+
 void PlayerSettingsPage_enter(int player_id) {
     active_player_id = player_id;
+
     static bool initialized = false;
     if (!initialized) {
+        // Initialize header
         GUILabel_init(&title, "PLAYER SETTINGS");
         GUI_SET_FONT_SIZE(&title, 7);
         GUI_SET_SIZE(&title, 128, 12);
         GUILabel_set_alignment(&title, GUI_ALIGMNENT_CENTER);
+
+        // Initialize options list
         GUIList_init(&settings_list, NULL, player_settings_get_count, NULL,
                      player_opt_to_str, NULL);
         GUI_SET_POS(&settings_list, 0, 14);
         GUI_SET_SIZE(&settings_list, 124, 45);
+
         initialized = true;
     }
+
     Page page = {.handle_input = handle_input, .exit = NULL};
+
     PageManager_switch_page(&page);
     PlayerSettingsPage_draw();
 }

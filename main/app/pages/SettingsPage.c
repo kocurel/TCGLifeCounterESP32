@@ -9,7 +9,7 @@
 #include "MenuPage.h"
 #include "app/PageManager.h"
 
-// --- Data Structure ---
+/* --- Private Types --- */
 typedef struct {
     GUIComponent* focused_component;
     GUIVBox root_vbox;
@@ -17,26 +17,29 @@ typedef struct {
     GUILabel lbl_device_settings;
 } SettingsPageData;
 
+/* --- Private State --- */
 static SettingsPageData settings_page = {0};
 static bool is_initialized = false;
+
+/* --- Drawing --- */
 
 static void SettingsPage_draw() {
     GUIRenderer_clear_buffer();
 
-    // 1. Draw the container (handles children automatically)
+    // 1. Render the main container and its children
     GUI_DRAW(&settings_page.root_vbox);
 
-    // 2. Draw Focus Frame around the currently selected component
+    // 2. Render Selection Frame
     if (settings_page.focused_component != NULL) {
         uint8_t x, y, w, h;
         GUIComponent_get_xywh(settings_page.focused_component, &x, &y, &w, &h);
-
-        // Draw a rectangle around the selected label
         GUIRenderer_draw_frame(x, y, w, h);
     }
 
     GUIRenderer_send_buffer();
 }
+
+/* --- Input Handling --- */
 
 static void SettingsPage_handle_input(ButtonCode button) {
     GUIComponent* next_focus = NULL;
@@ -52,7 +55,7 @@ static void SettingsPage_handle_input(ButtonCode button) {
         case BUTTON_CODE_ACCEPT:
             AudioManager_play_sound(SOUND_UI_SELECT);
 
-            // Check pointer equality to determine which label was selected
+            // Determine navigation destination based on component focus
             if (settings_page.focused_component ==
                 (GUIComponent*)&settings_page.lbl_game_settings) {
                 GameSettingsPage_enter();
@@ -60,7 +63,7 @@ static void SettingsPage_handle_input(ButtonCode button) {
                        (GUIComponent*)&settings_page.lbl_device_settings) {
                 DeviceSettingsPage_enter();
             }
-            return;  // Return immediately to prevent redraw on old page
+            return;
 
         case BUTTON_CODE_CANCEL:
             MenuPage_enter();
@@ -77,20 +80,22 @@ static void SettingsPage_handle_input(ButtonCode button) {
     }
 }
 
+/* --- Page Lifecycle --- */
+
 void SettingsPage_enter() {
     if (!is_initialized) {
-        // 1. Init Components
+        // 1. Component Initialization
         GUIVBox_init(&settings_page.root_vbox);
         GUILabel_init(&settings_page.lbl_game_settings, "Game Settings");
         GUILabel_init(&settings_page.lbl_device_settings, "Device Settings");
 
-        // 2. Setup Container Layout
+        // 2. Main Container Configuration
         GUI_SET_POS(&settings_page.root_vbox, 0, 0);
         GUI_SET_SIZE(&settings_page.root_vbox, 128, 64);
         GUI_SET_SPACING(&settings_page.root_vbox, 6);
         GUI_SET_PADDING(&settings_page.root_vbox, 4);
 
-        // 3. Setup Labels (Center aligned text)
+        // 3. Label Styling
         GUI_SET_FONT_SIZE(&settings_page.lbl_game_settings, 7);
         GUILabel_set_alignment(&settings_page.lbl_game_settings,
                                GUI_ALIGMNENT_CENTER);
@@ -99,35 +104,32 @@ void SettingsPage_enter() {
         GUILabel_set_alignment(&settings_page.lbl_device_settings,
                                GUI_ALIGMNENT_CENTER);
 
-        // 4. Add to VBox
+        // 4. Hierarchy Construction
         GUI_ADD_CHILDREN(&settings_page.root_vbox,
                          &settings_page.lbl_game_settings,
                          &settings_page.lbl_device_settings);
 
-        // 5. Calculate Layout (Positions X/Y for children)
+        // 5. Layout Calculation
         GUI_UPDATE_LAYOUT(&settings_page.root_vbox);
 
-        // 6. Navigation Linking
-        // Standard Vertical Link (Game -> Down -> Device)
+        // 6. Navigation Logic (Vertical links with manual wrap-around)
         GUI_LINK_VERTICAL(&settings_page.lbl_game_settings,
                           &settings_page.lbl_device_settings);
 
-        // 7. Manual Wrap-Around Logic
-        // Device -> Down -> Game
         settings_page.lbl_device_settings.base.nav_down =
             (GUIComponent*)&settings_page.lbl_game_settings;
-        // Game -> Up -> Device
         settings_page.lbl_game_settings.base.nav_up =
             (GUIComponent*)&settings_page.lbl_device_settings;
 
         is_initialized = true;
     }
 
-    // Reset focus to top when entering
+    // Default focus to the top option upon entry
     settings_page.focused_component =
         (GUIComponent*)&settings_page.lbl_game_settings;
 
     Page new_page = {.handle_input = SettingsPage_handle_input, .exit = NULL};
+
     PageManager_switch_page(&new_page);
     SettingsPage_draw();
 }

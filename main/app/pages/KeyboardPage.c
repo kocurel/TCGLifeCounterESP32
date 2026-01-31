@@ -8,18 +8,20 @@
 #include "GUIRenderer.h"
 #include "app/PageManager.h"
 
+/* --- Configuration Constants --- */
 #define KB_ROWS 4
 #define KB_COLS 7
 #define MAX_NAME_LEN 11
 
-// Definicja trybów klawiatury
+/* --- Types --- */
 typedef enum { KB_MODE_UPPER, KB_MODE_LOWER, KB_MODE_NUM } KeyboardMode;
 
+/* --- Key Maps --- */
 static const char* kb_chars_upper[KB_ROWS][KB_COLS] = {
     {"A", "B", "C", "D", "E", "F", "G"},
     {"H", "I", "J", "K", "L", "M", "N"},
     {"O", "P", "Q", "R", "S", "T", "U"},
-    {"V", "W", "X", "Y", "Z", "<", "OK"}};
+    {"V", "W", "X", "Y", "Z", " ", "OK"}};
 
 static const char* kb_chars_num[KB_ROWS][KB_COLS] = {
     {"1", "2", "3", "4", "5", "6", "7"},
@@ -27,8 +29,7 @@ static const char* kb_chars_num[KB_ROWS][KB_COLS] = {
     {"%", "&", "*", "(", ")", "-", "+"},
     {".", ",", "?", "/", "_", " ", "OK"}};
 
-static char key_labels_cache[KB_ROWS][KB_COLS][4];
-
+/* --- Private Context --- */
 typedef struct {
     GUIVBox root;
     GUIVBox keyboard_grid;
@@ -41,24 +42,28 @@ typedef struct {
     char buffer[MAX_NAME_LEN + 1];
     KeyboardCallback callback;
     GUILabel* selected_key;
-
-    KeyboardMode mode;  // Główny stan trybu
+    KeyboardMode mode;
 } KeyboardContext;
 
 static KeyboardContext ctx;
 static bool is_initialized = false;
+static char key_labels_cache[KB_ROWS][KB_COLS][4];
 
+/* --- Internal Logic --- */
+
+/**
+ * Updates the text of the GUI labels based on the current keyboard mode
+ */
 static void update_key_labels() {
     for (int r = 0; r < KB_ROWS; r++) {
         for (int c = 0; c < KB_COLS; c++) {
-            // [CHANGE 3] Handle OK and the new Space key (Index [3][5])
-            if (c == 6 && r == 3) {  // OK
+            if (c == 6 && r == 3) {
+                // Confirm action
                 snprintf(key_labels_cache[r][c], 4, "OK");
-            } else if (c == 5 && r == 3) {  // [3][5] is now Space
-                // We display "SP" because an empty string " " is invisible
+            } else if (c == 5 && r == 3) {
+                // Space bar (displayed as SP)
                 snprintf(key_labels_cache[r][c], 4, "SP");
             } else {
-                // Standard char handling
                 const char* src_char;
                 if (ctx.mode == KB_MODE_NUM) {
                     src_char = kb_chars_num[r][c];
@@ -79,9 +84,12 @@ static void update_key_labels() {
     }
 }
 
+/* --- Drawing --- */
+
 static void KeyboardPage_draw() {
     GUIRenderer_clear_buffer();
 
+    // Display current buffer with a cursor hint
     char display_buf[MAX_NAME_LEN + 2];
     snprintf(display_buf, sizeof(display_buf), "%s_", ctx.buffer);
     GUI_SET_TEXT(&ctx.input_lbl, display_buf);
@@ -89,14 +97,15 @@ static void KeyboardPage_draw() {
     GUI_DRAW(&ctx.root);
     GUI_DRAW(&ctx.keyboard_grid);
 
+    // Draw selection frame around focused key
     if (ctx.selected_key != NULL) {
         uint8_t x, y, w, h;
         GUIComponent_get_xywh((GUIComponent*)ctx.selected_key, &x, &y, &w, &h);
         GUIRenderer_draw_frame(x, y, w, h);
     }
 
+    // Render mode indicator (CAP/low/123)
     GUIRenderer_set_font_size(6);
-    // Dynamiczny indykator trybu
     const char* mode_str = (ctx.mode == KB_MODE_UPPER)   ? "CAP"
                            : (ctx.mode == KB_MODE_LOWER) ? "low"
                                                          : "123";
@@ -104,6 +113,8 @@ static void KeyboardPage_draw() {
 
     GUIRenderer_send_buffer();
 }
+
+/* --- Input Handling --- */
 
 static void KeyboardPage_handle_input(ButtonCode button) {
     GUIComponent* next = NULL;
@@ -122,43 +133,37 @@ static void KeyboardPage_handle_input(ButtonCode button) {
             next = ctx.selected_key->base.nav_right;
             break;
 
-        // Przełączanie trybów: CAP -> low -> 123
         case BUTTON_CODE_SET:
+            // Cycle keyboard modes
             ctx.mode = (ctx.mode + 1) % 3;
             update_key_labels();
             KeyboardPage_draw();
             break;
 
-        // Backspace
-        case BUTTON_CODE_MENU:
+        case BUTTON_CODE_MENU: {
+            // Hardware backspace functionality
             int len = strlen(ctx.buffer);
             if (len > 0) {
                 ctx.buffer[len - 1] = '\0';
                 KeyboardPage_draw();
             }
             break;
+        }
 
-        case BUTTON_CODE_ACCEPT:
+        case BUTTON_CODE_ACCEPT: {
             const char* val = ctx.selected_key->text;
+            int len = strlen(ctx.buffer);
 
             if (strcmp(val, "OK") == 0) {
                 AudioManager_play_sound(SOUND_UI_SELECT);
                 if (ctx.callback) ctx.callback(ctx.buffer);
                 return;
-            }
-            // [CHANGE 4] Removed "<" check (hardware button used instead)
-            // [CHANGE 5] Add Space Logic
-            else if (strcmp(val, "SP") == 0) {
-                int len = strlen(ctx.buffer);
-                if (len < MAX_NAME_LEN) {
-                    strcat(ctx.buffer, " ");  // Append real space
-                } else {
+            } else if (strcmp(val, "SP") == 0) {
+                if (len < MAX_NAME_LEN)
+                    strcat(ctx.buffer, " ");
+                else
                     AudioManager_play_sound(SOUND_UI_ERROR);
-                }
-            }
-            // Default character append
-            else {
-                int len = strlen(ctx.buffer);
+            } else {
                 if (len < MAX_NAME_LEN)
                     strcat(ctx.buffer, val);
                 else
@@ -166,10 +171,13 @@ static void KeyboardPage_handle_input(ButtonCode button) {
             }
             KeyboardPage_draw();
             break;
+        }
+
         case BUTTON_CODE_CANCEL:
             AudioManager_play_sound(SOUND_UI_CANCEL);
             if (ctx.callback) ctx.callback(NULL);
             return;
+
         default:
             break;
     }
@@ -180,16 +188,18 @@ static void KeyboardPage_handle_input(ButtonCode button) {
     }
 }
 
+/* --- Lifecycle --- */
+
 void KeyboardPage_enter(const char* title, const char* initial_text,
                         KeyboardCallback callback) {
     ctx.mode = KB_MODE_UPPER;
 
     if (!is_initialized) {
+        // 1. Initialize Header Layout
         GUIVBox_init(&ctx.root);
         GUI_SET_POS(&ctx.root, 0, 0);
         GUI_SET_SIZE(&ctx.root, 128, 20);
         GUI_SET_PADDING(&ctx.root, 1);
-        GUI_SET_SPACING(&ctx.root, 0);
 
         GUILabel_init(&ctx.title_lbl, "");
         GUI_SET_FONT_SIZE(&ctx.title_lbl, 6);
@@ -197,11 +207,10 @@ void KeyboardPage_enter(const char* title, const char* initial_text,
         GUI_SET_FONT_SIZE(&ctx.input_lbl, 7);
         GUI_ADD_CHILDREN(&ctx.root, &ctx.title_lbl, &ctx.input_lbl);
 
+        // 2. Initialize Keyboard Grid
         GUIVBox_init(&ctx.keyboard_grid);
         GUI_SET_POS(&ctx.keyboard_grid, 0, 20);
         GUI_SET_SIZE(&ctx.keyboard_grid, 128, 44);
-        GUI_SET_PADDING(&ctx.keyboard_grid, 0);
-        GUI_SET_SPACING(&ctx.keyboard_grid, 0);
 
         for (int r = 0; r < KB_ROWS; r++) {
             GUIHBox_init(&ctx.rows[r]);
@@ -210,7 +219,7 @@ void KeyboardPage_enter(const char* title, const char* initial_text,
 
             for (int c = 0; c < KB_COLS; c++) {
                 GUILabel* key = &ctx.keys[r][c];
-                GUILabel_init(key, key_labels_cache[r][c]);
+                GUILabel_init(key, "");
                 GUI_SET_SIZE(key, 17, 11);
                 GUI_SET_FONT_SIZE(key, 6);
                 GUILabel_set_alignment(key, GUI_ALIGMNENT_CENTER);
@@ -221,39 +230,29 @@ void KeyboardPage_enter(const char* title, const char* initial_text,
         GUI_UPDATE_LAYOUT(&ctx.root);
         GUI_UPDATE_LAYOUT(&ctx.keyboard_grid);
 
+        // 3. Construct Navigation Links with Wrap-around
         for (int r = 0; r < KB_ROWS; r++) {
             for (int c = 0; c < KB_COLS; c++) {
                 GUILabel* curr = &ctx.keys[r][c];
-                if (c > 0)
-                    curr->base.nav_left = (GUIComponent*)&ctx.keys[r][c - 1];
-                else
-                    // Wrap around on the left
-                    curr->base.nav_left =
-                        (GUIComponent*)&ctx.keys[r][KB_COLS - 1];
 
-                if (c < KB_COLS - 1)
-                    curr->base.nav_right = (GUIComponent*)&ctx.keys[r][c + 1];
-                else
-                    // wrap around on the right
-                    curr->base.nav_right = (GUIComponent*)&ctx.keys[r][0];
-
-                if (r > 0)
-                    curr->base.nav_up = (GUIComponent*)&ctx.keys[r - 1][c];
-                else
-                    // Wrap around on the top
-                    curr->base.nav_up =
-                        (GUIComponent*)&ctx.keys[KB_ROWS - 1][c];
-
-                if (r < KB_ROWS - 1)
-                    curr->base.nav_down = (GUIComponent*)&ctx.keys[r + 1][c];
-                else
-                    // Wrap around on the bottom
-                    curr->base.nav_down = (GUIComponent*)&ctx.keys[0][c];
-                is_initialized = true;
+                curr->base.nav_left =
+                    (c > 0) ? (GUIComponent*)&ctx.keys[r][c - 1]
+                            : (GUIComponent*)&ctx.keys[r][KB_COLS - 1];
+                curr->base.nav_right = (c < KB_COLS - 1)
+                                           ? (GUIComponent*)&ctx.keys[r][c + 1]
+                                           : (GUIComponent*)&ctx.keys[r][0];
+                curr->base.nav_up =
+                    (r > 0) ? (GUIComponent*)&ctx.keys[r - 1][c]
+                            : (GUIComponent*)&ctx.keys[KB_ROWS - 1][c];
+                curr->base.nav_down = (r < KB_ROWS - 1)
+                                          ? (GUIComponent*)&ctx.keys[r + 1][c]
+                                          : (GUIComponent*)&ctx.keys[0][c];
             }
         }
+        is_initialized = true;
     }
 
+    // 4. Reset Page State
     GUI_SET_TEXT(&ctx.title_lbl, title);
     ctx.callback = callback;
     if (initial_text) {

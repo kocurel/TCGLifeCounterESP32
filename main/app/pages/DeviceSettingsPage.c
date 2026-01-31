@@ -9,7 +9,7 @@
 #include "app/PageManager.h"
 #include "model/Settings.h"
 
-// --- Constants & Enums ---
+/* --- Constants & Enums --- */
 enum {
     OPT_BRIGHTNESS,
     OPT_VOLUME,
@@ -19,25 +19,28 @@ enum {
     OPT_COUNT
 };
 
-// --- Dostępne wartości (w minutach, 0 = Nigdy) ---
+/* --- Available options for time-based settings (0 = Never) --- */
 static const uint8_t TIMEOUT_OPTS[] = {0, 1, 2, 5, 10, 30};
 static const uint8_t AUTOOFF_OPTS[] = {0, 15, 30, 60, 120};
 
 #define TIMEOUT_OPTS_COUNT (sizeof(TIMEOUT_OPTS) / sizeof(TIMEOUT_OPTS[0]))
 #define AUTOOFF_OPTS_COUNT (sizeof(AUTOOFF_OPTS) / sizeof(AUTOOFF_OPTS[0]))
 
-// --- State ---
+/* --- Private State --- */
 static GUIList options_list;
 static char s_list_buffer[32];
 static GameSettings s_draft_settings;
 
-// --- Helper Logic ---
+/* --- Internal Helper Logic --- */
 
-// Uniwersalna funkcja do cyklicznego przechodzenia po tablicy wartości
+/**
+ * Cycles through an array of values in a specific direction
+ */
 static uint8_t cycle_value(uint8_t current, const uint8_t* array, int size,
                            int direction) {
     int current_idx = 0;
-    // 1. Znajdź obecny indeks
+
+    // Find current index in the array
     for (int i = 0; i < size; i++) {
         if (array[i] == current) {
             current_idx = i;
@@ -45,13 +48,13 @@ static uint8_t cycle_value(uint8_t current, const uint8_t* array, int size,
         }
     }
 
-    // 2. Przesuń indeks
+    // Move index with wrap-around logic
     if (direction > 0) {
         current_idx++;
-        if (current_idx >= size) current_idx = 0;  // Wrap to start
+        if (current_idx >= size) current_idx = 0;
     } else {
         current_idx--;
-        if (current_idx < 0) current_idx = size - 1;  // Wrap to end
+        if (current_idx < 0) current_idx = size - 1;
     }
 
     return array[current_idx];
@@ -59,18 +62,18 @@ static uint8_t cycle_value(uint8_t current, const uint8_t* array, int size,
 
 static int settings_get_count(void* data) { return OPT_COUNT; }
 
+/**
+ * Formats setting values into display strings for the GUI list
+ */
 static char* settings_item_to_string(void* item, int index) {
     GameSettings* s = &s_draft_settings;
 
     switch (index) {
         case OPT_BRIGHTNESS: {
-            // Brightness 0-128 mapujemy na poziom 1-5 dla czytelności
+            // Map 0-128 brightness to 1-5 levels for UI
             int level = (s->screen_brightness > 0)
                             ? (s->screen_brightness / 32) + 1
-                            : 0;
-            // Zabezpieczenie wizualne (żeby nie pokazywać "Brightness: 0" jeśli
-            // jasność minimalna to np 1)
-            if (level == 0) level = 1;
+                            : 1;
             snprintf(s_list_buffer, sizeof(s_list_buffer), "Brightness: %d",
                      level);
             break;
@@ -110,11 +113,13 @@ static char* settings_item_to_string(void* item, int index) {
     return s_list_buffer;
 }
 
+/**
+ * Modifies specific settings in the local draft state
+ */
 static void modify_setting(int index, int direction) {
     switch (index) {
         case OPT_BRIGHTNESS:
-            // Logika liniowa (nie zapętla się, bo ciężko trafić w ciemnościach
-            // jak przeskoczy na 0)
+            // Linear logic to prevent accidental darkness via wrap-around
             if (direction > 0) {
                 if (s_draft_settings.screen_brightness < 128)
                     s_draft_settings.screen_brightness += 32;
@@ -130,7 +135,7 @@ static void modify_setting(int index, int direction) {
                 if (s_draft_settings.sound_loudness < 100)
                     s_draft_settings.sound_loudness += 25;
                 else
-                    s_draft_settings.sound_loudness = 0;  // Tu zapętlamy
+                    s_draft_settings.sound_loudness = 0;
             } else {
                 if (s_draft_settings.sound_loudness > 0)
                     s_draft_settings.sound_loudness -= 25;
@@ -160,16 +165,20 @@ static void modify_setting(int index, int direction) {
     }
 }
 
+/* --- Drawing --- */
 static void DeviceSettingsPage_draw() {
     GUIRenderer_clear_buffer();
+
     GUI_DRAW(&options_list);
 
+    // Selection indicator frame
     int visual_index = GUIList_get_current_index(&options_list);
     GUIRenderer_draw_frame(0, visual_index * 11 + 4, 128, 12);
 
     GUIRenderer_send_buffer();
 }
 
+/* --- Input Handling --- */
 static void DeviceSettingsPage_handle_input(ButtonCode button) {
     switch (button) {
         case BUTTON_CODE_UP:
@@ -186,8 +195,7 @@ static void DeviceSettingsPage_handle_input(ButtonCode button) {
             break;
 
         case BUTTON_CODE_CANCEL: {
-            // Przywróć oryginalne ustawienia hardware'owe (jasność/głośność)
-            // jeśli anulowano
+            // Revert hardware changes (contrast/volume) to saved settings
             GameSettings original = SettingsModel_get();
             GUIRenderer_set_contrast(original.screen_brightness);
             AudioManager_set_volume(original.sound_loudness);
@@ -197,6 +205,7 @@ static void DeviceSettingsPage_handle_input(ButtonCode button) {
         }
 
         case BUTTON_CODE_ACCEPT:
+            // Commit draft settings to persistent storage
             AudioManager_play_sound(SOUND_UI_SELECT);
             SettingsModel_save(s_draft_settings);
             SettingsPage_enter();
@@ -208,7 +217,9 @@ static void DeviceSettingsPage_handle_input(ButtonCode button) {
     DeviceSettingsPage_draw();
 }
 
+/* --- Page Lifecycle --- */
 void DeviceSettingsPage_enter() {
+    // Load current settings into a temporary draft
     s_draft_settings = SettingsModel_get();
 
     static bool initialized = false;

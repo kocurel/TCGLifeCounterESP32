@@ -10,25 +10,28 @@
 #include "app/PageManager.h"
 #include "model/Settings.h"
 
-// --- Constants & Enums ---
+/* --- Constants & Enums --- */
 enum {
     OPT_START_LIFE,
-    OPT_PLAYER_COUNT,  // <--- NOWA OPCJA
+    OPT_PLAYER_COUNT,
     OPT_DEAD_AT_ZERO,
     OPT_CMD_EN,
     OPT_CMD_DMG_RULE,
     OPT_COUNT,
 };
 
-// --- State ---
+/* --- Private State --- */
 static GUIList options_list;
 static char s_list_buffer[32];
 static GameSettings s_draft_settings;
 
-// --- Helpers ---
+/* --- Internal Helpers --- */
 
 static int settings_get_count(void* data) { return OPT_COUNT; }
 
+/**
+ * Maps game rules and settings to displayable strings
+ */
 static char* settings_item_to_string(void* item, int index) {
     GameSettings* s = &s_draft_settings;
 
@@ -38,7 +41,7 @@ static char* settings_item_to_string(void* item, int index) {
                      s->starting_life);
             break;
 
-        case OPT_PLAYER_COUNT:  // <--- Wyświetlanie liczby graczy
+        case OPT_PLAYER_COUNT:
             snprintf(s_list_buffer, sizeof(s_list_buffer), "Players: %d",
                      s->player_count);
             break;
@@ -47,6 +50,7 @@ static char* settings_item_to_string(void* item, int index) {
             snprintf(s_list_buffer, sizeof(s_list_buffer), "Dead at 0: %s",
                      s->dead_at_zero ? "Yes" : "No");
             break;
+
         case OPT_CMD_EN:
             snprintf(s_list_buffer, sizeof(s_list_buffer), "Cmd enabled: %s",
                      s->cmd_mode_en ? "Yes" : "No");
@@ -63,6 +67,9 @@ static char* settings_item_to_string(void* item, int index) {
     return s_list_buffer;
 }
 
+/**
+ * Logic for cycling through discrete game setting values
+ */
 static void modify_setting(int index, int direction) {
     AudioManager_play_sound(SOUND_UI_MOVE);
 
@@ -80,7 +87,8 @@ static void modify_setting(int index, int direction) {
                     break;
                 }
             }
-            if (!found) current_idx = 3;
+            if (!found)
+                current_idx = 3;  // Default to 40 if current is non-standard
 
             if (direction > 0) {
                 current_idx = (current_idx + 1) % count;
@@ -92,8 +100,7 @@ static void modify_setting(int index, int direction) {
         }
 
         case OPT_PLAYER_COUNT:
-            // Prosty toggle między 2 a 4.
-            // Jeśli będziesz chciała dodać 3, można użyć tablicy wartości.
+            // Toggle logic for 2 or 4 players
             if (s_draft_settings.player_count == 2) {
                 s_draft_settings.player_count = 4;
             } else {
@@ -108,24 +115,29 @@ static void modify_setting(int index, int direction) {
         case OPT_CMD_DMG_RULE:
             s_draft_settings.cmd_dmg_rule = !s_draft_settings.cmd_dmg_rule;
             break;
+
         case OPT_CMD_EN:
             s_draft_settings.cmd_mode_en = !s_draft_settings.cmd_mode_en;
             break;
     }
 }
 
-// --- Page Logic ---
+/* --- Drawing --- */
 
 static void GameSettingsPage_draw() {
     GUIRenderer_clear_buffer();
+
+    // Render the list of options
     GUI_DRAW(&options_list);
 
-    // Dynamiczna ramka zaznaczenia
+    // Selection indicator frame
     int visual_index = GUIList_get_current_index(&options_list) % OPT_COUNT;
     GUIRenderer_draw_frame(0, visual_index * 11 + 6, 128, 12);
 
     GUIRenderer_send_buffer();
 }
+
+/* --- Input Handling --- */
 
 static void GameSettingsPage_handle_input(ButtonCode button) {
     switch (button) {
@@ -146,6 +158,7 @@ static void GameSettingsPage_handle_input(ButtonCode button) {
             SettingsPage_enter();
             return;
         case BUTTON_CODE_ACCEPT:
+            // Save local draft settings to persistent storage
             AudioManager_play_sound(SOUND_UI_SELECT);
             SettingsModel_save(s_draft_settings);
             SettingsPage_enter();
@@ -156,7 +169,10 @@ static void GameSettingsPage_handle_input(ButtonCode button) {
     GameSettingsPage_draw();
 }
 
+/* --- Page Lifecycle --- */
+
 void GameSettingsPage_enter() {
+    // Sync draft state with the current persistent settings
     s_draft_settings = SettingsModel_get();
 
     static bool initialized = false;
@@ -169,7 +185,7 @@ void GameSettingsPage_enter() {
     }
 
     Page page = {.handle_input = GameSettingsPage_handle_input, .exit = NULL};
-    PageManager_switch_page(&page);
 
+    PageManager_switch_page(&page);
     GameSettingsPage_draw();
 }
