@@ -11,7 +11,7 @@
 /* --- Configuration Constants --- */
 #define KB_ROWS 4
 #define KB_COLS 7
-#define MAX_NAME_LEN 11
+#define MAX_NAME_LEN 10
 
 /* --- Types --- */
 typedef enum { KB_MODE_UPPER, KB_MODE_LOWER, KB_MODE_NUM } KeyboardMode;

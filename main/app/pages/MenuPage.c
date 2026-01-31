@@ -139,7 +139,8 @@ static void MenuPage_handle_input(ButtonCode button) {
                     ValueNamesPage_enter();
                     break;
                 case MENU_OPT_NEW_GAME:
-                    ConfirmPage_enter("Reset game?", on_game_reset_confirmed);
+                    ConfirmPage_enter("Reset game?", on_game_reset_confirmed,
+                                      MenuPage_enter);
                     break;
                 default:
                     break;

@@ -100,7 +100,7 @@ void app_main(void) {
             // Special Handling: Power Button (Global Action)
             if (received_key == BUTTON_CODE_POWER) {
                 ConfirmPage_enter("Power off the device?",
-                                  on_power_off_confirmed);
+                                  on_power_off_confirmed, MainPage_enter);
             }
             // Standard Handling: Forward to active page logic
             else {

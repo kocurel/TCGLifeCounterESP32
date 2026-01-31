@@ -36,7 +36,7 @@ static void PlayerPage_draw() {
 
     // Draw DOWN indicator if there are more items below
     if (current_idx < total - visible_rows) {
-        GUIRenderer_draw_pixel(64, list.base.y + list.base.height + 1);
+        GUIRenderer_draw_pixel(64, list.base.y + list.base.height + 2);
     }
 
     GUIRenderer_send_buffer();
