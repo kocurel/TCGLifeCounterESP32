@@ -1,6 +1,7 @@
 #include "KeyboardPage.h"
 
 #include <ctype.h>
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -43,6 +44,9 @@ typedef struct {
     KeyboardCallback callback;
     GUILabel* selected_key;
     KeyboardMode mode;
+    // Animation state
+    float anim_x, anim_y, anim_w, anim_h;
+    bool needs_redraw;
 } KeyboardContext;
 
 static KeyboardContext ctx;
@@ -84,12 +88,9 @@ static void update_key_labels() {
     }
 }
 
-/* --- Drawing --- */
-
 static void KeyboardPage_draw() {
     GUIRenderer_clear_buffer();
 
-    // Display current buffer with a cursor hint
     char display_buf[MAX_NAME_LEN + 2];
     snprintf(display_buf, sizeof(display_buf), "%s_", ctx.buffer);
     GUI_SET_TEXT(&ctx.input_lbl, display_buf);
@@ -97,14 +98,11 @@ static void KeyboardPage_draw() {
     GUI_DRAW(&ctx.root);
     GUI_DRAW(&ctx.keyboard_grid);
 
-    // Draw selection frame around focused key
-    if (ctx.selected_key != NULL) {
-        uint8_t x, y, w, h;
-        GUIComponent_get_xywh((GUIComponent*)ctx.selected_key, &x, &y, &w, &h);
-        GUIRenderer_draw_frame(x, y, w, h);
-    }
+    // RYSOWANIE ANIMOWANEJ RAMKI
+    GUIRenderer_draw_frame(
+        (uint8_t)(ctx.anim_x + 0.5f), (uint8_t)(ctx.anim_y + 0.5f),
+        (uint8_t)(ctx.anim_w + 0.5f), (uint8_t)(ctx.anim_h + 0.5f));
 
-    // Render mode indicator (CAP/low/123)
     GUIRenderer_set_font_size(6);
     const char* mode_str = (ctx.mode == KB_MODE_UPPER)   ? "CAP"
                            : (ctx.mode == KB_MODE_LOWER) ? "low"
@@ -114,11 +112,44 @@ static void KeyboardPage_draw() {
     GUIRenderer_send_buffer();
 }
 
+/* --- Drawing --- */
+
+static void KeyboardPage_on_tick(uint32_t delta_ms) {
+    if (ctx.selected_key != NULL) {
+        uint8_t tx, ty, tw, th;
+        GUIComponent_get_xywh((GUIComponent*)ctx.selected_key, &tx, &ty, &tw,
+                              &th);
+
+        float base_speed =
+            0.3f;  // Nieco szybciej niż w menu dla responsywności
+        float factor = (float)delta_ms / 20.0f;
+        float speed = base_speed * factor;
+        if (speed > 1.0f) speed = 1.0f;
+
+        float old_x = ctx.anim_x;
+        float old_y = ctx.anim_y;
+
+        ctx.anim_x += ((float)tx - ctx.anim_x) * speed;
+        ctx.anim_y += ((float)ty - ctx.anim_y) * speed;
+        ctx.anim_w += ((float)tw - ctx.anim_w) * speed;
+        ctx.anim_h += ((float)th - ctx.anim_h) * speed;
+
+        if (fabsf(ctx.anim_x - old_x) > 0.1f ||
+            fabsf(ctx.anim_y - old_y) > 0.1f) {
+            ctx.needs_redraw = true;
+        }
+    }
+
+    if (ctx.needs_redraw) {
+        KeyboardPage_draw();
+        ctx.needs_redraw = false;
+    }
+}
+
 /* --- Input Handling --- */
 
 static void KeyboardPage_handle_input(ButtonCode button) {
     GUIComponent* next = NULL;
-
     switch (button) {
         case BUTTON_CODE_UP:
             next = ctx.selected_key->base.nav_up;
@@ -134,18 +165,16 @@ static void KeyboardPage_handle_input(ButtonCode button) {
             break;
 
         case BUTTON_CODE_SET:
-            // Cycle keyboard modes
             ctx.mode = (ctx.mode + 1) % 3;
             update_key_labels();
-            KeyboardPage_draw();
+            ctx.needs_redraw = true;  // Flaga dla zmiany liter
             break;
 
         case BUTTON_CODE_MENU: {
-            // Hardware backspace functionality
             int len = strlen(ctx.buffer);
             if (len > 0) {
                 ctx.buffer[len - 1] = '\0';
-                KeyboardPage_draw();
+                ctx.needs_redraw = true;
             }
             break;
         }
@@ -153,41 +182,32 @@ static void KeyboardPage_handle_input(ButtonCode button) {
         case BUTTON_CODE_ACCEPT: {
             const char* val = ctx.selected_key->text;
             int len = strlen(ctx.buffer);
-
             if (strcmp(val, "OK") == 0) {
                 AudioManager_play_sound(SOUND_UI_SELECT);
                 if (ctx.callback) ctx.callback(ctx.buffer);
                 return;
-            } else if (strcmp(val, "SP") == 0) {
-                if (len < MAX_NAME_LEN)
-                    strcat(ctx.buffer, " ");
-                else
-                    AudioManager_play_sound(SOUND_UI_ERROR);
-            } else {
-                if (len < MAX_NAME_LEN)
-                    strcat(ctx.buffer, val);
-                else
-                    AudioManager_play_sound(SOUND_UI_ERROR);
             }
-            KeyboardPage_draw();
+            // ... (logika SP i dopisywania liter bez zmian, ale z flagą redraw)
+            if (len < MAX_NAME_LEN) {
+                strcat(ctx.buffer, strcmp(val, "SP") == 0 ? " " : val);
+            } else {
+                AudioManager_play_sound(SOUND_UI_ERROR);
+            }
+            ctx.needs_redraw = true;
             break;
         }
-
         case BUTTON_CODE_CANCEL:
-            AudioManager_play_sound(SOUND_UI_CANCEL);
             if (ctx.callback) ctx.callback(NULL);
             return;
-
         default:
             break;
     }
 
     if (next != NULL) {
         ctx.selected_key = (GUILabel*)next;
-        KeyboardPage_draw();
+        // NIE wywołujemy draw() – on_tick wykryje ruch
     }
 }
-
 /* --- Lifecycle --- */
 
 void KeyboardPage_enter(const char* title, const char* initial_text,
@@ -265,7 +285,16 @@ void KeyboardPage_enter(const char* title, const char* initial_text,
     update_key_labels();
     ctx.selected_key = &ctx.keys[0][0];
 
-    Page page = {.handle_input = KeyboardPage_handle_input, .exit = NULL};
+    uint8_t x, y, w, h;
+    GUIComponent_get_xywh((GUIComponent*)ctx.selected_key, &x, &y, &w, &h);
+    ctx.anim_x = x;
+    ctx.anim_y = y;
+    ctx.anim_w = w;
+    ctx.anim_h = h;
+    ctx.needs_redraw = false;
+
+    Page page = {.handle_input = KeyboardPage_handle_input,
+                 .on_tick = KeyboardPage_on_tick};
     PageManager_switch_page(&page);
     KeyboardPage_draw();
 }

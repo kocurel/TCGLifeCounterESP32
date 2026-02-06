@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "AudioManager.h"
+#include "Keypad.h"
 #include "PowerManager.h"
 #include "ViewController.h"
 #include "app/pages/ConfirmPage.h"
@@ -12,7 +13,6 @@
 #include "esp_log.h"
 #include "esp_sleep.h"
 #include "esp_timer.h"
-#include "keypad.h"
 #include "model/Game.h"
 #include "model/Settings.h"
 
@@ -71,39 +71,47 @@ void app_main(void) {
     /* --- 4. Main Event Loop --- */
 
     ButtonCode received_key;
-    uint32_t last_time = (uint32_t)(esp_timer_get_time() / 1000);
-    const uint32_t tick_interval_ms = 20;  // Aiming for 50 FPS UI updates
+    int64_t last_frame_time = esp_timer_get_time();
+    const int64_t frame_duration_us = 20000;  // 20ms = 20000us (50 FPS)
 
     while (1) {
-        uint32_t now = (uint32_t)(esp_timer_get_time() / 1000);
-        uint32_t delta_ms = now - last_time;
+        // 1. Obliczamy Delta Time (w ms dla logiki)
+        int64_t now = esp_timer_get_time();
+        int64_t elapsed = now - last_frame_time;
 
-        // A. Logic Tick: Handle timed events and UI animations
-        if (delta_ms >= tick_interval_ms) {
-            PageManager_tick(delta_ms);
-            last_time = now;
+        // Jeśli minęło więcej niż 20ms, rysujemy klatkę
+        if (elapsed >= frame_duration_us) {
+            // Przekazujemy rzeczywisty czas (np. 21ms, 35ms) do fizyki
+            PageManager_tick((uint32_t)(elapsed / 1000));
+
+            // Przesuwamy punkt odniesienia o "czas klatki", żeby utrzymać rytm
+            // (chyba że lag jest ogromny, wtedy resetujemy do 'now')
+            last_frame_time = now;
         }
 
-        // B. Input Processing: Wait for keypad events with a timeout
-        // Using the tick interval as the timeout ensures the loop keeps ticking
-        if (xQueueReceive(get_keypad_queue(), &received_key,
-                          pdMS_TO_TICKS(tick_interval_ms))) {
+        // 2. Obliczamy, ile czasu ZOSTAŁO do następnej klatki
+        // Żeby nie obciążać CPU, śpimy tylko tyle, ile trzeba
+        now = esp_timer_get_time();
+        int64_t work_done = now - last_frame_time;
+        int64_t time_to_wait_us = frame_duration_us - work_done;
+
+        // Konwersja na Tick FreeRTOS (z zabezpieczeniem przed ujemnym czasem)
+        TickType_t wait_ticks = 0;
+        if (time_to_wait_us > 0) {
+            wait_ticks = pdMS_TO_TICKS(time_to_wait_us / 1000);
+        }
+
+        // 3. Czekamy na Input (tylko tyle ile mamy wolnego czasu)
+        if (xQueueReceive(get_keypad_queue(), &received_key, wait_ticks)) {
             bool was_sleeping = PowerManager_is_display_off();
             PowerManager_reset_timer();
 
-            // If the device just woke up from Display Sleep, ignore the first
-            // key press
-            if (was_sleeping) {
-                continue;
-            }
+            if (was_sleeping) continue;
 
-            // Special Handling: Power Button (Global Action)
             if (received_key == BUTTON_CODE_POWER) {
-                ConfirmPage_enter("Power off the device?",
-                                  on_power_off_confirmed, MainPage_enter);
-            }
-            // Standard Handling: Forward to active page logic
-            else {
+                ConfirmPage_enter("Power off?", on_power_off_confirmed,
+                                  MainPage_enter);
+            } else {
                 PageManager_handle_input(received_key);
             }
         }

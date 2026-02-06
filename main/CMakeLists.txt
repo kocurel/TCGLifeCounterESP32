@@ -3,7 +3,8 @@ idf_component_register(SRCS
                         "PowerManager.c"
                         "AudioManager.c"
 
-                        "keypad.c" "battery.c" "console_init.c"  "model/Button.c"  "ViewController.c" "main.c"
+                        "Keypad.c" "battery.c" "console_init.c"  
+                        "model/Button.c"  "ViewController.c" "main.c"
                         "model/DiceRoller.c"
                         "model/Game.c"
                         "model/Settings.c"

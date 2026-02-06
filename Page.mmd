@@ -1,0 +1,7 @@
+classDiagram
+    %% Interfejs Strony
+    class Page {
+        <<interface>>
+        +void (*handle_input)(ButtonCode)
+        +void (*on_tick)(uint32_t delta_ms)
+    }

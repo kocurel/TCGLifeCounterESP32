@@ -15,9 +15,6 @@ typedef struct Page {
     // delta_ms: czas w ms, który upłynął od ostatniego wywołania (do
     // animacji/timerów)
     void (*on_tick)(uint32_t delta_ms);
-
-    // Wywoływane przy opuszczaniu strony (cleanup)
-    void (*exit)(void);
 } Page;
 
 // Call this from your main loop (Producer)

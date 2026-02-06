@@ -1,5 +1,6 @@
 #include "MenuPage.h"
 
+#include <math.h>
 #include <stdio.h>
 
 #include "AudioManager.h"
@@ -13,8 +14,6 @@
 #include "ValueNamesPage.h"
 #include "app/PageManager.h"
 #include "model/Game.h"
-
-/* --- Types and Constants --- */
 
 typedef enum {
     MENU_OPT_HISTORY = 0,
@@ -34,8 +33,6 @@ typedef struct {
     GUILabel title_lbl;
 } MenuPageData;
 
-/* --- Private State --- */
-
 static bool is_initialized = false;
 static MenuPageData menu_page = {0};
 
@@ -53,14 +50,10 @@ static char* menu_item_to_string(void* data, int index) {
 static void MenuPage_draw() {
     GUIRenderer_clear_buffer();
 
-    // 1. Render Title
     GUI_DRAW(&menu_page.title_lbl);
-
-    // 2. Render Options List
     GUI_DRAW(&menu_page.menu_list);
 
-    // 3. Render Pagination Indicators (Arrows)
-    // Visible rows based on LIST_ROW_HEIGHT = 11
+    // Render Pagination Arrows
     const int ROW_HEIGHT = 11;
     int list_h = menu_page.menu_list.base.height;
     int visible_rows = list_h / ROW_HEIGHT;
@@ -71,50 +64,54 @@ static void MenuPage_draw() {
     uint8_t arrow_x =
         menu_page.menu_list.base.x + (menu_page.menu_list.base.width / 2);
 
-    // UP Arrow
     if (current_page > 0) {
         uint8_t y = menu_page.menu_list.base.y - 1;
         GUIRenderer_draw_pixel(arrow_x, y);
         GUIRenderer_draw_line(arrow_x - 2, y + 2, arrow_x + 2, y + 2);
     }
 
-    // DOWN Arrow
     if (current_page < total_pages - 1) {
         uint8_t y = menu_page.menu_list.base.y + list_h + 3;
         GUIRenderer_draw_line(arrow_x - 2, y, arrow_x + 2, y);
         GUIRenderer_draw_pixel(arrow_x, y + 2);
     }
 
-    // 4. Render System Info (Battery)
+    // Battery info
     int bat = System_get_battery_percentage();
     char bat_buf[12];
     snprintf(bat_buf, sizeof(bat_buf), "%d%%", bat);
-
     GUIRenderer_set_font_size(6);
     GUIRenderer_draw_str(104, 6, bat_buf);
 
     GUIRenderer_send_buffer();
 }
 
-/* --- Callbacks --- */
+/* --- Input & Lifecycle --- */
 
 static void on_game_reset_confirmed() {
     Game_reset();
     MainPage_enter();
 }
 
-/* --- Input Handling --- */
+static void MenuPage_on_tick(uint32_t delta_ms) {
+    float old_y = menu_page.menu_list.anim_y;
+
+    GUIList_tick(&menu_page.menu_list, delta_ms);
+
+    // Przerysuj tylko jeśli kursor się poruszył o zauważalny ułamek piksela
+    if (fabsf(menu_page.menu_list.anim_y - old_y) > 0.05f) {
+        MenuPage_draw();
+    }
+}
 
 static void MenuPage_handle_input(ButtonCode button) {
     switch (button) {
         case BUTTON_CODE_UP:
             GUIList_up(&menu_page.menu_list);
-            AudioManager_play_sound(SOUND_UI_MOVE);
             break;
 
         case BUTTON_CODE_DOWN:
             GUIList_down(&menu_page.menu_list);
-            AudioManager_play_sound(SOUND_UI_MOVE);
             break;
 
         case BUTTON_CODE_CANCEL:
@@ -124,7 +121,6 @@ static void MenuPage_handle_input(ButtonCode button) {
         case BUTTON_CODE_ACCEPT:
             AudioManager_play_sound(SOUND_UI_SELECT);
             int selected = GUIList_get_current_index(&menu_page.menu_list);
-
             switch (selected) {
                 case MENU_OPT_HISTORY:
                     ChangeHistoryPage_enter(NULL);
@@ -142,38 +138,33 @@ static void MenuPage_handle_input(ButtonCode button) {
                     ConfirmPage_enter("Reset game?", on_game_reset_confirmed,
                                       MenuPage_enter);
                     break;
-                default:
-                    break;
             }
             return;
-
         default:
             break;
     }
-    MenuPage_draw();
 }
-
-/* --- Page Lifecycle --- */
 
 void MenuPage_enter() {
     if (!is_initialized) {
-        // Initialize Title Label
         GUILabel_init(&menu_page.title_lbl, "MENU");
         GUI_SET_FONT_SIZE(&menu_page.title_lbl, 7);
         GUI_SET_SIZE(&menu_page.title_lbl, 128, 8);
 
-        // Initialize Main List
         GUIList_init(&menu_page.menu_list, NULL, menu_get_count, NULL,
                      menu_item_to_string, NULL);
         GUI_SET_POS(&menu_page.menu_list, 16, 10);
-
-        // Height 44 allows for 4 items; paging logic handles the 5th
         GUI_SET_SIZE(&menu_page.menu_list, 96, 44);
 
         is_initialized = true;
     }
 
-    Page new_page = {.handle_input = MenuPage_handle_input, .exit = NULL};
+    // Ustawienie początkowej pozycji animacji, aby kursor nie "nadlatywał" z
+    // góry
+    menu_page.menu_list.anim_y = menu_page.menu_list.base.y;
+
+    Page new_page = {.handle_input = MenuPage_handle_input,
+                     .on_tick = MenuPage_on_tick};
 
     PageManager_switch_page(&new_page);
     MenuPage_draw();

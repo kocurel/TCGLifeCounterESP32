@@ -1,0 +1,31 @@
+sequenceDiagram
+    participant Q as Button Queue
+    participant AT as AppMainLoop
+    participant PM as PageManager
+    participant PG as ActivePage
+    participant GR as GUIRenderer (I2C)
+
+    loop Main Loop (while 1)
+        Note over AT: 1. Check time: now - last_frame_time
+
+        opt If elapsed >= frame_duration (20ms)
+            AT->>PM: PageManager_tick(elapsed_ms)
+            PM->>PG: tick()
+            opt If UI was updated
+                PG->>PG: draw()
+                PG->>GR: I2C Send Buffer
+                Note over AT: last_frame_time = now
+            end
+        end
+        
+        Note over AT: 2. Calc idle time: frame_duration - work_done
+        
+        AT->>Q: xQueueReceive(wait_ticks)
+        
+        alt ButtonCode received
+            Q-->>AT: received_button_code
+            AT->>PM: handle_input(received_button_code)
+        else Timeout (Frame Sync)
+            Note over AT: Wake up to start next cycle
+        end
+    end

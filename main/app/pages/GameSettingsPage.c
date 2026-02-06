@@ -1,5 +1,6 @@
 #include "GameSettingsPage.h"
 
+#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -100,7 +101,6 @@ static void modify_setting(int index, int direction) {
         }
 
         case OPT_PLAYER_COUNT:
-            // Toggle logic for 2 or 4 players
             if (s_draft_settings.player_count == 2) {
                 s_draft_settings.player_count = 4;
             } else {
@@ -120,6 +120,9 @@ static void modify_setting(int index, int direction) {
             s_draft_settings.cmd_mode_en = !s_draft_settings.cmd_mode_en;
             break;
     }
+
+    // WAŻNE: Po zmianie wartości ustawiamy flagę, aby odświeżyć tekst na liście
+    options_list.needs_redraw = true;
 }
 
 /* --- Drawing --- */
@@ -127,14 +130,28 @@ static void modify_setting(int index, int direction) {
 static void GameSettingsPage_draw() {
     GUIRenderer_clear_buffer();
 
-    // Render the list of options
+    // List rysuje teraz własny kursor (animowane ">")
     GUI_DRAW(&options_list);
 
-    // Selection indicator frame
-    int visual_index = GUIList_get_current_index(&options_list) % OPT_COUNT;
-    GUIRenderer_draw_frame(0, visual_index * 11 + 6, 128, 12);
-
     GUIRenderer_send_buffer();
+}
+
+/* --- Lifecycle & Task Logic --- */
+
+static void GameSettingsPage_on_tick(uint32_t delta_ms) {
+    float old_y = options_list.anim_y;
+    GUIList_tick(&options_list, delta_ms);
+
+    // Sprawdź czy kursor jest w ruchu
+    if (fabsf(options_list.anim_y - old_y) > 0.05f) {
+        options_list.needs_redraw = true;
+    }
+
+    // Odśwież ekran jeśli flaga jest podniesiona
+    if (options_list.needs_redraw) {
+        GameSettingsPage_draw();
+        options_list.needs_redraw = false;
+    }
 }
 
 /* --- Input Handling --- */
@@ -166,7 +183,7 @@ static void GameSettingsPage_handle_input(ButtonCode button) {
         default:
             break;
     }
-    GameSettingsPage_draw();
+    // Usunięto draw() - on_tick i flaga załatwiają sprawę
 }
 
 /* --- Page Lifecycle --- */
@@ -184,7 +201,14 @@ void GameSettingsPage_enter() {
         initialized = true;
     }
 
-    Page page = {.handle_input = GameSettingsPage_handle_input, .exit = NULL};
+    // Snap animacji na starcie (aby kursor nie "nadlatywał")
+    int visible_rows = options_list.base.height / 11;
+    int relative_row = options_list.selected_index % visible_rows;
+    options_list.anim_y = options_list.base.y + (relative_row * 11);
+    options_list.needs_redraw = false;
+
+    Page page = {.handle_input = GameSettingsPage_handle_input,
+                 .on_tick = GameSettingsPage_on_tick};
 
     PageManager_switch_page(&page);
     GameSettingsPage_draw();

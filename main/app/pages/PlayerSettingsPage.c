@@ -1,5 +1,6 @@
 #include "PlayerSettingsPage.h"
 
+#include <math.h>
 #include <stdio.h>
 
 #include "GUIFramework.h"
@@ -21,9 +22,6 @@ static int active_player_id;
 
 static int player_settings_get_count(void* data) { return OPT_COUNT; }
 
-/**
- * Maps player-specific options to displayable strings
- */
 static char* player_opt_to_str(void* item, int index) {
     static char buf[32];
     Player* p = Game_get_player(active_player_id);
@@ -60,24 +58,35 @@ static void PlayerSettingsPage_draw() {
     GUIRenderer_send_buffer();
 }
 
+/* --- Lifecycle & Task Logic --- */
+
+static void PlayerSettingsPage_on_tick(uint32_t delta_ms) {
+    float old_y = settings_list.anim_y;
+    GUIList_tick(&settings_list, delta_ms);
+
+    // Jeśli kursor płynie, podnieś flagę
+    if (fabsf(settings_list.anim_y - old_y) > 0.05f) {
+        settings_list.needs_redraw = true;
+    }
+
+    // Odśwież ekran tylko jeśli flaga jest aktywna
+    if (settings_list.needs_redraw) {
+        PlayerSettingsPage_draw();
+        settings_list.needs_redraw = false;
+    }
+}
+
 /* --- Callbacks & Input Handling --- */
 
-/**
- * Callback triggered when the KeyboardPage finishes a rename operation.
- * Updates both the volatile game state and persistent NVS storage.
- */
 static void on_name_complete(const char* new_name) {
     if (new_name) {
-        // Update active game session
         Game_set_player_name(active_player_id, new_name);
-
-        // Update persistent settings in NVS
         SettingsModel_save_player_name(active_player_id, new_name);
     }
     PlayerSettingsPage_enter(active_player_id);
 }
 
-static void handle_input(ButtonCode btn) {
+static void PlayerPage_handle_input(ButtonCode btn) {
     int idx = GUIList_get_current_index(&settings_list);
 
     switch (btn) {
@@ -94,8 +103,12 @@ static void handle_input(ButtonCode btn) {
                 return;
             } else if (idx == OPT_MONARCH) {
                 Game_set_monarch(active_player_id);
+                settings_list.needs_redraw =
+                    true;  // Zmiana logiki wymusza redraw
             } else if (idx == OPT_CITY_BLESSING) {
                 Game_toggle_blessing(active_player_id);
+                settings_list.needs_redraw =
+                    true;  // Zmiana logiki wymusza redraw
             }
             break;
         case BUTTON_CODE_CANCEL:
@@ -104,7 +117,6 @@ static void handle_input(ButtonCode btn) {
         default:
             break;
     }
-    PlayerSettingsPage_draw();
 }
 
 /* --- Page Lifecycle --- */
@@ -114,13 +126,11 @@ void PlayerSettingsPage_enter(int player_id) {
 
     static bool initialized = false;
     if (!initialized) {
-        // Initialize header
         GUILabel_init(&title, "PLAYER SETTINGS");
         GUI_SET_FONT_SIZE(&title, 7);
         GUI_SET_SIZE(&title, 128, 12);
         GUILabel_set_alignment(&title, GUI_ALIGMNENT_CENTER);
 
-        // Initialize options list
         GUIList_init(&settings_list, NULL, player_settings_get_count, NULL,
                      player_opt_to_str, NULL);
         GUI_SET_POS(&settings_list, 0, 14);
@@ -129,7 +139,14 @@ void PlayerSettingsPage_enter(int player_id) {
         initialized = true;
     }
 
-    Page page = {.handle_input = handle_input, .exit = NULL};
+    // Snap animacji na starcie
+    int visible_rows = settings_list.base.height / 11;
+    int relative_row = settings_list.selected_index % visible_rows;
+    settings_list.anim_y = settings_list.base.y + (relative_row * 11);
+    settings_list.needs_redraw = false;
+
+    Page page = {.handle_input = PlayerPage_handle_input,
+                 .on_tick = PlayerSettingsPage_on_tick};
 
     PageManager_switch_page(&page);
     PlayerSettingsPage_draw();

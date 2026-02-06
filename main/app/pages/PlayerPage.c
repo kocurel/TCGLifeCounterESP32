@@ -1,5 +1,7 @@
 #include "PlayerPage.h"
 
+#include <math.h>
+
 #include "GUIFramework.h"
 #include "MainPage.h"
 #include "PlayerSettingsPage.h"
@@ -18,28 +20,41 @@ static int page_player_id = 0;
 static void PlayerPage_draw() {
     GUIRenderer_clear_buffer();
 
-    // 1. Render standard components
-    GUI_DRAW(&list);
     GUI_DRAW(&player_lbl);
     GUIRenderer_draw_horizontal_line(13);
+    GUI_DRAW(&list);
 
-    // 2. Pagination Indicators
+    // Pagination Indicators
     const int ROW_HEIGHT = 11;
     int visible_rows = list.base.height / ROW_HEIGHT;
     int current_idx = GUIList_get_current_index(&list);
     int total = NUMBER_OF_VALUES;
 
-    // Draw UP indicator if list is scrolled down
     if (current_idx >= visible_rows) {
-        GUIRenderer_draw_pixel(64, list.base.y + 1);
+        GUIRenderer_draw_pixel(64, list.base.y - 1);
     }
-
-    // Draw DOWN indicator if there are more items below
     if (current_idx < total - visible_rows) {
-        GUIRenderer_draw_pixel(64, list.base.y + list.base.height + 2);
+        GUIRenderer_draw_pixel(64, list.base.y + list.base.height + 1);
     }
 
     GUIRenderer_send_buffer();
+}
+
+static void PlayerPage_on_tick(uint32_t delta_ms) {
+    // 1. Wykonaj krok animacji
+    float old_anim_y = list.anim_y;
+    GUIList_tick(&list, delta_ms);
+
+    // 2. Sprawdź czy kursor się ruszył (animacja płynie)
+    if (fabsf(list.anim_y - old_anim_y) > 0.05f) {
+        list.needs_redraw = true;
+    }
+
+    // 3. Jeśli lista zgłasza potrzebę odświeżenia (przez animację LUB input)
+    if (list.needs_redraw) {
+        PlayerPage_draw();
+        list.needs_redraw = false;  // Reset flagi po rysowaniu
+    }
 }
 
 static void PlayerPage_handle_input(ButtonCode button);
@@ -52,9 +67,7 @@ static void PlayerPage_callback(int32_t value) {
     Game_set_value(value, page_player_id, GUIList_get_current_index(&list));
 
     // Restore page state
-    Page new_page = {.handle_input = PlayerPage_handle_input, .exit = NULL};
-    PageManager_switch_page(&new_page);
-    PlayerPage_draw();
+    PlayerPage_enter(page_player_id);
 }
 
 static void PlayerPage_handle_input(ButtonCode button) {
@@ -65,13 +78,10 @@ static void PlayerPage_handle_input(ButtonCode button) {
         case BUTTON_CODE_DOWN:
             GUIList_down(&list);
             break;
-
         case BUTTON_CODE_LEFT:
-            // Fast scroll up
             for (int i = 0; i < 4; i++) GUIList_up(&list);
             break;
         case BUTTON_CODE_RIGHT:
-            // Fast scroll down
             for (int i = 0; i < 4; i++) GUIList_down(&list);
             break;
 
@@ -87,38 +97,36 @@ static void PlayerPage_handle_input(ButtonCode button) {
                                   PlayerPage_callback);
             return;
         }
-
         case BUTTON_CODE_MENU:
-            // Enter secondary player settings (Name, Monarch status, etc.)
             PlayerSettingsPage_enter(page_player_id);
             return;
-
         default:
             break;
     }
-    PlayerPage_draw();
 }
 
 /* --- Page Lifecycle --- */
 
 void PlayerPage_enter(int player_id) {
     page_player_id = player_id;
-    Player* p = Game_get_player(player_id);
 
-    // 1. Initialize Value List
-    // Uses delegates to fetch values and names from the Game model
-    GUIList_init(&list, p, delegate_get_value_count, delegate_get_player_value,
-                 delegate_format_player_value, NULL);
-    GUI_SET_POS(&list, 0, 14);
+    // Przekazujemy ID gracza jako data_source (rzutowane na void*)
+    GUIList_init(&list, (void*)(intptr_t)player_id, delegate_get_value_count,
+                 NULL, delegate_format_player_value, NULL);
+
+    GUI_SET_POS(&list, 0, 15);
     GUI_SET_SIZE(&list, 118, 44);
 
-    // 2. Initialize Header Label
-    GUILabel_init(&player_lbl, p->name);
+    // Snap animacji
+    list.anim_y = list.base.y;
+
+    GUILabel_init(&player_lbl, Game_get_player_name(player_id));
     GUI_SET_SIZE(&player_lbl, 128, 12);
     GUI_SET_FONT_SIZE(&player_lbl, 7);
+    GUILabel_set_alignment(&player_lbl, GUI_ALIGMNENT_CENTER);
 
-    // 3. Register and display page
-    Page new_page = {.handle_input = PlayerPage_handle_input, .exit = NULL};
+    Page new_page = {.handle_input = PlayerPage_handle_input,
+                     .on_tick = PlayerPage_on_tick};
     PageManager_switch_page(&new_page);
     PlayerPage_draw();
 }

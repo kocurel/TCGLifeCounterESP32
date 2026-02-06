@@ -1,5 +1,6 @@
 #include "CommanderPage.h"
 
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -29,11 +30,17 @@ typedef struct {
     // --- Transaction Buffering (Quick Edit) ---
     int32_t buffered_val[4][4];  // Temporary storage for uncommitted changes
     bool is_dirty[4][4];         // Flags for cells with pending commits
+
+    // --- Animation State ---
+    float anim_x, anim_y, anim_w, anim_h;
+    bool needs_redraw;
+    uint32_t idle_timer_ms;
 } CommanderPageData;
 
 static CommanderPageData commander_page = {0};
 static bool is_initialized = false;
-static char buffer[BUFFER_SIZE];
+static int initial_player = 0;
+static int initial_source = 0;
 
 /* --- Internal Helpers --- */
 
@@ -95,7 +102,6 @@ static void CommanderPage_draw() {
             if (p == s) {
                 GUI_SET_TEXT(&commander_page.labels[p][s], "ME");
             } else {
-                // Prioritize buffer if cell is dirty
                 int32_t val = commander_page.is_dirty[p][s]
                                   ? commander_page.buffered_val[p][s]
                                   : Game_get_commander_damage(p, s);
@@ -106,12 +112,13 @@ static void CommanderPage_draw() {
         }
     }
 
-    // 2. Selection Frame
+    // 2. Animated Selection Frame
     if (commander_page.selected_label != NULL) {
-        uint8_t x, y, w, h;
-        GUIComponent_get_xywh((GUIComponent*)commander_page.selected_label, &x,
-                              &y, &w, &h);
-        GUIRenderer_draw_frame(x, y - 1, w, h);
+        // Use animated float coordinates
+        GUIRenderer_draw_frame((uint8_t)(commander_page.anim_x + 0.5f),
+                               (uint8_t)(commander_page.anim_y + 0.5f) - 1,
+                               (uint8_t)(commander_page.anim_w + 0.5f),
+                               (uint8_t)(commander_page.anim_h + 0.5f));
 
         // 3. Floating Delta Indicator (if dirty)
         int p_id, s_id;
@@ -131,7 +138,7 @@ static void CommanderPage_draw() {
                 uint8_t dx = 64 - (box_w / 2);
                 uint8_t dy = 31 - (box_h / 2);
 
-                GUIRenderer_set_color(0);  // Clear background
+                GUIRenderer_set_color(0);
                 GUIRenderer_draw_box(dx, dy, box_w, box_h);
                 GUIRenderer_set_color(1);
                 GUIRenderer_draw_frame(dx, dy, box_w, box_h);
@@ -144,27 +151,111 @@ static void CommanderPage_draw() {
     GUIRenderer_send_buffer();
 }
 
+static void CommanderPage_on_tick(uint32_t delta_ms) {
+    // --- 1. Auto-Commit Logic ---
+    bool changes_pending = false;
+
+    // Sprawdzamy, czy którakolwiek komórka 4x4 oczekuje na zapis
+    for (int p = 0; p < 4; p++) {
+        for (int s = 0; s < 4; s++) {
+            if (commander_page.is_dirty[p][s]) {
+                changes_pending = true;
+                break;  // Wystarczy znaleźć jedną
+            }
+        }
+        if (changes_pending) break;
+    }
+
+    if (changes_pending) {
+        commander_page.idle_timer_ms += delta_ms;
+
+        // Jeśli minęły 2 sekundy bezczynności
+        if (commander_page.idle_timer_ms >= 2000) {
+            for (int p = 0; p < 4; p++) {
+                for (int s = 0; s < 4; s++) {
+                    // Commituje tylko te oznaczone jako is_dirty
+                    CommanderPage_commit_cell(p, s);
+                }
+            }
+            commander_page.idle_timer_ms = 0;
+            commander_page.needs_redraw =
+                true;  // Wymuś odświeżenie, by ukryć "delta box"
+        }
+    } else {
+        commander_page.idle_timer_ms = 0;
+    }
+
+    // --- 2. Frame Animation Logic ---
+    if (commander_page.selected_label != NULL) {
+        uint8_t tx, ty, tw, th;
+        GUIComponent_get_xywh((GUIComponent*)commander_page.selected_label, &tx,
+                              &ty, &tw, &th);
+
+        float base_speed = 0.25f;
+        float factor = (float)delta_ms / 20.0f;
+        float final_speed = base_speed * factor;
+        if (final_speed > 0.9f) final_speed = 0.9f;
+
+        float old_x = commander_page.anim_x;
+        float old_y = commander_page.anim_y;
+
+        // Interpolate toward target
+        commander_page.anim_x +=
+            ((float)tx - commander_page.anim_x) * final_speed;
+        commander_page.anim_y +=
+            ((float)ty - commander_page.anim_y) * final_speed;
+        commander_page.anim_w +=
+            ((float)tw - commander_page.anim_w) * final_speed;
+        commander_page.anim_h +=
+            ((float)th - commander_page.anim_h) * final_speed;
+
+        // Check for movement
+        if (fabsf(commander_page.anim_x - old_x) > 0.05f ||
+            fabsf(commander_page.anim_y - old_y) > 0.05f) {
+            commander_page.needs_redraw = true;
+        }
+    }
+
+    if (commander_page.needs_redraw) {
+        CommanderPage_draw();
+        commander_page.needs_redraw = false;
+    }
+}
+
 /* --- Editor Callback --- */
 
 static void CommanderPage_editor_callback(int32_t new_value) {
     int p_id, s_id;
     CommanderPage_get_ids(&p_id, &s_id);
 
+    // 1. Zastosowanie limitu zakresu -999 do 999
+    if (new_value > 999) new_value = 999;
+    if (new_value < -999) new_value = -999;
+
     int32_t val_id = CommanderPage_get_value_id(s_id);
     int32_t old_cmd_val = Game_get_value(p_id, val_id);
     int32_t diff = new_value - old_cmd_val;
 
-    // Apply changes directly to model (SET bypasses buffer)
+    // 2. Aktualizacja wartości źródłowej (np. Commander Damage)
     Game_set_value(new_value, p_id, val_id);
+
+    // 3. Automatyczna aktualizacja HP gracza na podstawie zmiany (diff)
     if (diff != 0) {
         int32_t current_hp = Game_get_value(p_id, INDEX_HP);
-        Game_set_value(current_hp - diff, p_id, INDEX_HP);
+        int32_t next_hp = current_hp - diff;
+
+        // Opcjonalnie: Tutaj też warto dodać limit dla HP,
+        // żeby nie wyszło poza zakres wyświetlacza (np. max 999)
+        if (next_hp > 999) next_hp = 999;
+        if (next_hp < -999) next_hp = -999;
+
+        Game_set_value(next_hp, p_id, INDEX_HP);
     }
 
     commander_page.is_dirty[p_id][s_id] = false;
 
-    // Page state restoration
-    CommanderPage_draw();
+    // Odświeżenie strony z nowymi wartościami
+    CommanderPage_enter(initial_player, initial_source);
 }
 
 /* --- Input Handling --- */
@@ -196,15 +287,19 @@ static void CommanderPage_handle_input(ButtonCode button) {
 
         case BUTTON_CODE_ACCEPT:
             if (is_me_field) return;
+            commander_page.idle_timer_ms = 0;
             if (!commander_page.is_dirty[p_id][s_id]) {
                 commander_page.buffered_val[p_id][s_id] =
                     Game_get_commander_damage(p_id, s_id);
                 commander_page.is_dirty[p_id][s_id] = true;
             }
-            commander_page.buffered_val[p_id][s_id]++;
-            CommanderPage_draw();
-            break;
 
+            // Dodanie limitu górnego (999) przed inkrementacją
+            if (commander_page.buffered_val[p_id][s_id] < 999) {
+                commander_page.buffered_val[p_id][s_id]++;
+                commander_page.needs_redraw = true;  // Update value on screen
+            }
+            break;
         case BUTTON_CODE_SET:
             if (is_me_field) return;
             CommanderPage_commit_cell(p_id, s_id);
@@ -212,26 +307,26 @@ static void CommanderPage_handle_input(ButtonCode button) {
                                   CommanderPage_get_value_id(s_id),
                                   Game_get_commander_damage(p_id, s_id),
                                   CommanderPage_editor_callback);
-            break;
+            return;
 
         default:
             break;
     }
 
     if (next) {
-        // Auto-commit on context change (navigation)
         CommanderPage_commit_cell(p_id, s_id);
         commander_page.selected_label = (GUILabel*)next;
-        CommanderPage_draw();
+        // Navigation doesn't need explicit draw(), on_tick handles animation
     }
 }
-
 /* --- Lifecycle Management --- */
 
-void CommanderPage_enter(int initial_player_id) {
+void CommanderPage_enter(int initial_player_id, int initial_source_id) {
+    initial_player = initial_player_id;
+    initial_source = initial_source_id;
     // Reset transient buffer state
     memset(commander_page.is_dirty, 0, sizeof(commander_page.is_dirty));
-
+    commander_page.idle_timer_ms = 0;
     if (!is_initialized) {
         // 1. Initialize Container Hierarchy
         GUIVBox_init(&commander_page.root);
@@ -341,7 +436,17 @@ void CommanderPage_enter(int initial_player_id) {
     commander_page.selected_label =
         &commander_page.labels[(initial_player_id % 4)][0];
 
-    Page new_page = {.handle_input = CommanderPage_handle_input};
+    uint8_t x, y, w, h;
+    GUIComponent_get_xywh((GUIComponent*)commander_page.selected_label, &x, &y,
+                          &w, &h);
+    commander_page.anim_x = x;
+    commander_page.anim_y = y;
+    commander_page.anim_w = w;
+    commander_page.anim_h = h;
+    commander_page.needs_redraw = false;
+
+    Page new_page = {.handle_input = CommanderPage_handle_input,
+                     .on_tick = CommanderPage_on_tick};
     PageManager_switch_page(&new_page);
     CommanderPage_draw();
 }

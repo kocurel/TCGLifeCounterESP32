@@ -1,5 +1,6 @@
 #include "MainPage.h"
 
+#include <math.h>  // Included for fabs() if needed, though simple arithmetic works too
 #include <stdio.h>
 #include <string.h>
 
@@ -25,6 +26,12 @@ typedef struct {
     GUILabel lbl_name_p1, lbl_name_p2, lbl_name_p3, lbl_name_p4;
     GUILabel lbl_hp_p1, lbl_hp_p2, lbl_hp_p3, lbl_hp_p4;
 
+    /* Animation State: Floating point values for smooth movement */
+    float anim_x;
+    float anim_y;
+    float anim_w;
+    float anim_h;
+
     /* Transaction Buffering: Temporary storage before committing to Game model
      */
     int32_t buffered_hp[4];
@@ -37,6 +44,9 @@ typedef struct {
 static MainPageData main_page = {0};
 static bool is_initialized = false;
 static int current_layout_mode = 0;
+
+/* --- Forward Declarations --- */
+static void MainPage_update(void);
 
 /* --- Internal Helpers --- */
 
@@ -84,11 +94,6 @@ static bool MainPage_is_player_dead(int player_id) {
 
 /* --- Layout Construction --- */
 
-/**
- * Rebuilds the GUI hierarchy based on player count.
- * Handles 180 degree rotation for players in 2-player mode or top row of
- * 4-player mode.
- */
 static void MainPage_rebuild_layout(int player_count) {
     // 1. Reset Containers
     GUIVBox_init(&main_page.root_vbox);
@@ -133,6 +138,8 @@ static void MainPage_rebuild_layout(int player_count) {
         GUI_ADD_CHILDREN(&main_page.root_vbox, &main_page.box_p1,
                          &main_page.box_p2);
         GUI_SET_SPACING(&main_page.root_vbox, 2);
+
+        // PRZYWRÓCONE LINKOWANIE
         GUI_LINK_VERTICAL(&main_page.box_p1, &main_page.box_p2);
 
     } else {
@@ -160,7 +167,6 @@ static void MainPage_rebuild_layout(int player_count) {
         GUI_SET_SPACING(&main_page.row_top, 1);
         GUI_SET_SPACING(&main_page.row_bot, 1);
 
-        // Navigation links for 4-player grid
         GUI_LINK_HORIZONTAL(&main_page.box_p1, &main_page.box_p2);
         GUI_LINK_HORIZONTAL(&main_page.box_p3, &main_page.box_p4);
         GUI_LINK_VERTICAL(&main_page.box_p1, &main_page.box_p3);
@@ -217,6 +223,7 @@ static void MainPage_update() {
     GUIRenderer_clear_buffer();
     GUI_DRAW(&main_page.root_vbox);
 
+    // Draw Monarch Indicators
     for (int i = 0; i < count; i++) {
         if (Game_is_monarch(i)) {
             uint8_t x, y, w, h;
@@ -231,12 +238,17 @@ static void MainPage_update() {
         }
     }
 
+    // Draw Animated Selection Frame
+    // We use the 'anim_' float values for smooth transitions
     if (main_page.focused_component != NULL) {
-        uint8_t x, y, w, h;
-        GUIComponent_get_xywh(main_page.focused_component, &x, &y, &w, &h);
-        GUIRenderer_draw_frame(x, y, w, h);
+        GUIRenderer_draw_frame(
+            (uint8_t)(main_page.anim_x + 0.5f),  // +0.5f for proper rounding
+            (uint8_t)(main_page.anim_y + 0.5f),
+            (uint8_t)(main_page.anim_w + 0.5f),
+            (uint8_t)(main_page.anim_h + 0.5f));
     }
 
+    // Draw Buffered Delta Indicator
     int pid = MainPage_get_focused_player_id();
     if (main_page.is_dirty[pid]) {
         int32_t current_model_val = Game_get_value(pid, INDEX_HP);
@@ -269,7 +281,7 @@ static void MainPage_editor_callback(int32_t new_value) {
     int player_id = MainPage_get_focused_player_id();
     Game_set_value(new_value, player_id, INDEX_HP);
     main_page.is_dirty[player_id] = false;
-    MainPage_update();
+    MainPage_enter();
 }
 
 static void MainPage_handle_input(ButtonCode button) {
@@ -322,7 +334,7 @@ static void MainPage_handle_input(ButtonCode button) {
         case BUTTON_CODE_CANCEL:
             MainPage_commit_changes(pid);
             if (settings.cmd_mode_en)
-                CommanderPage_enter(pid);
+                CommanderPage_enter(pid, 0);
             else
                 ChangeHistoryPage_enter(MainPage_enter);
             return;
@@ -339,13 +351,13 @@ static void MainPage_handle_input(ButtonCode button) {
     if (next_focus != NULL) {
         MainPage_commit_changes(pid);
         main_page.focused_component = next_focus;
-        MainPage_update();
+        // MainPage_update();
     }
 }
 
 /* --- Lifecycle & Task Logic --- */
-
 void MainPage_on_tick(uint32_t delta_ms) {
+    // 1. Transaction Auto-Commit Logic
     bool changes_pending = false;
     for (int i = 0; i < 4; i++) {
         if (main_page.is_dirty[i]) {
@@ -359,6 +371,35 @@ void MainPage_on_tick(uint32_t delta_ms) {
         if (main_page.idle_timer_ms >= 2000) {
             for (int i = 0; i < 4; i++) MainPage_commit_changes(i);
             main_page.idle_timer_ms = 0;
+            MainPage_update();
+        }
+    }
+
+    // 2. Animation Logic (Linear Interpolation with Delta Time Compensation)
+    if (main_page.focused_component != NULL) {
+        uint8_t target_x, target_y, target_w, target_h;
+        GUIComponent_get_xywh(main_page.focused_component, &target_x, &target_y,
+                              &target_w, &target_h);
+
+        float base_speed = 0.25f;
+        float time_factor = (float)delta_ms / 20.0f;
+        float final_speed = base_speed * time_factor;
+
+        if (final_speed > 0.9f)
+            final_speed = 0.9f;  // Nigdy nie pozwól na teleport w 1 klatkę
+
+        // 2. Obliczamy ruch
+        main_page.anim_x += ((float)target_x - main_page.anim_x) * final_speed;
+        main_page.anim_y += ((float)target_y - main_page.anim_y) * final_speed;
+        main_page.anim_w += ((float)target_w - main_page.anim_w) * final_speed;
+        main_page.anim_h += ((float)target_h - main_page.anim_h) * final_speed;
+
+        // 3. Sprawdzamy sumę błędów (Manhattan distance), co jest czulsze dla
+        // skosów
+        float error = fabsf(main_page.anim_x - (float)target_x) +
+                      fabsf(main_page.anim_y - (float)target_y);
+
+        if (error > 0.1f) {
             MainPage_update();
         }
     }
@@ -394,8 +435,20 @@ void MainPage_enter() {
         is_initialized = true;
     }
 
+    // Rebuild layout if player count changed
     if (current_layout_mode != settings.player_count) {
         MainPage_rebuild_layout(settings.player_count);
+    }
+
+    // Snap animation to target immediately on page enter (prevent flying in
+    // from 0,0)
+    if (main_page.focused_component != NULL) {
+        uint8_t x, y, w, h;
+        GUIComponent_get_xywh(main_page.focused_component, &x, &y, &w, &h);
+        main_page.anim_x = (float)x;
+        main_page.anim_y = (float)y;
+        main_page.anim_w = (float)w;
+        main_page.anim_h = (float)h;
     }
 
     Page new_page = {.handle_input = MainPage_handle_input,

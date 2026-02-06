@@ -98,7 +98,7 @@ void ConfirmPage_enter(const char* message, ConfirmCallback on_confirm,
     confirm_action = on_confirm;
     cancel_target = on_cancel;
 
-    Page page = {.handle_input = ConfirmPage_handle_input, .exit = NULL};
+    Page page = {.handle_input = ConfirmPage_handle_input};
 
     PageManager_switch_page(&page);
     ConfirmPage_draw();

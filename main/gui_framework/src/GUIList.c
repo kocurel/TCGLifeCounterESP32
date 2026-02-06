@@ -1,74 +1,68 @@
+#include <math.h>
+
 #include "GUIFramework.h"
 
 #define LIST_ROW_HEIGHT 11
 
+/**
+ * Logika obliczająca płynny ruch kursora.
+ */
+void GUIList_tick(GUIList* self, uint32_t delta_ms) {
+    // 1. Musimy wiedzieć, ile wierszy jest widocznych, żeby obliczyć target_y
+    int visible_rows = self->base.height / LIST_ROW_HEIGHT;
+    if (visible_rows < 1) visible_rows = 1;
+
+    // 2. Obliczamy cel (relatywny wiersz) ZANIM wykonamy krok animacji
+    int relative_selected_row = self->selected_index % visible_rows;
+    self->target_y = self->base.y + (relative_selected_row * LIST_ROW_HEIGHT);
+
+    // 3. Reszta logiki Lerp
+    float base_speed = 0.25f;
+    float time_factor = (float)delta_ms / 20.0f;
+    float final_speed = base_speed * time_factor;
+    if (final_speed > 0.9f) final_speed = 0.9f;
+
+    self->anim_y += (self->target_y - self->anim_y) * final_speed;
+}
+
 static void GUIList_draw(GUIComponent* base) {
-    GUI_TRACE("GUIList_draw", "Drawing GUIList at address %p", base);
-    // 1. Cast Base to Specific
     GUIList* list = (GUIList*)base;
-
-    if (list->get_count == NULL ||
-        (list->item_to_string == NULL && list->draw_item == NULL)) {
-        return;
-    }
-
+    if (list->get_count == NULL) return;
     int size = list->get_count(list->data_source);
-    GUI_TRACE("GUIList_draw", "Element count: %d", size);
-
-    if (size == 0) {
-        printf("empty list\n");
-        return;
-    }
+    if (size == 0) return;
 
     int visible_rows = list->base.height / LIST_ROW_HEIGHT;
-    if (visible_rows < 1) visible_rows = 1;  // Safety
-    GUI_TRACE("GUIList_draw", "Visible rows: %d", visible_rows);
-
+    if (visible_rows < 1) visible_rows = 1;
     int offset = (list->selected_index / visible_rows) * visible_rows;
 
+    // Rysowanie wskaźnika (używa już obliczonego w ticku anim_y)
+    uint8_t indicator_y = (uint8_t)(list->anim_y + 0.5f);
+    GUIRenderer_set_font_size(7);
+    GUIRenderer_draw_str(list->base.x, indicator_y + LIST_ROW_HEIGHT, ">");
+
+    // 2. Rysowanie elementów listy
     for (int i = 0; i < visible_rows; i++) {
         int item_index = offset + i;
-
         if (item_index >= size) break;
-        GUI_TRACE("GUIList_draw", "Drawing change with index %d", item_index);
-        // B. Calculate Screen Position
-        // relative_y is 0 for the first item on the page, 1 for the second,
-        // etc.
-        int relative_y = (i + 1) * LIST_ROW_HEIGHT;
-        int x = list->base.x;
-        int y = list->base.y + relative_y;
 
-        GUIRenderer_set_font_size(7);
-        bool is_selected = item_index == list->selected_index;
+        int x =
+            list->base.x + 10;  // Przesunięcie tekstu, by nie nachodził na ">"
+        int y = list->base.y + ((i + 1) * LIST_ROW_HEIGHT);
+
         if (list->draw_item != NULL) {
-            // OPTION A: Custom Delegate (For History Page)
-            // The delegate handles everything: selection, text, layout
-            list->draw_item(list, item_index, x, y, list->base.width,
+            // Jeśli mamy własny delegat rysowania (np. History Page)
+            bool is_selected = (item_index == list->selected_index);
+            list->draw_item(list, item_index, x, y, list->base.width - 10,
                             LIST_ROW_HEIGHT, is_selected);
-        } else {
-            // OPTION B: Default String Behavior (For Menu Page)
-            void* item = NULL;
-            if (list->get_item) {
-                item = list->get_item(list->data_source, item_index);
-            }
-
-            // Only try to convert string if the function exists
-            if (list->item_to_string) {
-                const char* display_string =
-                    list->item_to_string(item, item_index);
-
-                GUIRenderer_set_font_size(7);
-
-                // Default Selection Indicator
-                if (is_selected) {
-                    GUIRenderer_draw_str(x, y, ">");
-                    x += 8;
-                }
-                GUIRenderer_draw_str(x, y, display_string);
-            }
+        } else if (list->item_to_string != NULL) {
+            // Domyślne rysowanie tekstu
+            const char* str =
+                list->item_to_string(list->data_source, item_index);
+            GUIRenderer_draw_str(x, y, str);
         }
     }
 }
+
 void GUIList_init(GUIList* self, void* data_source,
                   int (*get_count)(void* data),
                   void* (*get_item)(void* data, int index),
@@ -84,19 +78,21 @@ void GUIList_init(GUIList* self, void* data_source,
     self->item_to_string = item_to_string;
     self->draw_item = draw_item;
     self->selected_index = 0;
+    self->anim_y = 0;
+    self->target_y = 0;
+    self->needs_redraw = true;
 }
-
 void GUIList_up(GUIList* self) {
-    self->selected_index--;
-    if (self->selected_index < 0) {
-        self->selected_index = 0;
+    if (self->selected_index > 0) {
+        self->selected_index--;
+        self->needs_redraw = true;  // Zmieniliśmy stan!
     }
 }
 
 void GUIList_down(GUIList* self) {
-    self->selected_index++;
-    if (self->selected_index >= self->get_count(self->data_source))
-        self->selected_index = self->get_count(self->data_source) - 1;
+    if (self->selected_index < self->get_count(self->data_source) - 1) {
+        self->selected_index++;
+        self->needs_redraw = true;  // Zmieniliśmy stan!
+    }
 }
-
 int GUIList_get_current_index(GUIList* self) { return self->selected_index; }

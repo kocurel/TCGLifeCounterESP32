@@ -71,7 +71,10 @@ struct GUIList {
     char* (*item_to_string)(void* data, int index);
     void (*draw_item)(struct GUIList* list, int index, uint8_t x, uint8_t y,
                       uint8_t width, uint8_t height, bool is_selected);
+    float anim_y;
+    float target_y;
     int selected_index;
+    bool needs_redraw;
 };
 
 void GUIHBox_init(GUIHBox* self);
@@ -107,6 +110,7 @@ void GUIList_init(GUIList* self, void* data_source,
                                     uint8_t y, uint8_t width, uint8_t height,
                                     bool is_selected));
 int GUIList_get_current_index(GUIList* self);
+void GUIList_tick(GUIList* self, uint32_t delta_ms);
 
 #define GUI_SET_SIZE(comp, w, h) \
     GUIComponent_set_size((GUIComponent*)(comp), (uint8_t)(w), (uint8_t)(h))

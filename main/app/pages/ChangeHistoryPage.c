@@ -1,5 +1,7 @@
 #include "ChangeHistoryPage.h"
 
+#include <math.h>
+
 #include "AudioManager.h"
 #include "GUIFramework.h"
 #include "MenuPage.h"
@@ -28,74 +30,78 @@ static void ChangeHistory_handle_input(ButtonCode button) {
         case BUTTON_CODE_UP:
             GUIList_up(&history_list);
             break;
-
         case BUTTON_CODE_DOWN:
             GUIList_down(&history_list);
             break;
-
         case BUTTON_CODE_LEFT:
-            // Fast scroll up
             for (int i = 0; i < 5; i++) GUIList_up(&history_list);
             break;
-
         case BUTTON_CODE_RIGHT:
-            // Fast scroll down
             for (int i = 0; i < 5; i++) GUIList_down(&history_list);
             break;
 
         case BUTTON_CODE_CANCEL:
-            // Return to previous page or default menu
-            if (return_func) {
+            if (return_func)
                 return_func();
-            } else {
+            else
                 MenuPage_enter();
-            }
             return;
 
         case BUTTON_CODE_ACCEPT: {
             int target_undo_index = GUIList_get_current_index(&history_list);
-
-            // Revert game state to selected historical point
             Game_seek_history(target_undo_index);
-            s_current_history_index = target_undo_index;
-
             AudioManager_play_sound(SOUND_UI_SELECT);
-            ChangeHistoryPage_draw();
+            history_list.needs_redraw =
+                true;  // Wymuś odświeżenie dla ramki "Undo pointer"
             return;
         }
         default:
             break;
     }
+}
 
-    // Sync local tracking with list selection
-    s_current_history_index = GUIList_get_current_index(&history_list);
-    ChangeHistoryPage_draw();
+static void ChangeHistoryPage_on_tick(uint32_t delta_ms) {
+    const int ROW_HEIGHT = 11;
+    int visible_rows = history_list.base.height / ROW_HEIGHT;
+
+    int old_offset =
+        (history_list.selected_index / visible_rows) * visible_rows;
+    float old_y = history_list.anim_y;
+
+    GUIList_tick(&history_list, delta_ms);
+
+    int new_offset =
+        (history_list.selected_index / visible_rows) * visible_rows;
+
+    // Sprawdzenie ruchu LUB zmiany strony LUB wymuszenia przez needs_redraw
+    if (fabsf(history_list.anim_y - old_y) > 0.05f ||
+        old_offset != new_offset || history_list.needs_redraw) {
+        ChangeHistoryPage_draw();
+        history_list.needs_redraw = false;
+    }
 }
 
 /* --- Page Lifecycle --- */
 void ChangeHistoryPage_enter(void (*return_dest)(void)) {
-    // 1. Initialize State
     return_func = return_dest;
-    s_current_history_index = Game_get_current_undo_index();
+    int start_index = Game_get_current_undo_index();
 
-    // 2. Initialize UI List
-    // Uses custom item drawing delegate from GameDelegates
     GUIList_init(&history_list, NULL, delegate_get_change_history_count,
                  delegate_get_value_change, NULL, HistoryPage_draw_item);
 
-    GUI_SET_SIZE(&history_list, 126, 62);
-    GUI_SET_POS(&history_list, 2, 2);
+    GUI_SET_SIZE(&history_list, 126,
+                 55);  // Zmniejszamy nieco, by zmieścić paginację
+    GUI_SET_POS(&history_list, 2, 5);
 
-    // 3. Restore Selection and Bounds Check
-    history_list.selected_index = s_current_history_index;
-    int max_count = Game_get_change_history_count();
-    if (history_list.selected_index >= max_count) {
-        history_list.selected_index = (max_count > 0) ? max_count - 1 : 0;
-    }
+    history_list.selected_index = start_index;
 
-    // 4. Page Management
-    Page new_page = {0};
-    new_page.handle_input = ChangeHistory_handle_input;
+    // Snap animacji na startową pozycję kursora
+    int visible_rows = history_list.base.height / 11;
+    int relative_row = history_list.selected_index % visible_rows;
+    history_list.anim_y = history_list.base.y + (relative_row * 11);
+
+    Page new_page = {.handle_input = ChangeHistory_handle_input,
+                     .on_tick = ChangeHistoryPage_on_tick};
 
     PageManager_switch_page(&new_page);
     ChangeHistoryPage_draw();

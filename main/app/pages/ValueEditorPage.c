@@ -218,8 +218,7 @@ void ValueEditorPage_enter(const char* title, const char* subtitle,
     GUI_SET_TEXT(&ctx.old_value_lbl, ctx.text_buffer);
 
     // 3. Page Registration
-    Page new_page = {.handle_input = ValueEditorPage_handle_input,
-                     .exit = NULL};
+    Page new_page = {.handle_input = ValueEditorPage_handle_input};
     PageManager_switch_page(&new_page);
 
     ValueEditorPage_draw();

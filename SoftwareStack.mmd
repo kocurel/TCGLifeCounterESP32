@@ -1,0 +1,51 @@
+graph LR
+    subgraph AppLayer [Warstwa Aplikacji]
+        Pages[Pages & Game Logic]
+        PM[PageManager]
+    end
+
+    subgraph FrameworkLayer [Warstwa Frameworku GUI]
+        GF[GUI Framework & Components]
+    end
+
+    subgraph MiddlewareLayer [Warstwa Usług / OS]
+        RTOS[FreeRTOS: Tasks & Queues]
+        AM[AudioManager: API/Queue/Task]
+        PMgr[PowerManager: API/Monitoring]
+        KP[Keypad Matrix Logic: Debounce/Scan]
+    end
+
+    subgraph DriverLayer [Warstwa Sterowników / HAL]
+        GR[GUIRenderer & u8g2]
+        IO[IO Drivers: I2C / LEDC / ADC / GPIO]
+    end
+
+    subgraph HardwareLayer [Warstwa Sprzętowa]
+        MCU[MCU: XIAO ESP32-C3]
+        OLED[SSD1309 OLED]
+        Buzzer
+        Input[Buttons / Battery]
+    end
+
+    %% Relacje główne (pionowe)
+    Pages --> PM
+    PM --> GF
+    Pages --> PMgr
+    Pages --> AM
+    
+    %% Relacje Middleware
+    AM --> IO
+    PMgr --> IO
+    PMgr --> GR
+    KP --> IO
+    
+    %% Relacje Framework & Drivers
+    GF --> GR
+    GR --> IO
+    IO --> OLED
+    
+    %% Relacje Hardware
+    IO --> Input
+    IO --> Buzzer
+    MCU --- OLED
+    MCU --- Input
