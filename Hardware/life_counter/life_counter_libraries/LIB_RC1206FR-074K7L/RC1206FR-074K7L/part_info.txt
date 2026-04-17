@@ -1,0 +1,9 @@
+Manufacturer=YAGEO
+PartNumber=RC1206FR-074K7L
+PartCategory=Resistor
+PackageCategory=Resistor Chip
+PinCount=2
+Version=1.2
+Released=2023-07-01 15:31:03
+Downloaded=2025-12-04 18:05:00
+3D=Y

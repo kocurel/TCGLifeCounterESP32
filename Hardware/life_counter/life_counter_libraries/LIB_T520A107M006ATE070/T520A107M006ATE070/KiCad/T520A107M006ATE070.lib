@@ -1,0 +1,28 @@
+EESchema-LIBRARY Version 2.3
+#encoding utf-8
+#SamacSys ECAD Model T520A107M006ATE070
+#/554527/1838588/2.50/2/2/Capacitor Polarised
+DEF T520A107M006ATE070 C 0 30 Y Y 1 F N
+F0 "C" 350 250 50 H V L CNN
+F1 "T520A107M006ATE070" 350 150 50 H V L CNN
+F2 "T520A" 350 50 50 H I L CNN
+F3 "https://content.kemet.com/datasheets/KEM_T2076_T52X-530.pdf" 350 -50 50 H I L CNN
+F4 "T520, Tantalum, Polymer Tantalum, Commercial Grade, 100 uF, 20%, 6.3 VDC, 105C, -55C, 105C, SMD, Polymer, Molded, Low ESR, Non-Combustible, 2,000 Hrs, 8 % , 70 mOhms, 63 uA, 53.16 mg, 3216, 1.6mm, Height Max = 1.8mm, 2000, 52  Weeks" 350 -150 50 H I L CNN "Description"
+F5 "1.8" 350 -250 50 H I L CNN "Height"
+F6 "" 350 -350 50 H I L CNN "TME Electronic Components Part Number"
+F7 "" 350 -450 50 H I L CNN "TME Electronic Components Price/Stock"
+F8 "KEMET" 350 -550 50 H I L CNN "Manufacturer_Name"
+F9 "T520A107M006ATE070" 350 -650 50 H I L CNN "Manufacturer_Part_Number"
+DRAW
+X ~ 1 0 0 100 R 50 50 0 0 P
+X ~ 2 500 0 100 L 50 50 0 0 P
+P 5 0 1 6 200 100 200 -100 230 -100 230 100 200 100 N
+P 2 0 1 6 180 50 140 50 N
+P 2 0 1 6 160 70 160 30 N
+P 2 0 1 6 100 0 200 0 N
+P 2 0 1 6 300 0 400 0 N
+P 5 0 1 10 300 100 300 -100 270 -100 270 100 300 100 F
+ENDDRAW
+ENDDEF
+#
+#End Library

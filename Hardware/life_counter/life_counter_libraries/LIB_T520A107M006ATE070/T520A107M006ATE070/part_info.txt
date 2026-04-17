@@ -1,0 +1,9 @@
+Manufacturer=KEMET
+PartNumber=T520A107M006ATE070
+PartCategory=Capacitor Polarised
+PackageCategory=Other
+PinCount=2
+Version=7.2
+Released=2022-03-04 06:39:56
+Downloaded=2025-12-04 18:10:49
+3D=Y

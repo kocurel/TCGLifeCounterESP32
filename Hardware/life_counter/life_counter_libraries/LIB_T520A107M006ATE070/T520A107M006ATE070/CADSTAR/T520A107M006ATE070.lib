@@ -1,0 +1,16 @@
+.T520A107M006ATE070 :1 ;T520, Tantalum, Polymer Tantalum, Commercial Grade, 100 uF, 20%, 6.3 VDC, 105C, -55C, 105C, SMD, Polymer, Molded, Low ESR, Non-Combustible, 2,000 Hrs, 8 % , 70 mOhms, 63 uA, 53.16 mg, 3216, 1.6mm, Height Max = 1.8mm, 2000, 52  Weeks
+T520A
+*STM C
+*NGS
+*PLB 1="+" 2="-"
+*MXP 2
+*DFN T520A107M006ATE070
+~!TME Electronic Components Part Number (-)
+~!TME Electronic Components Price/Stock (-)
+~!Manufacturer_Name (KEMET)
+~!Manufacturer_Part_Number (T520A107M006ATE070)
+~!Link Datasheet (https://content.kemet.com/datasheets/KEM_T2076_T52X-530.pdf)
+~!Height (1.8mm)
+~!3D_Model (T520A107M006ATE070)
+T520A107M006ATE070
+1.1!U 2.1!U 

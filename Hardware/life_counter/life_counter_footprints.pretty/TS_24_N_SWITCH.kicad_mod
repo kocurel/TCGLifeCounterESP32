@@ -1,0 +1,139 @@
+(footprint "TS_24_N_SWITCH"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at -0.25 0.5 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "838f4af3-aea8-4cfc-a29e-560b9ab4d1f6")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "TS_24_N_SWITCH"
+		(at 0 2 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "f5919730-b526-4118-845b-fddd9767e977")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "c945a9f6-5337-4864-8867-86d2e5d4ded2")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "c9bfee2c-5be2-450d-b5a4-4011f701a57c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_rect
+		(start -8.5 -6)
+		(end 8 7)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill no)
+		(layer "F.SilkS")
+		(uuid "41c98fd4-9f94-4455-9082-8d5544d6c150")
+	)
+	(fp_rect
+		(start -8.5 -6)
+		(end 8 7)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(fill no)
+		(layer "F.CrtYd")
+		(uuid "21d62803-c760-4c49-9d2c-13f21c892a33")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 3.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "c0572df4-00aa-4f6f-b39d-5a3b0e587ce6")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole oval
+		(at -6.5 -2)
+		(size 2 1.6)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(thermal_bridge_angle 45)
+		(uuid "fe91ea63-7985-4c3b-9a12-84a90583b0ba")
+	)
+	(pad "2" thru_hole oval
+		(at 6 -2)
+		(size 2 1.6)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(thermal_bridge_angle 45)
+		(uuid "6d74ccec-088d-4949-803b-44070a2c4a8d")
+	)
+	(pad "3" thru_hole oval
+		(at -6.5 3)
+		(size 2 1.6)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(thermal_bridge_angle 45)
+		(uuid "e7fe7d94-fdf2-4f2f-b557-d78af0345b18")
+	)
+	(pad "4" thru_hole oval
+		(at 6 3)
+		(size 2 1.6)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(thermal_bridge_angle 45)
+		(uuid "8d11e8ab-d0d4-4b89-a767-19294f083f85")
+	)
+	(embedded_fonts no)
+	(model "${KIPRJMOD}/life_counter_libraries/TS-24-N/TS-24-N.step"
+		(offset
+			(xyz 1 -6.5 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -0 -0 -0)
+		)
+	)
+)

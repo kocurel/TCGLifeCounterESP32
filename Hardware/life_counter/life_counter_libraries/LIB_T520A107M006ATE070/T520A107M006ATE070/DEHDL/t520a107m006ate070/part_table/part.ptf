@@ -1,0 +1,11 @@
+FILE_TYPE = MULTI_PHYS_TABLE;
+
+PART 'T520A107M006ATE070'
+CLASS = DISCRETE
+{========================================================================================}
+:"MANUFACTURER_NAME", "MANUFACTURER_PART_NUMBER"= "PART_NUMBER", "JEDEC_TYPE", "PACK_TYPE", "TME_ELECTRONIC_COMPONENTS_PART_NUMBER", "TME_ELECTRONIC_COMPONENTS_PRICE/STOCK", "DESCRIPTION", "DATASHEET", "HEIGHT";
+{========================================================================================}
+ "KEMET", "T520A107M006ATE070" (!) = "", "T520A", "Other", "", "", "T520, Tantalum, Polymer Tantalum, Commercial Grade, 100 uF, 20%, 6.3 VDC, 105C, -55C, 105C, SMD, Polymer, Molded, Low ESR, Non-Combustible, 2,000 Hrs, 8 % , 70 mOhms, 63 uA, 53.16 mg, 3216, 1.6mm, Height Max = 1.8mm, 2000, 52  Weeks", "https://content.kemet.com/datasheets/KEM_T2076_T52X-530.pdf", "1.8 mm"
+END_PART
+
+END.

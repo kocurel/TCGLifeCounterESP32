@@ -1,0 +1,2938 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "9ca3bb80-abf5-4fdd-a4e2-76d2f8823edd")
+	(paper "A4")
+	(title_block
+		(date "2025-12-19")
+	)
+	(lib_symbols
+		(symbol "life_counter_lib:1N4148-1206"
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "D"
+				(at 5.08 4.445 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Value" "1N4148"
+				(at 5.08 -3.81 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Footprint" "life_counter_footprints:CD4148W(1206C)"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "1N4148W-13-F"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "1N4148W-13-F"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "1N4148-1206_1_1"
+				(polyline
+					(pts
+						(xy 2.54 0) (xy 3.4798 0)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.175 0) (xy 3.81 0)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.81 1.905) (xy 3.81 -1.905)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 3.81 -1.905) (xy 6.35 0)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 6.35 0) (xy 3.81 1.905)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 6.35 0) (xy 7.62 0)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 6.35 -1.905) (xy 6.35 1.905)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at 0 0 0)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 10.16 0 180)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "1N4148-1206_1_2"
+				(polyline
+					(pts
+						(xy -1.905 3.81) (xy 1.905 3.81)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 6.35) (xy -1.905 3.81)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 6.35) (xy 0 7.62)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 3.175) (xy 0 3.81)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 2.54) (xy 0 3.4798)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.905 6.35) (xy -1.905 6.35)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.905 3.81) (xy 0 6.35)
+					)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin unspecified line
+					(at 0 10.16 270)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin unspecified line
+					(at 0 0 90)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+		(symbol "life_counter_lib:TS_24_N"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "S"
+				(at -7.62 8.382 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left bottom)
+				)
+			)
+			(property "Value" "TS-24-N"
+				(at -7.62 -8.382 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left top)
+				)
+			)
+			(property "Footprint" "life_counter_footprints:TS_24_N_SWITCH"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify bottom)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "PARTREV" "1.0"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify bottom)
+					(hide yes)
+				)
+			)
+			(property "MANUFACTURER" "CUI Devices"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify bottom)
+					(hide yes)
+				)
+			)
+			(property "STANDARD" "Manufacturer Recommendations"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify bottom)
+					(hide yes)
+				)
+			)
+			(symbol "TS_24_N_0_0"
+				(rectangle
+					(start -7.62 -7.62)
+					(end 7.62 7.62)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 5.08) (xy 0 2.54)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 0 1.905)
+					(radius 0.635)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center 0 -1.905)
+					(radius 0.635)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0 -2.54) (xy 0 -5.08)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 0.635 -2.2225) (xy 2.54 1.27)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 7.62 5.08) (xy -7.62 5.08)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 7.62 -5.08) (xy -7.62 -5.08)
+					)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -12.7 5.08 0)
+					(length 5.08)
+					(name "~"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
+			(symbol "TS_24_N_1_0"
+				(pin passive line
+					(at -12.7 -5.08 0)
+					(length 5.08)
+					(name "~"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 12.7 5.08 180)
+					(length 5.08)
+					(name ""
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 12.7 -5.08 180)
+					(length 5.08)
+					(name "~"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
+	)
+	(junction
+		(at 119.38 132.08)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0e1069ae-bd1d-4708-8049-4b5096ffaf2b")
+	)
+	(junction
+		(at 93.98 63.5)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "34e71635-d082-49bb-a63a-3a5113c46d18")
+	)
+	(junction
+		(at 238.76 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "542d963d-1023-4e23-ac79-934e338b0266")
+	)
+	(junction
+		(at 119.38 88.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "72084532-a109-43f9-a697-1c01e04085f4")
+	)
+	(junction
+		(at 45.72 132.08)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7f3c35a8-09b8-41c5-a51e-28999d146f19")
+	)
+	(junction
+		(at 93.98 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a2607e70-b3ca-4c8c-99fa-ff93d1f7035d")
+	)
+	(junction
+		(at 172.72 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ad39a720-2b8f-45fb-bdd6-a1ecf27b2d34")
+	)
+	(junction
+		(at 172.72 63.5)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "c04157e6-b69b-488c-bf82-7fda581f23f4")
+	)
+	(junction
+		(at 45.72 43.18)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "daf64430-1f20-4d04-b5b1-f19507bf5f9a")
+	)
+	(junction
+		(at 45.72 88.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "dbe73137-1897-47de-a4c4-79248b34bf9a")
+	)
+	(junction
+		(at 119.38 43.18)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "e050ef87-f9e5-40c7-90ee-2128a1482a1e")
+	)
+	(junction
+		(at 238.76 63.5)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "fd7ced96-757d-4e67-9837-7d1c3ff41168")
+	)
+	(no_connect
+		(at 119.38 152.4)
+		(uuid "005e2c5b-7fa1-4e8e-bfcd-bc2df6f83eac")
+	)
+	(no_connect
+		(at 213.36 142.24)
+		(uuid "05150223-ff41-4758-97a1-c23baf9c3739")
+	)
+	(no_connect
+		(at 71.12 142.24)
+		(uuid "1c1f683d-ef53-4c4b-93bd-1ad2f3814343")
+	)
+	(no_connect
+		(at 213.36 53.34)
+		(uuid "1e3351b8-b8df-4af1-b25a-03855f3b5071")
+	)
+	(no_connect
+		(at 144.78 99.06)
+		(uuid "2db6d305-185a-4835-b5ef-674be8a1a5b6")
+	)
+	(no_connect
+		(at 45.72 109.22)
+		(uuid "3d00e422-f862-452c-964a-824d712f184e")
+	)
+	(no_connect
+		(at 71.12 99.06)
+		(uuid "5f176051-ded6-4397-8add-38b527b7f157")
+	)
+	(no_connect
+		(at 144.78 142.24)
+		(uuid "674d42e5-82de-4fbf-8aa7-da144ca31413")
+	)
+	(no_connect
+		(at 119.38 109.22)
+		(uuid "768c3aa7-83d6-4f15-8647-080a0425b34d")
+	)
+	(no_connect
+		(at 45.72 152.4)
+		(uuid "7f512fb0-287a-47cb-a7c9-21546068859a")
+	)
+	(no_connect
+		(at 144.78 53.34)
+		(uuid "8bbd0ef7-d5a4-4058-8b04-1fb811be776e")
+	)
+	(no_connect
+		(at 187.96 152.4)
+		(uuid "a58eaa43-0ef5-410f-9435-4c5cfe2e8f21")
+	)
+	(no_connect
+		(at 71.12 53.34)
+		(uuid "b49e184b-fed9-4cd9-befa-de7bd9c10d38")
+	)
+	(no_connect
+		(at 187.96 109.22)
+		(uuid "bcc3365b-553a-4a53-8174-a794e30db9b7")
+	)
+	(no_connect
+		(at 187.96 63.5)
+		(uuid "c20ce6e4-fdc0-4bf1-b037-e8c6ee63aa8b")
+	)
+	(no_connect
+		(at 45.72 63.5)
+		(uuid "d5d0fd6c-8239-47c8-a0c7-8e099037bd1a")
+	)
+	(no_connect
+		(at 119.38 63.5)
+		(uuid "de3f2269-631e-44e8-b299-5c0e6f5b7ab5")
+	)
+	(no_connect
+		(at 213.36 99.06)
+		(uuid "f41bfc7e-6b14-4706-a15a-bf090a4d5827")
+	)
+	(bus_entry
+		(at 91.44 25.4)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "13da7910-4fd6-4e4a-8180-ae7246ca35b7")
+	)
+	(bus_entry
+		(at 236.22 25.4)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "47156571-8298-4b21-bbba-44d736f34952")
+	)
+	(bus_entry
+		(at 22.86 129.54)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8a7a3aa9-11e6-4cf6-b0fe-28f67f164a13")
+	)
+	(bus_entry
+		(at 22.86 86.36)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "97b82d78-5d24-4bd0-b8c8-b025807e1fd0")
+	)
+	(bus_entry
+		(at 170.18 25.4)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ab3085e7-497f-4607-a694-d2ca3e8f2c34")
+	)
+	(bus_entry
+		(at 22.86 40.64)
+		(size 2.54 2.54)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ac27ac28-565c-4d6c-bb02-3835f5a75d8c")
+	)
+	(wire
+		(pts
+			(xy 231.14 109.22) (xy 238.76 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0789533d-e53a-41f0-855d-4327a5aad987")
+	)
+	(wire
+		(pts
+			(xy 144.78 152.4) (xy 154.94 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "09e4893f-ab1c-415a-9adb-2b99e06a885e")
+	)
+	(wire
+		(pts
+			(xy 71.12 109.22) (xy 76.2 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0a66a484-1676-458c-b54b-8f7b958895b6")
+	)
+	(wire
+		(pts
+			(xy 45.72 132.08) (xy 45.72 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b0dc3b7-f9fc-4f19-b5e9-1018a67c3c2c")
+	)
+	(wire
+		(pts
+			(xy 45.72 43.18) (xy 45.72 53.34)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0b97d843-a1fc-44d1-92a0-e7b5c9a6cb00")
+	)
+	(wire
+		(pts
+			(xy 119.38 132.08) (xy 119.38 142.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0de52683-0010-4071-89d3-296af126d935")
+	)
+	(wire
+		(pts
+			(xy 238.76 152.4) (xy 238.76 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0f4a9ae0-3bab-4b8b-8067-ff6fb90abd95")
+	)
+	(wire
+		(pts
+			(xy 45.72 43.18) (xy 25.4 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "104fbb24-5d72-4c65-be0c-a77394dd783f")
+	)
+	(wire
+		(pts
+			(xy 86.36 63.5) (xy 93.98 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1f396b7e-32e1-414a-8e9e-7213016ef861")
+	)
+	(wire
+		(pts
+			(xy 238.76 109.22) (xy 238.76 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "276fb464-d608-47b9-80f6-665a6d606763")
+	)
+	(wire
+		(pts
+			(xy 71.12 63.5) (xy 76.2 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "286af8b6-3a70-4f8d-b655-2f5f0284ce94")
+	)
+	(wire
+		(pts
+			(xy 71.12 152.4) (xy 76.2 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3ab65af3-9a6f-4c01-b88f-05ff53636c05")
+	)
+	(wire
+		(pts
+			(xy 86.36 109.22) (xy 93.98 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "42b745a8-c063-4c9b-b862-beb9fe219087")
+	)
+	(wire
+		(pts
+			(xy 93.98 27.94) (xy 93.98 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "45b403bd-03ac-48c9-a23f-8eb9eb0d743d")
+	)
+	(wire
+		(pts
+			(xy 231.14 152.4) (xy 238.76 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4d0cc998-fec1-48b5-bffe-cd424245cf18")
+	)
+	(wire
+		(pts
+			(xy 119.38 43.18) (xy 45.72 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "51be51e4-d339-4041-9e76-47e82e3b1599")
+	)
+	(wire
+		(pts
+			(xy 238.76 63.5) (xy 238.76 27.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5356707c-2a8c-45f9-8bef-e39c7714a1d1")
+	)
+	(wire
+		(pts
+			(xy 172.72 27.94) (xy 172.72 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "54552f33-64e8-4e56-92d0-2c0251baa21a")
+	)
+	(bus
+		(pts
+			(xy 91.44 25.4) (xy 170.18 25.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "55af662e-861a-4f26-ad11-7add92d13310")
+	)
+	(wire
+		(pts
+			(xy 213.36 152.4) (xy 220.98 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "58fa206b-807d-4b74-baae-f7e45940ea80")
+	)
+	(bus
+		(pts
+			(xy 22.86 86.36) (xy 22.86 129.54)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5df32e00-924b-4a9f-805d-b8cb5b23c033")
+	)
+	(bus
+		(pts
+			(xy 38.1 25.4) (xy 91.44 25.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6394a0d4-7f58-44ec-bab9-71f5f76d4287")
+	)
+	(wire
+		(pts
+			(xy 172.72 109.22) (xy 172.72 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6db0e52a-f390-4a46-9c7a-65a1bd1c7991")
+	)
+	(bus
+		(pts
+			(xy 22.86 25.4) (xy 22.86 40.64)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "786fe123-f97a-480b-92c1-d5068b25b474")
+	)
+	(wire
+		(pts
+			(xy 187.96 132.08) (xy 119.38 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7896622c-b706-469f-95a0-b3836079f347")
+	)
+	(wire
+		(pts
+			(xy 144.78 109.22) (xy 154.94 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "847fc6b9-a96b-4ce5-979a-25149d1b8ac8")
+	)
+	(wire
+		(pts
+			(xy 187.96 53.34) (xy 187.96 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8b9bdece-9a82-4ca3-962f-af29b6e11249")
+	)
+	(bus
+		(pts
+			(xy 22.86 40.64) (xy 22.86 86.36)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8fe53eef-c980-4e90-8ce0-9ffa7c4efacf")
+	)
+	(wire
+		(pts
+			(xy 213.36 109.22) (xy 220.98 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9020be99-d05d-447f-9483-4ad22e2bf07e")
+	)
+	(wire
+		(pts
+			(xy 172.72 152.4) (xy 172.72 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9138f082-ad37-4716-ab1e-ea9545eb78e6")
+	)
+	(wire
+		(pts
+			(xy 93.98 63.5) (xy 93.98 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9adddb5b-5dd1-4adc-836e-62c88761629d")
+	)
+	(wire
+		(pts
+			(xy 119.38 53.34) (xy 119.38 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a20ca5f0-1906-44b2-a241-cde7404c560c")
+	)
+	(wire
+		(pts
+			(xy 213.36 63.5) (xy 218.44 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a5cc72cf-dd0c-42ae-9770-2295a772b1cc")
+	)
+	(wire
+		(pts
+			(xy 119.38 88.9) (xy 187.96 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ab336615-7925-47fa-a557-68060db6dd68")
+	)
+	(wire
+		(pts
+			(xy 187.96 88.9) (xy 187.96 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b0632f89-d194-41c3-bc1c-f4dd10a37404")
+	)
+	(wire
+		(pts
+			(xy 119.38 88.9) (xy 119.38 99.06)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b62fda12-d862-42de-95a7-e05652de7a90")
+	)
+	(wire
+		(pts
+			(xy 187.96 43.18) (xy 119.38 43.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b6798430-6eee-4881-8480-b5ae3126397f")
+	)
+	(wire
+		(pts
+			(xy 119.38 132.08) (xy 45.72 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ba2e5940-5ee4-423a-8b66-2ba7954eaa5c")
+	)
+	(wire
+		(pts
+			(xy 25.4 132.08) (xy 45.72 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bbb6407d-8d55-43a8-9044-76f6c9318727")
+	)
+	(wire
+		(pts
+			(xy 45.72 88.9) (xy 119.38 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bfdd9f09-0c3c-4174-9cb3-8a1944499378")
+	)
+	(wire
+		(pts
+			(xy 165.1 63.5) (xy 172.72 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "c4cc5afd-fee9-48c4-a929-500fe404b5d5")
+	)
+	(wire
+		(pts
+			(xy 165.1 152.4) (xy 172.72 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cf88db83-7ef6-4a6f-8d22-64514f9abf41")
+	)
+	(wire
+		(pts
+			(xy 93.98 109.22) (xy 93.98 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d688a469-a55e-49a9-8fb5-188dfd0b27c6")
+	)
+	(wire
+		(pts
+			(xy 45.72 88.9) (xy 25.4 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dbe2ac8d-86ca-40b9-bf28-fa0204cce2d9")
+	)
+	(wire
+		(pts
+			(xy 86.36 152.4) (xy 93.98 152.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "dd607b78-844c-4988-a12d-014cc36b7396")
+	)
+	(wire
+		(pts
+			(xy 165.1 109.22) (xy 172.72 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ddb84ad2-03d9-4058-9aef-4c148e36c221")
+	)
+	(wire
+		(pts
+			(xy 45.72 99.06) (xy 45.72 88.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e38f5e39-fe78-4b1f-b39a-57886c595544")
+	)
+	(wire
+		(pts
+			(xy 187.96 142.24) (xy 187.96 132.08)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e709459b-fb3d-445d-9779-13c4a4d7d367")
+	)
+	(wire
+		(pts
+			(xy 228.6 63.5) (xy 238.76 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e9ea25d9-18c5-431d-9de2-a2762d8cf18a")
+	)
+	(wire
+		(pts
+			(xy 144.78 63.5) (xy 154.94 63.5)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ec62fb87-c191-404a-8abf-ade0bbdddc49")
+	)
+	(bus
+		(pts
+			(xy 170.18 25.4) (xy 236.22 25.4)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f4a1dd9e-a574-405f-ab26-38ccb379f9d7")
+	)
+	(label "COL2"
+		(at 238.76 27.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3c8e4aa6-ba87-4566-b87b-408f4562ea3c")
+	)
+	(label "ROW1"
+		(at 25.4 88.9 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "3e5777db-f7e2-41de-b454-f929cddc88a1")
+	)
+	(label "ROW0"
+		(at 25.4 43.18 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7b210358-4e8b-4dfc-bf7d-45e878328dc6")
+	)
+	(label "COL0"
+		(at 93.98 27.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "7d81ba4c-6116-4c61-8716-fc43aca24bd2")
+	)
+	(label "ROW2"
+		(at 25.4 132.08 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "b1dab610-2b8b-4b3e-8d15-12149fdcb9cd")
+	)
+	(label "COL1"
+		(at 172.72 27.94 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ee53461e-a136-4c37-8522-0c64f42a7e76")
+	)
+	(hierarchical_label "ROW[0..2]"
+		(shape input)
+		(at 22.86 25.4 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "1d58a153-b496-4b6e-8920-ef4e505435d8")
+	)
+	(hierarchical_label "COL[0..2]"
+		(shape input)
+		(at 38.1 25.4 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "de8241f0-077f-40a6-a1da-967d373fc40d")
+	)
+	(symbol
+		(lib_id "life_counter_lib:TS_24_N")
+		(at 132.08 104.14 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0fac0b3e-200b-491d-88ae-98fd5aef5455")
+		(property "Reference" "S5"
+			(at 132.08 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TS-24-N"
+			(at 132.08 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:TS_24_N_SWITCH"
+			(at 132.08 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 132.08 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 132.08 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" "1.0"
+			(at 132.08 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" "CUI Devices"
+			(at 132.08 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" "Manufacturer Recommendations"
+			(at 132.08 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "82e45884-da58-4e6c-a62a-752044210df1")
+		)
+		(pin "2"
+			(uuid "fb011d20-7177-4093-90a3-c2c19456f001")
+		)
+		(pin "3"
+			(uuid "61e264cd-8aad-4a63-a2f4-adecf5feb3f8")
+		)
+		(pin "4"
+			(uuid "6d815974-e6bb-4f03-a374-3d59c2cbb0c4")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "S5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:1N4148-1206")
+		(at 165.1 109.22 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "16c093a4-f03a-4252-a1b1-aa4ee9916590")
+		(property "Reference" "D6"
+			(at 160.02 102.87 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "1N4148"
+			(at 160.02 105.41 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:CD4148W(1206C)"
+			(at 165.1 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "1N4148W-13-F"
+			(at 165.1 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 165.1 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "7ca2b18d-9c41-4da3-b309-62acee081a23")
+		)
+		(pin "1"
+			(uuid "e51aceeb-7f9c-48d9-afe2-1b40c6e6aea4")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "D6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:1N4148-1206")
+		(at 86.36 152.4 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "2b1daa3b-e8d5-4db1-bfe8-d9ba462a76fb")
+		(property "Reference" "D8"
+			(at 81.28 146.05 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "1N4148"
+			(at 81.28 148.59 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:CD4148W(1206C)"
+			(at 86.36 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "1N4148W-13-F"
+			(at 86.36 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 86.36 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "856d177c-f945-4528-91c5-a60941f61c55")
+		)
+		(pin "1"
+			(uuid "8a6422ac-a95a-47c6-869d-53d09729b3c1")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "D8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:1N4148-1206")
+		(at 165.1 63.5 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "30ce640c-f868-45b2-9ce9-233a407ffc16")
+		(property "Reference" "D3"
+			(at 160.02 57.15 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "1N4148"
+			(at 160.02 59.69 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:CD4148W(1206C)"
+			(at 165.1 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "1N4148W-13-F"
+			(at 165.1 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 165.1 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "3fce85b1-1867-4fa9-9399-5cefc987b9a2")
+		)
+		(pin "1"
+			(uuid "9a1c1017-101f-4499-914b-6eb9e416a33c")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "D3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:1N4148-1206")
+		(at 165.1 152.4 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "3fc7fe9e-4e0d-4f66-b218-656bccd10de6")
+		(property "Reference" "D9"
+			(at 160.02 146.05 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "1N4148"
+			(at 160.02 148.59 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:CD4148W(1206C)"
+			(at 165.1 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "1N4148W-13-F"
+			(at 165.1 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 165.1 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "9825e3e1-1479-461d-924f-34e0f51637c1")
+		)
+		(pin "1"
+			(uuid "7aeb57dd-9e90-40e6-8231-6c7f081519d5")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "D9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:TS_24_N")
+		(at 132.08 58.42 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "48e33caa-a8a9-4c5c-97ef-f77e0b9ed97f")
+		(property "Reference" "S2"
+			(at 132.08 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TS-24-N"
+			(at 132.08 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:TS_24_N_SWITCH"
+			(at 132.08 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 132.08 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 132.08 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" "1.0"
+			(at 132.08 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" "CUI Devices"
+			(at 132.08 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" "Manufacturer Recommendations"
+			(at 132.08 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "14798698-cfbd-461b-b3ee-049e273e3110")
+		)
+		(pin "2"
+			(uuid "79e6eb0d-2a29-45b4-b746-c26236eb6879")
+		)
+		(pin "3"
+			(uuid "32b4f6f7-d235-4387-858c-fabb32b9f405")
+		)
+		(pin "4"
+			(uuid "b1984736-9e2d-471c-be5f-9eff637cc62a")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "S2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:TS_24_N")
+		(at 200.66 58.42 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5321be76-294d-4156-9e68-836683625ef4")
+		(property "Reference" "S3"
+			(at 200.66 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TS-24-N"
+			(at 200.66 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:TS_24_N_SWITCH"
+			(at 200.66 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 200.66 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 200.66 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" "1.0"
+			(at 200.66 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" "CUI Devices"
+			(at 200.66 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" "Manufacturer Recommendations"
+			(at 200.66 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "cf23edbc-0805-4d69-ac92-5d0ec6a3f097")
+		)
+		(pin "2"
+			(uuid "f56a9ee2-c3d0-49d4-aecc-fdfc8849d281")
+		)
+		(pin "3"
+			(uuid "448c479e-eef2-4005-8cb1-a60253f85aef")
+		)
+		(pin "4"
+			(uuid "41476f67-aa76-46d5-8022-413d5cc3e4da")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "S3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:TS_24_N")
+		(at 200.66 104.14 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "54cb0a4f-4c0f-4c7c-b4c9-3a8b8f3a55de")
+		(property "Reference" "S6"
+			(at 200.66 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TS-24-N"
+			(at 200.66 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:TS_24_N_SWITCH"
+			(at 200.66 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 200.66 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 200.66 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" "1.0"
+			(at 200.66 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" "CUI Devices"
+			(at 200.66 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" "Manufacturer Recommendations"
+			(at 200.66 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "19a705e0-5677-4d27-9942-7de0163a594e")
+		)
+		(pin "2"
+			(uuid "88da5aa5-cd35-4364-9ae2-a59c56ae42fc")
+		)
+		(pin "3"
+			(uuid "8f42a1d1-1dc3-4d29-b737-2c6937d62e06")
+		)
+		(pin "4"
+			(uuid "3c43a951-b766-4d57-aed0-2011cdbe5d76")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "S6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:1N4148-1206")
+		(at 86.36 63.5 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "63d31a02-c23c-4d8f-9f7b-ab61b1e09b1b")
+		(property "Reference" "D2"
+			(at 81.28 57.15 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "1N4148"
+			(at 81.28 59.69 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:CD4148W(1206C)"
+			(at 86.36 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "1N4148W-13-F"
+			(at 86.36 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 86.36 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "693c5cf5-a504-4403-97e7-fb3cc39c979f")
+		)
+		(pin "1"
+			(uuid "a29d292e-ca71-40a3-9e5c-90d0a4a2f444")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "D2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:TS_24_N")
+		(at 200.66 147.32 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "925f1a44-72e1-4c02-9e47-db04905a916d")
+		(property "Reference" "S9"
+			(at 200.66 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TS-24-N"
+			(at 200.66 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:TS_24_N_SWITCH"
+			(at 200.66 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 200.66 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 200.66 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" "1.0"
+			(at 200.66 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" "CUI Devices"
+			(at 200.66 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" "Manufacturer Recommendations"
+			(at 200.66 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0d1bf05e-e89c-4ac0-b5d1-e400134174e1")
+		)
+		(pin "2"
+			(uuid "54d11cf9-e8e9-4f06-b15c-abf0c20aade9")
+		)
+		(pin "3"
+			(uuid "fad78936-7cc4-47bd-be41-fd7a8d81d932")
+		)
+		(pin "4"
+			(uuid "d057faa1-7b6f-475b-9c74-f50f15d079d2")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "S9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:TS_24_N")
+		(at 132.08 147.32 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "ae2684b4-9e64-42ce-8239-170a48949f4b")
+		(property "Reference" "S8"
+			(at 132.08 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TS-24-N"
+			(at 132.08 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:TS_24_N_SWITCH"
+			(at 132.08 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 132.08 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 132.08 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" "1.0"
+			(at 132.08 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" "CUI Devices"
+			(at 132.08 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" "Manufacturer Recommendations"
+			(at 132.08 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "09a4d9c5-324f-4d8c-aefa-5bafa6b37b95")
+		)
+		(pin "2"
+			(uuid "fed3b420-62f9-4fcf-8577-2b9231e29a65")
+		)
+		(pin "3"
+			(uuid "ce06c253-9561-4914-8c73-21a3102c3974")
+		)
+		(pin "4"
+			(uuid "8f2c9f89-3e0c-4efc-87c1-d13caa6ac699")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "S8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:1N4148-1206")
+		(at 228.6 63.5 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b103a4c4-cc2a-4035-bf6f-5f9bb1137f2d")
+		(property "Reference" "D4"
+			(at 223.52 57.15 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "1N4148"
+			(at 223.52 59.69 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:CD4148W(1206C)"
+			(at 228.6 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "1N4148W-13-F"
+			(at 228.6 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 228.6 63.5 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "259a146e-8195-4f69-93cf-d96c334dd04a")
+		)
+		(pin "1"
+			(uuid "fbd162d3-a729-44c6-b50c-9efa47d5ffe2")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "D4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:TS_24_N")
+		(at 58.42 58.42 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d57d4fca-d445-4f74-95cc-c69c1aa78331")
+		(property "Reference" "S1"
+			(at 58.42 45.72 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TS-24-N"
+			(at 58.42 48.26 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:TS_24_N_SWITCH"
+			(at 58.42 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 58.42 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 58.42 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" "1.0"
+			(at 58.42 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" "CUI Devices"
+			(at 58.42 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" "Manufacturer Recommendations"
+			(at 58.42 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "20ed0bff-37b7-4e16-a6e0-8cf4ad7df701")
+		)
+		(pin "2"
+			(uuid "441d4aae-f9e0-4eea-a5a9-1d5dc1784114")
+		)
+		(pin "3"
+			(uuid "bf27c701-5f39-4f2c-9714-690c7299f069")
+		)
+		(pin "4"
+			(uuid "02b8c474-3263-4363-a949-c65d04f627eb")
+		)
+		(instances
+			(project ""
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "S1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:1N4148-1206")
+		(at 86.36 109.22 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e24be525-8528-49a2-b82c-5e1bbfc85cb7")
+		(property "Reference" "D5"
+			(at 81.28 102.87 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "1N4148"
+			(at 81.28 105.41 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:CD4148W(1206C)"
+			(at 86.36 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "1N4148W-13-F"
+			(at 86.36 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 86.36 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "a15cf301-c159-48bd-a943-ead954f146ed")
+		)
+		(pin "1"
+			(uuid "ad84aea0-0f61-43cc-b6b2-1a4cee5baaf2")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "D5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:1N4148-1206")
+		(at 231.14 109.22 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e2856d97-4de6-47de-bd01-7635b0d09616")
+		(property "Reference" "D7"
+			(at 226.06 102.87 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "1N4148"
+			(at 226.06 105.41 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:CD4148W(1206C)"
+			(at 231.14 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "1N4148W-13-F"
+			(at 231.14 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 231.14 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "32cf40be-d927-4b9b-804e-a8a8885edbff")
+		)
+		(pin "1"
+			(uuid "54d93704-4097-45f9-a00b-446851eabe62")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "D7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:TS_24_N")
+		(at 58.42 104.14 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e91be3c1-8cd3-4ff5-9b4f-909514cf08e3")
+		(property "Reference" "S4"
+			(at 58.42 91.44 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TS-24-N"
+			(at 58.42 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:TS_24_N_SWITCH"
+			(at 58.42 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 58.42 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 58.42 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" "1.0"
+			(at 58.42 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" "CUI Devices"
+			(at 58.42 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" "Manufacturer Recommendations"
+			(at 58.42 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5f7c09b8-a50e-4146-a299-94ffd81053ab")
+		)
+		(pin "2"
+			(uuid "4e1cfffb-d489-42c0-ada0-69a0e7f61019")
+		)
+		(pin "3"
+			(uuid "f5a10fa9-33be-47a9-bf80-27d0fb65a390")
+		)
+		(pin "4"
+			(uuid "66cbed63-9c8b-4849-8656-b17f11c4d59d")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "S4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:1N4148-1206")
+		(at 231.14 152.4 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "eb634a4d-9317-4f4e-a82f-aaef631769c7")
+		(property "Reference" "D10"
+			(at 226.06 146.05 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "1N4148"
+			(at 226.06 148.59 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:CD4148W(1206C)"
+			(at 231.14 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "1N4148W-13-F"
+			(at 231.14 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 231.14 152.4 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "f114a50f-d5cd-4982-a2ba-b02fc3904338")
+		)
+		(pin "1"
+			(uuid "3b5d476b-4514-41dc-80d6-c73247714637")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "D10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "life_counter_lib:TS_24_N")
+		(at 58.42 147.32 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "f503108c-167d-49ee-a0c7-b04bc378efd9")
+		(property "Reference" "S7"
+			(at 58.42 134.62 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "TS-24-N"
+			(at 58.42 137.16 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "life_counter_footprints:TS_24_N_SWITCH"
+			(at 58.42 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 58.42 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 58.42 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "PARTREV" "1.0"
+			(at 58.42 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "MANUFACTURER" "CUI Devices"
+			(at 58.42 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "STANDARD" "Manufacturer Recommendations"
+			(at 58.42 147.32 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "666ef455-a278-40bc-ae81-0b6275368c18")
+		)
+		(pin "2"
+			(uuid "b900afb3-d31e-435e-b5d2-25f1e2ea150d")
+		)
+		(pin "3"
+			(uuid "fedc151f-55c0-43fa-ac20-a3b44ab3cc53")
+		)
+		(pin "4"
+			(uuid "826c7d30-fb2f-4d4a-a743-c6df8642a5c4")
+		)
+		(instances
+			(project "life_counter_2"
+				(path "/46a878ca-d9a6-4386-a0b6-4229c4a084ec/7c8e1e7b-08da-46db-81c2-b986b35d1a3a"
+					(reference "S7")
+					(unit 1)
+				)
+			)
+		)
+	)
+)

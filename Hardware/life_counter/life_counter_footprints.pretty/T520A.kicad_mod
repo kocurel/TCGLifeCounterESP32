@@ -1,0 +1,182 @@
+(footprint "T520A"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "T520A")
+	(tags "Capacitor Polarised")
+	(property "Reference" "C**"
+		(at 0 0 0)
+		(layer "F.SilkS")
+		(uuid "19ea251f-21c3-4481-908f-fa88b0b4dc04")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(property "Value" "T520A"
+		(at 0 0 0)
+		(layer "F.SilkS")
+		(hide yes)
+		(uuid "8108798e-fdaa-4dc1-98da-00f1c39d7179")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "63e88677-7ba9-4879-90da-0078a6ca891c")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "35332849-6cf5-4f7d-ad36-8bfe727b3f2b")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr smd)
+	(fp_arc
+		(start -1.867049 1.232978)
+		(mid -3 0.05995)
+		(end -1.964577 -1.2)
+		(stroke
+			(width 0.5)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "c01fce1a-1721-4375-b77e-1c61ffbf4e10")
+	)
+	(fp_line
+		(start -3.045 -1.8)
+		(end 3.045 -1.8)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "14331bf5-e34c-445e-80b7-cb1b311b3e31")
+	)
+	(fp_line
+		(start -3.045 1.8)
+		(end -3.045 -1.8)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "20636b71-fa62-4ce1-ac8e-b2fece5d0d93")
+	)
+	(fp_line
+		(start 3.045 -1.8)
+		(end 3.045 1.8)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "3235f2a9-64b4-49cf-ba63-e97cdb967414")
+	)
+	(fp_line
+		(start 3.045 1.8)
+		(end -3.045 1.8)
+		(stroke
+			(width 0.05)
+			(type solid)
+		)
+		(layer "F.CrtYd")
+		(uuid "8643b4b7-f63b-4b8f-9a5f-f65118eccb9a")
+	)
+	(fp_line
+		(start -1.6 -0.8)
+		(end 1.6 -0.8)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "e4eebace-e3c1-43a6-bf70-bf8ce79b00a0")
+	)
+	(fp_line
+		(start -1.6 0.8)
+		(end -1.6 -0.8)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "f66b951e-a866-4d0c-b1c8-d341d80ba7da")
+	)
+	(fp_line
+		(start 1.6 -0.8)
+		(end 1.6 0.8)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "a3afb9aa-ad6b-4172-8483-03a53e1aefe3")
+	)
+	(fp_line
+		(start 1.6 0.8)
+		(end -1.6 0.8)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.Fab")
+		(uuid "8195eafd-a248-4cbc-8e2f-515b9a837715")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "3f5982a4-8952-45e0-89fd-e4aa0821a80f")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.254)
+			)
+		)
+	)
+	(pad "1" smd rect
+		(at -1.31 0 90)
+		(size 1.23 1.87)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "5a7d25a5-b79e-4555-845f-198f8502a9b4")
+	)
+	(pad "2" smd rect
+		(at 1.31 0 90)
+		(size 1.23 1.87)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(uuid "be268385-dc08-44ae-85ac-b897a909b516")
+	)
+	(embedded_fonts no)
+	(model "${KIPRJMOD}/life_counter_libraries/LIB_T520A107M006ATE070/T520A107M006ATE070/3D/T520A107M006ATE070.step"
+		(offset
+			(xyz -0.8699999917 5.570000088 -2.00999996)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz -90 0 0)
+		)
+	)
+)
