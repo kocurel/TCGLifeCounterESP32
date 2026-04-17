@@ -1,3 +1,4 @@
+* final (2026-02-06)
 * shortened max string length (2026-01-31)
 * code cleanup (comments) (2026-01-31)
 * value names page, fixed dice page (2026-01-31)

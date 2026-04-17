@@ -1,0 +1,54 @@
+graph TD
+    %% Mikrokontroler Centralny
+    subgraph MCU [XIAO ESP32-C3]
+        I2C_M[I2C]
+        ADC_CH[ADC Channel]
+        PWM_CH[LEDC PWM]
+        GPIO_OUT[GPIO Output]
+        GPIO_IN[GPIO Input/Wakeup]
+    end
+
+    %% Wyświetlacz
+    subgraph Display [Sekcja Wizualna]
+        OLED[SSD1309 OLED 128x64]
+        P_MOS[Power Switch: GPIO 21]
+    end
+
+    %% System Audio
+    subgraph Audio [Sekcja Dźwięku]
+        Buzzer[Passive Buzzer 16Ω]
+        Resistor[Resistor 200Ω]
+    end
+
+    %% Interfejs Użytkownika
+    subgraph Input [Matryca Przycisków]
+        Rows[Rows: GPIO Out]
+        Cols[Cols: GPIO In/Pullup]
+        WAKE[Wake-up Button: GPIO 2]
+    end
+
+    %% Zasilanie
+    subgraph Power [System Zasilania]
+        Bat[LiPo 1050mAh 3.7V]
+        Chg[XIAO Internal Charger]
+        Sense[Voltage Divider]
+    end
+
+    %% Połączenia Fizyczne
+    I2C_M -- "SDA/SCL" --- OLED
+    P_MOS -- "VCC Enable" --> OLED
+    
+    PWM_CH -- "Signal" --- Resistor
+    Resistor --- Buzzer
+    
+    Rows --- Input
+    Cols --- Input
+    WAKE --- Input
+    
+    Chg <--> Bat
+    Bat --- Sense
+    Sense --- ADC_CH
+    
+    %% Notatki techniczne
+    classDef hardware fill:#f5f5f5,stroke:#333,stroke-width:1px;
+    class MCU,OLED,Buzzer,Bat,Input hardware;

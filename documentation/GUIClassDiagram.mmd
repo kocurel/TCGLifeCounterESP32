@@ -1,0 +1,71 @@
+classDiagram
+    %% Abstrakcja bazowa
+    class GUIComponent {
+        +uint8_t x
+        +uint8_t y
+        +uint8_t width
+        +uint8_t height
+        +GUIComponent* nav_up
+        +GUIComponent* nav_down
+        +GUIComponent* nav_left
+        +GUIComponent* nav_right
+        +draw() *void function pointer*
+        +layout() *void function pointer*
+        +init()
+        +set_pos(x, y)
+        +set_size(w, h)
+    }
+
+    %% Kompozyt (Kontener)
+    class GUIContainer {
+        +GUIComponent base
+        +GUIComponent* children[8]
+        +int count
+        +int spacing
+        +int padding
+        +add_child(child)
+        +update_layout()
+    }
+
+    %% Konkretne Kontenery
+    class GUIHBox {
+        +GUIContainer base
+        +init()
+    }
+    class GUIVBox {
+        +GUIContainer base
+        +init()
+    }
+
+    %% Konkretne Komponenty (Liście)
+    class GUILabel {
+        +GUIComponent base
+        +char text[32]
+        +uint8_t font_size
+        +bool isUpsideDown
+        +uint8_t alignment
+        +set_text(str)
+    }
+
+    class GUIList {
+        +GUIComponent base
+        +void* data_source
+        +float anim_y
+        +int selected_index
+        +tick(delta_ms)
+        +up()
+        +down()
+        +get_count() *callback*
+        +draw_item() *callback*
+    }
+
+    %% Relacje Dziedziczenia (w C realizowane przez wstawienie 'base' na początku)
+    GUIComponent <|-- GUIContainer : Inheritance (base struct)
+    GUIComponent <|-- GUILabel : Inheritance (base struct)
+    GUIComponent <|-- GUIList : Inheritance (base struct)
+    
+    GUIContainer <|-- GUIHBox : Inheritance
+    GUIContainer <|-- GUIVBox : Inheritance
+
+    %% Relacja Kompozycji (Wzorzec Composite)
+    GUIContainer o-- GUIComponent : contains (children array)
