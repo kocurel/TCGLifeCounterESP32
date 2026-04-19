@@ -10,13 +10,12 @@
 #include "app/PageManager.h"
 #include "model/DiceRoller.h"
 
-/* --- Layout Constants --- */
 #define GRID_X 64
 #define GRID_Y 12
 #define GRID_W 62
 #define GRID_H 40
+#define ROLL_ANIMATION_DURATION 500
 
-/* --- Private State --- */
 static GUIList dice_list = {0};
 static GUILabel qty_label = {0};
 
@@ -36,16 +35,22 @@ static int s_grid_cursor = 0;
 
 static uint32_t s_roll_timer_ms = 0;
 static bool s_is_rolling[4] = {false, false, false, false};
-#define ROLL_ANIMATION_DURATION 500  // 0.5 sekundy
 
-/* --- Helper Functions --- */
-
+/**
+ * Returns the number of dice types available in the list
+ */
 static int dice_get_count(void* data) { return 9; }
 
+/**
+ * Returns string representation of dice types from global definitions
+ */
 static char* dice_item_to_string(void* item, int index) {
     return (char*)DICE_NAMES[index];
 }
 
+/**
+ * Configures the visual grid hierarchy based on the number of active dice
+ */
 static void rebuild_grid_topology() {
     grid_main_container.base.count = 0;
     grid_row_top.base.count = 0;
@@ -71,15 +76,11 @@ static void rebuild_grid_topology() {
     GUI_UPDATE_LAYOUT(&grid_main_container);
 }
 
-/* --- Drawing --- */
-
 static void DicePage_draw() {
     GUIRenderer_clear_buffer();
 
-    // 1. Draw Animated Selection List
     GUI_DRAW(&dice_list);
 
-    // 2. Status/Quantity Label
     if (s_reroll_mode) {
         snprintf(s_qty_buffer, sizeof(s_qty_buffer), "[REROLL]");
     } else {
@@ -90,7 +91,6 @@ static void DicePage_draw() {
 
     GUIRenderer_draw_line(62, 0, 62, 64);
 
-    // 3. Results Grid
     if (!s_has_rolled) {
         GUIRenderer_set_font_size(6);
         GUIRenderer_draw_str(GRID_X + 4, GRID_Y + 10, "Press OK");
@@ -116,16 +116,18 @@ static void DicePage_draw() {
                 result_labels[i].base.x, result_labels[i].base.y,
                 result_labels[i].base.width, result_labels[i].base.height);
 
+            /* Render specific focus rings and corner marks for reroll selection
+             */
             if (s_reroll_mode && s_grid_cursor == i) {
                 GUIRenderer_draw_frame(result_labels[i].base.x + 2,
                                        result_labels[i].base.y + 2,
                                        result_labels[i].base.width - 4,
                                        result_labels[i].base.height - 4);
 
-                int x = result_labels[i].base.x;
-                int y = result_labels[i].base.y;
-                int w = result_labels[i].base.width;
-                int h = result_labels[i].base.height;
+                const int x = result_labels[i].base.x;
+                const int y = result_labels[i].base.y;
+                const int w = result_labels[i].base.width;
+                const int h = result_labels[i].base.height;
 
                 GUIRenderer_draw_pixel(x, y);
                 GUIRenderer_draw_pixel(x + w - 1, y);
@@ -145,26 +147,23 @@ static void DicePage_draw() {
     GUIRenderer_send_buffer();
 }
 
-/* --- Lifecycle & Task Logic --- */
-
+/**
+ * Handles selection animations and real-time dice rolling visual effects
+ */
 static void DicePage_on_tick(uint32_t delta_ms) {
     bool needs_draw = false;
 
-    // 1. Animacja listy (kursor)
-    float old_y = dice_list.anim_y;
+    const float old_y = dice_list.anim_y;
     GUIList_tick(&dice_list, delta_ms);
     if (fabsf(dice_list.anim_y - old_y) > 0.05f) needs_draw = true;
 
-    // 2. Animacja rzutu kością
+    /* Process rolling animation by generating random intermediate results */
     if (s_roll_timer_ms > 0) {
         if (delta_ms >= s_roll_timer_ms) {
             s_roll_timer_ms = 0;
-            // Koniec animacji - upewnij się, że s_is_rolling są false
             for (int i = 0; i < 4; i++) s_is_rolling[i] = false;
         } else {
             s_roll_timer_ms -= delta_ms;
-            // Podczas trwania rzutu, losuj tymczasowe wyniki dla animowanych
-            // kości
             for (int i = 0; i < 4; i++) {
                 if (s_is_rolling[i]) {
                     s_results[i] = roll_die(s_current_sides);
@@ -179,12 +178,10 @@ static void DicePage_on_tick(uint32_t delta_ms) {
     }
 }
 
-/* --- Input Handling --- */
-
 static void DicePage_handle_input(ButtonCode button) {
     const int sides_map[] = {2, 3, 4, 6, 8, 10, 12, 20, 100};
 
-    // Mode: Reroll specific die (Selection mode)
+    /* Handle grid navigation and individual dice rerolling */
     if (s_reroll_mode) {
         bool changed = false;
         switch (button) {
@@ -228,13 +225,11 @@ static void DicePage_handle_input(ButtonCode button) {
                 AudioManager_play_sound(SOUND_DICE_ROLL);
                 s_is_rolling[s_grid_cursor] = true;
                 s_roll_timer_ms = ROLL_ANIMATION_DURATION;
-                // Właściwy wynik rzutu i tak zostanie wylosowany w
-                // ostatniej klatce on_tick
                 break;
             case BUTTON_CODE_SET:
             case BUTTON_CODE_CANCEL:
                 s_reroll_mode = false;
-                changed = true;  // Refresh to hide focus rings
+                changed = true;
                 break;
             default:
                 break;
@@ -243,50 +238,43 @@ static void DicePage_handle_input(ButtonCode button) {
         return;
     }
 
-    // Mode: Standard configuration
+    /* Standard configuration and batch rolling input handling */
     switch (button) {
         case BUTTON_CODE_UP:
             GUIList_up(&dice_list);
-            // Tu nie dajemy draw, bo on_tick obsłuży animację listy
             break;
         case BUTTON_CODE_DOWN:
             GUIList_down(&dice_list);
-            // Tu też nie
             break;
-
         case BUTTON_CODE_LEFT:
             if (s_dice_count > 1) {
                 s_dice_count--;
                 s_has_rolled = false;
-                DicePage_draw();  // Musimy odświeżyć grid
+                DicePage_draw();
             }
             break;
         case BUTTON_CODE_RIGHT:
             if (s_dice_count < 4) {
                 s_dice_count++;
                 s_has_rolled = false;
-                DicePage_draw();  // Musimy odświeżyć grid
+                DicePage_draw();
             }
             break;
-
         case BUTTON_CODE_CANCEL:
             MenuPage_enter();
             return;
-
         case BUTTON_CODE_SET:
             if (s_has_rolled) {
                 s_reroll_mode = true;
                 s_grid_cursor = 0;
-                DicePage_draw();  // Pokaż ramkę reroll
+                DicePage_draw();
             }
             break;
-
         case BUTTON_CODE_ACCEPT: {
             AudioManager_play_sound(SOUND_DICE_ROLL);
-            int idx = GUIList_get_current_index(&dice_list);
+            const int idx = GUIList_get_current_index(&dice_list);
             s_current_sides = sides_map[idx];
 
-            // Aktywuj rzut dla wszystkich wybranych kości
             for (int i = 0; i < s_dice_count; i++) {
                 s_is_rolling[i] = true;
             }
@@ -299,8 +287,6 @@ static void DicePage_handle_input(ButtonCode button) {
     }
 }
 
-/* --- Entry Point --- */
-
 void DicePage_enter() {
     s_has_rolled = false;
     s_reroll_mode = false;
@@ -311,8 +297,8 @@ void DicePage_enter() {
     GUI_SET_SIZE(&dice_list, 60, 60);
     GUI_SET_POS(&dice_list, 2, 2);
 
-    // Snap anim_y na wejściu
-    dice_list.anim_y = dice_list.base.y;
+    /* Snap animation position on entry */
+    dice_list.anim_y = (float)dice_list.base.y;
 
     GUILabel_init(&qty_label, "Count: 1");
     GUI_SET_FONT_SIZE(&qty_label, 6);

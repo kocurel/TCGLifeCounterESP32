@@ -7,35 +7,37 @@
 #include "GUIRenderer.h"
 #include "app/PageManager.h"
 
-/* --- Private State --- */
 static GUILabel lbl_message;
 static GUILabel lbl_yes;
 static GUILabel lbl_no;
 
 static ConfirmCallback confirm_action = NULL;
-static void (*cancel_target)(void) =
-    NULL;  // Page to return to if "No" is pressed
+
+/* Reference to the page-entry function for cancellation */
+static void (*cancel_target)(void) = NULL;
 static bool is_initialized = false;
 
-/* --- Component Initialization --- */
+/**
+ * Initializes UI components and layout settings
+ */
 static void ConfirmPage_init_components() {
     if (is_initialized) return;
 
-    // Main prompt message
+    /* Primary confirmation prompt */
     GUILabel_init(&lbl_message, "");
     GUILabel_set_font_size(&lbl_message, 9);
     GUILabel_set_alignment(&lbl_message, GUI_ALIGMNENT_CENTER);
     GUI_SET_POS(&lbl_message, 0, 20);
     GUI_SET_SIZE(&lbl_message, 128, 14);
 
-    // YES option (ACCEPT/OK)
+    /* Accept action label */
     GUILabel_init(&lbl_yes, "[OK] Yes");
     GUILabel_set_font_size(&lbl_yes, 7);
     GUILabel_set_alignment(&lbl_yes, GUI_ALIGMNENT_RIGHT);
     GUI_SET_POS(&lbl_yes, 63, 54);
     GUI_SET_SIZE(&lbl_yes, 60, 10);
 
-    // NO option (CANCEL/X)
+    /* Cancel action label */
     GUILabel_init(&lbl_no, "No [X]");
     GUILabel_set_font_size(&lbl_no, 7);
     GUILabel_set_alignment(&lbl_no, GUI_ALIGMNENT_LEFT);
@@ -45,7 +47,6 @@ static void ConfirmPage_init_components() {
     is_initialized = true;
 }
 
-/* --- Drawing --- */
 static void ConfirmPage_draw() {
     GUIRenderer_clear_buffer();
 
@@ -58,19 +59,18 @@ static void ConfirmPage_draw() {
     GUIRenderer_send_buffer();
 }
 
-/* --- Input Handling --- */
 static void ConfirmPage_handle_input(ButtonCode button) {
     switch (button) {
         case BUTTON_CODE_ACCEPT:
-            // USER RESPONSIBILITY: The callback must handle the page
-            // transition!
+            /* Delegate page transition responsibility to the confirmation
+             * callback */
             if (confirm_action) {
                 confirm_action();
             }
             break;
 
         case BUTTON_CODE_CANCEL:
-            // Return to the previous context provided during 'enter'
+            /* Return to the previous context provided during entry */
             if (cancel_target) {
                 cancel_target();
             }
@@ -81,17 +81,11 @@ static void ConfirmPage_handle_input(ButtonCode button) {
     }
 }
 
-/* --- Page Lifecycle --- */
-
 /**
- * Enters the confirmation page.
- * @param message The text to display.
- * @param on_confirm Callback executed if "Yes" is selected (must handle its own
- * page switch).
- * @param on_cancel The page-entry function to call if "No" is pressed.
+ * Activates the confirmation page with custom messaging and callbacks
  */
 void ConfirmPage_enter(const char* message, ConfirmCallback on_confirm,
-                       void (*on_cancel)(void)) {
+                       CancelCallback on_cancel) {
     ConfirmPage_init_components();
 
     GUI_SET_TEXT(&lbl_message, message);

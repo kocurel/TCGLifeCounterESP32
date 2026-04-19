@@ -3,16 +3,26 @@
 
 #include <stdbool.h>
 
-// Inicjalizacja (uruchamia taska w tle)
-void PowerManager_init();
+/**
+ * Initializes the power management system and spawns the monitoring task.
+ */
+void PowerManager_init(void);
 
-// Reset licznika bezczynności (wywoływać przy każdym kliknięciu w Keypad)
-void PowerManager_reset_timer();
+/**
+ * Resets the inactivity timers.
+ * Should be called on every user interaction (e.g., keypad events).
+ */
+void PowerManager_reset_timer(void);
 
-// Czy jesteśmy w trybie "tylko wygaszacz" (Level 1)?
-bool PowerManager_is_display_off();
+/**
+ * Returns true if the system is currently in display-dimmed or off state.
+ */
+bool PowerManager_is_display_off(void);
 
-// Wymuszenie głębokiego snu (np. z menu lub przy krytycznej baterii)
-void PowerManager_deep_sleep();
+/**
+ * Enters hardware deep sleep mode.
+ * Used for manual shutdown or automated critical battery protection.
+ */
+void PowerManager_deep_sleep(void);
 
-#endif  // POWER_MANAGER_H
+#endif

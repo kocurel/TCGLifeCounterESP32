@@ -10,18 +10,25 @@
 #include "model/Game.h"
 #include "model/Settings.h"
 
-/* --- Constants & Enums --- */
-enum { OPT_EDIT_NAME, OPT_MONARCH, OPT_CITY_BLESSING, OPT_COUNT };
+typedef enum {
+    OPT_EDIT_NAME,
+    OPT_MONARCH,
+    OPT_CITY_BLESSING,
+    OPT_COUNT
+} SettingOption;
 
-/* --- Private State --- */
 static GUIList settings_list;
 static GUILabel title;
 static int active_player_id;
 
-/* --- List Delegates --- */
-
+/**
+ * Returns total count of available player settings
+ */
 static int player_settings_get_count(void* data) { return OPT_COUNT; }
 
+/**
+ * Formats player settings labels with current state values
+ */
 static char* player_opt_to_str(void* item, int index) {
     static char buf[32];
     Player* p = Game_get_player(active_player_id);
@@ -46,8 +53,6 @@ static char* player_opt_to_str(void* item, int index) {
     return buf;
 }
 
-/* --- Drawing --- */
-
 static void PlayerSettingsPage_draw() {
     GUIRenderer_clear_buffer();
 
@@ -58,26 +63,26 @@ static void PlayerSettingsPage_draw() {
     GUIRenderer_send_buffer();
 }
 
-/* --- Lifecycle & Task Logic --- */
-
+/**
+ * Updates list animation and triggers redraw on movement or state change
+ */
 static void PlayerSettingsPage_on_tick(uint32_t delta_ms) {
-    float old_y = settings_list.anim_y;
+    const float old_y = settings_list.anim_y;
     GUIList_tick(&settings_list, delta_ms);
 
-    // Jeśli kursor płynie, podnieś flagę
     if (fabsf(settings_list.anim_y - old_y) > 0.05f) {
         settings_list.needs_redraw = true;
     }
 
-    // Odśwież ekran tylko jeśli flaga jest aktywna
     if (settings_list.needs_redraw) {
         PlayerSettingsPage_draw();
         settings_list.needs_redraw = false;
     }
 }
 
-/* --- Callbacks & Input Handling --- */
-
+/**
+ * Persists updated name and re-enters page to refresh view
+ */
 static void on_name_complete(const char* new_name) {
     if (new_name) {
         Game_set_player_name(active_player_id, new_name);
@@ -87,7 +92,7 @@ static void on_name_complete(const char* new_name) {
 }
 
 static void PlayerPage_handle_input(ButtonCode btn) {
-    int idx = GUIList_get_current_index(&settings_list);
+    const int idx = GUIList_get_current_index(&settings_list);
 
     switch (btn) {
         case BUTTON_CODE_UP:
@@ -103,12 +108,10 @@ static void PlayerPage_handle_input(ButtonCode btn) {
                 return;
             } else if (idx == OPT_MONARCH) {
                 Game_set_monarch(active_player_id);
-                settings_list.needs_redraw =
-                    true;  // Zmiana logiki wymusza redraw
+                settings_list.needs_redraw = true;
             } else if (idx == OPT_CITY_BLESSING) {
                 Game_toggle_blessing(active_player_id);
-                settings_list.needs_redraw =
-                    true;  // Zmiana logiki wymusza redraw
+                settings_list.needs_redraw = true;
             }
             break;
         case BUTTON_CODE_CANCEL:
@@ -118,8 +121,6 @@ static void PlayerPage_handle_input(ButtonCode btn) {
             break;
     }
 }
-
-/* --- Page Lifecycle --- */
 
 void PlayerSettingsPage_enter(int player_id) {
     active_player_id = player_id;
@@ -139,10 +140,10 @@ void PlayerSettingsPage_enter(int player_id) {
         initialized = true;
     }
 
-    // Snap animacji na starcie
-    int visible_rows = settings_list.base.height / 11;
-    int relative_row = settings_list.selected_index % visible_rows;
-    settings_list.anim_y = settings_list.base.y + (relative_row * 11);
+    /* Immediate animation snap on entry */
+    const int visible_rows = settings_list.base.height / 11;
+    const int relative_row = settings_list.selected_index % visible_rows;
+    settings_list.anim_y = (float)(settings_list.base.y + (relative_row * 11));
     settings_list.needs_redraw = false;
 
     Page page = {.handle_input = PlayerPage_handle_input,

@@ -9,15 +9,12 @@
 #include "GUIRenderer.h"
 #include "app/PageManager.h"
 
-/* --- Configuration Constants --- */
 #define KB_ROWS 4
 #define KB_COLS 7
 #define MAX_NAME_LEN 10
 
-/* --- Types --- */
 typedef enum { KB_MODE_UPPER, KB_MODE_LOWER, KB_MODE_NUM } KeyboardMode;
 
-/* --- Key Maps --- */
 static const char* kb_chars_upper[KB_ROWS][KB_COLS] = {
     {"A", "B", "C", "D", "E", "F", "G"},
     {"H", "I", "J", "K", "L", "M", "N"},
@@ -30,7 +27,6 @@ static const char* kb_chars_num[KB_ROWS][KB_COLS] = {
     {"%", "&", "*", "(", ")", "-", "+"},
     {".", ",", "?", "/", "_", " ", "OK"}};
 
-/* --- Private Context --- */
 typedef struct {
     GUIVBox root;
     GUIVBox keyboard_grid;
@@ -44,7 +40,7 @@ typedef struct {
     KeyboardCallback callback;
     GUILabel* selected_key;
     KeyboardMode mode;
-    // Animation state
+
     float anim_x, anim_y, anim_w, anim_h;
     bool needs_redraw;
 } KeyboardContext;
@@ -53,27 +49,20 @@ static KeyboardContext ctx;
 static bool is_initialized = false;
 static char key_labels_cache[KB_ROWS][KB_COLS][4];
 
-/* --- Internal Logic --- */
-
 /**
- * Updates the text of the GUI labels based on the current keyboard mode
+ * Updates GUI labels based on the current input mode and case
  */
 static void update_key_labels() {
     for (int r = 0; r < KB_ROWS; r++) {
         for (int c = 0; c < KB_COLS; c++) {
             if (c == 6 && r == 3) {
-                // Confirm action
                 snprintf(key_labels_cache[r][c], 4, "OK");
             } else if (c == 5 && r == 3) {
-                // Space bar (displayed as SP)
                 snprintf(key_labels_cache[r][c], 4, "SP");
             } else {
-                const char* src_char;
-                if (ctx.mode == KB_MODE_NUM) {
-                    src_char = kb_chars_num[r][c];
-                } else {
-                    src_char = kb_chars_upper[r][c];
-                }
+                const char* src_char = (ctx.mode == KB_MODE_NUM)
+                                           ? kb_chars_num[r][c]
+                                           : kb_chars_upper[r][c];
 
                 if (ctx.mode == KB_MODE_LOWER && ctx.mode != KB_MODE_NUM) {
                     key_labels_cache[r][c][0] =
@@ -98,7 +87,7 @@ static void KeyboardPage_draw() {
     GUI_DRAW(&ctx.root);
     GUI_DRAW(&ctx.keyboard_grid);
 
-    // RYSOWANIE ANIMOWANEJ RAMKI
+    /* Render animated selection frame */
     GUIRenderer_draw_frame(
         (uint8_t)(ctx.anim_x + 0.5f), (uint8_t)(ctx.anim_y + 0.5f),
         (uint8_t)(ctx.anim_w + 0.5f), (uint8_t)(ctx.anim_h + 0.5f));
@@ -112,22 +101,23 @@ static void KeyboardPage_draw() {
     GUIRenderer_send_buffer();
 }
 
-/* --- Drawing --- */
-
+/**
+ * Updates frame animation and handles redraw requests
+ */
 static void KeyboardPage_on_tick(uint32_t delta_ms) {
     if (ctx.selected_key != NULL) {
         uint8_t tx, ty, tw, th;
         GUIComponent_get_xywh((GUIComponent*)ctx.selected_key, &tx, &ty, &tw,
                               &th);
 
-        float base_speed =
-            0.3f;  // Nieco szybciej niż w menu dla responsywności
-        float factor = (float)delta_ms / 20.0f;
+        /* Adjusted for high responsiveness during text entry */
+        const float base_speed = 0.3f;
+        const float factor = (float)delta_ms / 20.0f;
         float speed = base_speed * factor;
         if (speed > 1.0f) speed = 1.0f;
 
-        float old_x = ctx.anim_x;
-        float old_y = ctx.anim_y;
+        const float old_x = ctx.anim_x;
+        const float old_y = ctx.anim_y;
 
         ctx.anim_x += ((float)tx - ctx.anim_x) * speed;
         ctx.anim_y += ((float)ty - ctx.anim_y) * speed;
@@ -145,8 +135,6 @@ static void KeyboardPage_on_tick(uint32_t delta_ms) {
         ctx.needs_redraw = false;
     }
 }
-
-/* --- Input Handling --- */
 
 static void KeyboardPage_handle_input(ButtonCode button) {
     GUIComponent* next = NULL;
@@ -167,7 +155,7 @@ static void KeyboardPage_handle_input(ButtonCode button) {
         case BUTTON_CODE_SET:
             ctx.mode = (ctx.mode + 1) % 3;
             update_key_labels();
-            ctx.needs_redraw = true;  // Flaga dla zmiany liter
+            ctx.needs_redraw = true;
             break;
 
         case BUTTON_CODE_MENU: {
@@ -187,7 +175,7 @@ static void KeyboardPage_handle_input(ButtonCode button) {
                 if (ctx.callback) ctx.callback(ctx.buffer);
                 return;
             }
-            // ... (logika SP i dopisywania liter bez zmian, ale z flagą redraw)
+
             if (len < MAX_NAME_LEN) {
                 strcat(ctx.buffer, strcmp(val, "SP") == 0 ? " " : val);
             } else {
@@ -205,17 +193,15 @@ static void KeyboardPage_handle_input(ButtonCode button) {
 
     if (next != NULL) {
         ctx.selected_key = (GUILabel*)next;
-        // NIE wywołujemy draw() – on_tick wykryje ruch
     }
 }
-/* --- Lifecycle --- */
 
 void KeyboardPage_enter(const char* title, const char* initial_text,
                         KeyboardCallback callback) {
     ctx.mode = KB_MODE_UPPER;
 
     if (!is_initialized) {
-        // 1. Initialize Header Layout
+        /* Initialize layout hierarchy */
         GUIVBox_init(&ctx.root);
         GUI_SET_POS(&ctx.root, 0, 0);
         GUI_SET_SIZE(&ctx.root, 128, 20);
@@ -227,7 +213,6 @@ void KeyboardPage_enter(const char* title, const char* initial_text,
         GUI_SET_FONT_SIZE(&ctx.input_lbl, 7);
         GUI_ADD_CHILDREN(&ctx.root, &ctx.title_lbl, &ctx.input_lbl);
 
-        // 2. Initialize Keyboard Grid
         GUIVBox_init(&ctx.keyboard_grid);
         GUI_SET_POS(&ctx.keyboard_grid, 0, 20);
         GUI_SET_SIZE(&ctx.keyboard_grid, 128, 44);
@@ -250,7 +235,7 @@ void KeyboardPage_enter(const char* title, const char* initial_text,
         GUI_UPDATE_LAYOUT(&ctx.root);
         GUI_UPDATE_LAYOUT(&ctx.keyboard_grid);
 
-        // 3. Construct Navigation Links with Wrap-around
+        /* Link components with directional wrap-around navigation */
         for (int r = 0; r < KB_ROWS; r++) {
             for (int c = 0; c < KB_COLS; c++) {
                 GUILabel* curr = &ctx.keys[r][c];
@@ -272,7 +257,7 @@ void KeyboardPage_enter(const char* title, const char* initial_text,
         is_initialized = true;
     }
 
-    // 4. Reset Page State
+    /* Set session state and buffer */
     GUI_SET_TEXT(&ctx.title_lbl, title);
     ctx.callback = callback;
     if (initial_text) {
@@ -285,12 +270,13 @@ void KeyboardPage_enter(const char* title, const char* initial_text,
     update_key_labels();
     ctx.selected_key = &ctx.keys[0][0];
 
+    /* Immediate animation snap on page entry */
     uint8_t x, y, w, h;
     GUIComponent_get_xywh((GUIComponent*)ctx.selected_key, &x, &y, &w, &h);
-    ctx.anim_x = x;
-    ctx.anim_y = y;
-    ctx.anim_w = w;
-    ctx.anim_h = h;
+    ctx.anim_x = (float)x;
+    ctx.anim_y = (float)y;
+    ctx.anim_w = (float)w;
+    ctx.anim_h = (float)h;
     ctx.needs_redraw = false;
 
     Page page = {.handle_input = KeyboardPage_handle_input,

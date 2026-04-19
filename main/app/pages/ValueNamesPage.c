@@ -11,20 +11,21 @@
 #include "model/Game.h"
 #include "model/Settings.h"
 
-/* --- Private State --- */
 static GUIList list_names;
 static GUILabel title_lbl;
 static bool is_initialized = false;
-
-/* Tracks which value index is currently being modified */
 static int s_editing_index = -1;
 
-/* --- GUIList Delegates --- */
-
+/**
+ * Returns total number of editable game values
+ */
 static int valuenames_get_count(void* data) {
     return COMMANDER_DAMAGE_START_INDEX;
 }
 
+/**
+ * Formats value entry as indexed string for list rendering
+ */
 static char* valuenames_to_string(void* data, int index) {
     static char buffer[32];
     const char* name = Game_get_value_name(index);
@@ -33,23 +34,19 @@ static char* valuenames_to_string(void* data, int index) {
     return buffer;
 }
 
-/* --- Drawing --- */
-
 static void ValueNamesPage_draw() {
     GUIRenderer_clear_buffer();
 
-    // 1. Header
     GUI_DRAW(&title_lbl);
     GUIRenderer_draw_horizontal_line(13);
 
-    // 2. List
     GUI_DRAW(&list_names);
 
-    // 3. Pagination Indicators
+    // Render pagination dots based on scroll position
     const int ROW_HEIGHT = 11;
-    int visible_rows = list_names.base.height / ROW_HEIGHT;
-    int current_idx = GUIList_get_current_index(&list_names);
-    int total = valuenames_get_count(NULL);
+    const int visible_rows = list_names.base.height / ROW_HEIGHT;
+    const int current_idx = GUIList_get_current_index(&list_names);
+    const int total = valuenames_get_count(NULL);
 
     if (current_idx >= visible_rows) {
         GUIRenderer_draw_pixel(64, list_names.base.y);
@@ -62,8 +59,9 @@ static void ValueNamesPage_draw() {
     GUIRenderer_send_buffer();
 }
 
-/* --- Callbacks & Input Handling --- */
-
+/**
+ * Persists new name to game model and storage
+ */
 static void on_rename_complete(const char* new_name) {
     if (new_name && s_editing_index >= 0) {
         Game_set_value_name(s_editing_index, new_name);
@@ -75,23 +73,20 @@ static void on_rename_complete(const char* new_name) {
 }
 
 /**
- * Zaktualizowana logika ticku korzystająca z flagi needs_redraw.
+ * Updates list animation state and triggers redraw on movement
  */
 static void ValueNamesPage_on_tick(uint32_t delta_ms) {
-    float old_y = list_names.anim_y;
+    const float old_y = list_names.anim_y;
 
     GUIList_tick(&list_names, delta_ms);
 
-    // Jeśli kursor płynie, ustaw flagę przerysowania
     if (fabsf(list_names.anim_y - old_y) > 0.05f) {
         list_names.needs_redraw = true;
     }
 
-    // Jeśli flaga jest podniesiona (przez ruch kursora LUB przez Input
-    // Handler), rysuj
     if (list_names.needs_redraw) {
         ValueNamesPage_draw();
-        list_names.needs_redraw = false;  // Reset flagi
+        list_names.needs_redraw = false;
     }
 }
 
@@ -114,6 +109,7 @@ static void ValueNamesPage_handle_input(ButtonCode button) {
         case BUTTON_CODE_ACCEPT: {
             s_editing_index = GUIList_get_current_index(&list_names);
 
+            // Prevent editing protected commander damage values
             if (s_editing_index >= COMMANDER_DAMAGE_START_INDEX) {
                 AudioManager_play_sound(SOUND_UI_ERROR);
                 return;
@@ -134,8 +130,6 @@ static void ValueNamesPage_handle_input(ButtonCode button) {
     }
 }
 
-/* --- Page Lifecycle --- */
-
 void ValueNamesPage_enter(void) {
     if (!is_initialized) {
         GUILabel_init(&title_lbl, "VALUE NAMES");
@@ -152,11 +146,11 @@ void ValueNamesPage_enter(void) {
         is_initialized = true;
     }
 
-    // Snap animacji na starcie
-    int visible_rows = list_names.base.height / 11;
-    int relative_row = list_names.selected_index % visible_rows;
-    list_names.anim_y = list_names.base.y + (relative_row * 11);
-    list_names.needs_redraw = false;  // Czyścimy flagę przy wejściu
+    // Force animation snap on entry
+    const int visible_rows = list_names.base.height / 11;
+    const int relative_row = list_names.selected_index % visible_rows;
+    list_names.anim_y = (float)(list_names.base.y + (relative_row * 11));
+    list_names.needs_redraw = false;
 
     Page page = {.handle_input = ValueNamesPage_handle_input,
                  .on_tick = ValueNamesPage_on_tick};

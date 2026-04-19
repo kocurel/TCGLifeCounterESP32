@@ -8,12 +8,9 @@
 #include "app/PageManager.h"
 #include "model/Game.h"
 
-/* --- Configuration --- */
 #define MAX_DISPLAY_VAL 999999
 
-/* --- Private Context --- */
 typedef struct {
-    // UI Widgets
     GUILabel title_lbl;
     GUILabel subtitle_lbl;
     GUIVBox title_box;
@@ -23,10 +20,9 @@ typedef struct {
     GUILabel new_value_lbl;
     GUILabel scale_lbl;
 
-    // Logic State
-    uint8_t active_value_id;  // Maps to Player->values[index]
-    int32_t entry_value;      // Value at start of edit
-    int32_t current_value;    // Real-time edited value
+    uint8_t active_value_id;
+    int32_t entry_value;
+    int32_t current_value;
 
     bool is_initialized;
     void (*on_complete_callback)(int32_t result);
@@ -34,21 +30,17 @@ typedef struct {
     char text_buffer[32];
 } ValueEditorContext;
 
-/* --- Persistent State --- */
-// Stores the increment scale (1, 10, 100...) per value type across page
-// sessions
+/* Persists increment magnitudes across page sessions */
 static int32_t s_persistent_scales[NUMBER_OF_VALUES];
 
 static ValueEditorContext ctx = {.is_initialized = false};
-
-/* --- Internal Helpers --- */
 
 static int32_t get_current_scale() {
     return s_persistent_scales[ctx.active_value_id];
 }
 
 /**
- * Updates the scale label text, using 'k' suffix for values >= 1000
+ * Updates scale indicator with optional kilo-suffix formatting
  */
 static void update_scale_label() {
     int32_t scale = get_current_scale();
@@ -63,32 +55,24 @@ static void update_scale_label() {
     GUI_SET_TEXT(&ctx.scale_lbl, ctx.text_buffer);
 }
 
-/* --- Drawing --- */
-
 static void ValueEditorPage_draw() {
     GUIRenderer_clear_buffer();
 
-    // 1. Header Section
     GUI_DRAW(&ctx.title_box);
 
-    // 2. Calculation Rows (Start, Change, Result)
-    int32_t delta = ctx.current_value - ctx.entry_value;
+    const int32_t delta = ctx.current_value - ctx.entry_value;
 
-    // Format Change row
     snprintf(ctx.text_buffer, sizeof(ctx.text_buffer), "Change:%+8ld", delta);
     GUI_SET_TEXT(&ctx.difference_lbl, ctx.text_buffer);
     GUI_DRAW(&ctx.difference_lbl);
 
-    // Format Result row
     snprintf(ctx.text_buffer, sizeof(ctx.text_buffer), "Result:%+8ld",
              ctx.current_value);
     GUI_SET_TEXT(&ctx.new_value_lbl, ctx.text_buffer);
     GUI_DRAW(&ctx.new_value_lbl);
 
-    // Draw reference Start value
     GUI_DRAW(&ctx.old_value_lbl);
 
-    // 3. UI Decorations & Scale
     GUIRenderer_draw_horizontal_line(47);
     update_scale_label();
     GUI_DRAW(&ctx.scale_lbl);
@@ -96,10 +80,8 @@ static void ValueEditorPage_draw() {
     GUIRenderer_send_buffer();
 }
 
-/* --- Input Handling --- */
-
 static void ValueEditorPage_handle_input(ButtonCode button) {
-    int32_t scale = get_current_scale();
+    const int32_t scale = get_current_scale();
 
     switch (button) {
         case BUTTON_CODE_UP:
@@ -119,14 +101,14 @@ static void ValueEditorPage_handle_input(ButtonCode button) {
             break;
 
         case BUTTON_CODE_LEFT:
-            // Shift decimal place up (Increase step magnitude)
+            /* Increase increment magnitude */
             if (s_persistent_scales[ctx.active_value_id] < 100000) {
                 s_persistent_scales[ctx.active_value_id] *= 10;
             }
             break;
 
         case BUTTON_CODE_RIGHT:
-            // Shift decimal place down (Decrease step magnitude)
+            /* Decrease increment magnitude */
             if (s_persistent_scales[ctx.active_value_id] > 1) {
                 s_persistent_scales[ctx.active_value_id] /= 10;
             }
@@ -152,12 +134,10 @@ static void ValueEditorPage_handle_input(ButtonCode button) {
     ValueEditorPage_draw();
 }
 
-/* --- Page Lifecycle --- */
-
 void ValueEditorPage_enter(const char* title, const char* subtitle,
                            uint8_t value_id, int32_t value,
                            void (*callback)(int32_t new_value)) {
-    // 1. One-time GUI and Persistent Data initialization
+    /* Lazy initialization of UI components and scale defaults */
     if (!ctx.is_initialized) {
         for (int i = 0; i < NUMBER_OF_VALUES; i++) {
             s_persistent_scales[i] = 1;
@@ -171,7 +151,6 @@ void ValueEditorPage_enter(const char* title, const char* subtitle,
         GUILabel_init(&ctx.new_value_lbl, "");
         GUIVBox_init(&ctx.title_box);
 
-        // Styling
         GUI_SET_FONT_SIZE(&ctx.title_lbl, 6);
         GUI_SET_FONT_SIZE(&ctx.subtitle_lbl, 6);
         GUI_SET_FONT_SIZE(&ctx.old_value_lbl, 7);
@@ -184,7 +163,6 @@ void ValueEditorPage_enter(const char* title, const char* subtitle,
         GUILabel_set_alignment(&ctx.new_value_lbl, GUI_ALIGMNENT_RIGHT);
         GUILabel_set_alignment(&ctx.scale_lbl, GUI_ALIGMNENT_RIGHT);
 
-        // Layout
         GUI_SET_POS(&ctx.scale_lbl, 90, 34);
         GUI_SET_SIZE(&ctx.scale_lbl, 38, 8);
 
@@ -207,7 +185,6 @@ void ValueEditorPage_enter(const char* title, const char* subtitle,
         GUI_SET_TEXT(&ctx.subtitle_lbl, subtitle);
     }
 
-    // 2. Set Session Context
     ctx.active_value_id = value_id;
     ctx.entry_value = value;
     ctx.current_value = value;
@@ -217,7 +194,6 @@ void ValueEditorPage_enter(const char* title, const char* subtitle,
              ctx.entry_value);
     GUI_SET_TEXT(&ctx.old_value_lbl, ctx.text_buffer);
 
-    // 3. Page Registration
     Page new_page = {.handle_input = ValueEditorPage_handle_input};
     PageManager_switch_page(&new_page);
 

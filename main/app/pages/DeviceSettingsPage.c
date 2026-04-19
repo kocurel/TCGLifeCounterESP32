@@ -10,30 +10,29 @@
 #include "app/PageManager.h"
 #include "model/Settings.h"
 
-/* --- Constants & Enums --- */
-enum {
+typedef enum {
     OPT_BRIGHTNESS,
     OPT_VOLUME,
     OPT_QUICK_DMG,
     OPT_SCREEN_TIMEOUT,
     OPT_AUTO_OFF,
     OPT_COUNT
-};
+} DeviceOption;
 
-/* --- Available options for time-based settings (0 = Never) --- */
+/* Available options for time-based settings in minutes (0 = Never) */
 static const uint8_t TIMEOUT_OPTS[] = {0, 1, 2, 5, 10, 30};
 static const uint8_t AUTOOFF_OPTS[] = {0, 15, 30, 60, 120};
 
 #define TIMEOUT_OPTS_COUNT (sizeof(TIMEOUT_OPTS) / sizeof(TIMEOUT_OPTS[0]))
 #define AUTOOFF_OPTS_COUNT (sizeof(AUTOOFF_OPTS) / sizeof(AUTOOFF_OPTS[0]))
 
-/* --- Private State --- */
 static GUIList options_list;
 static char s_list_buffer[32];
 static GameSettings s_draft_settings;
 
-/* --- Internal Helper Logic --- */
-
+/**
+ * Iterates through a circular array of configuration options
+ */
 static uint8_t cycle_value(uint8_t current, const uint8_t* array, int size,
                            int direction) {
     int current_idx = 0;
@@ -44,17 +43,18 @@ static uint8_t cycle_value(uint8_t current, const uint8_t* array, int size,
         }
     }
     if (direction > 0) {
-        current_idx++;
-        if (current_idx >= size) current_idx = 0;
+        current_idx = (current_idx + 1) % size;
     } else {
-        current_idx--;
-        if (current_idx < 0) current_idx = size - 1;
+        current_idx = (current_idx - 1 + size) % size;
     }
     return array[current_idx];
 }
 
 static int settings_get_count(void* data) { return OPT_COUNT; }
 
+/**
+ * Maps device-specific settings to formatted display strings
+ */
 static char* settings_item_to_string(void* item, int index) {
     GameSettings* s = &s_draft_settings;
     switch (index) {
@@ -95,6 +95,9 @@ static char* settings_item_to_string(void* item, int index) {
     return s_list_buffer;
 }
 
+/**
+ * Adjusts session settings and provides immediate hardware feedback
+ */
 static void modify_setting(int index, int direction) {
     switch (index) {
         case OPT_BRIGHTNESS:
@@ -141,25 +144,21 @@ static void modify_setting(int index, int direction) {
                             AUTOOFF_OPTS_COUNT, direction);
             break;
     }
-    // Zmiana ustawienia zawsze wymaga odświeżenia listy
+
     options_list.needs_redraw = true;
 }
 
-/* --- Drawing --- */
 static void DeviceSettingsPage_draw() {
     GUIRenderer_clear_buffer();
-
     GUI_DRAW(&options_list);
-
-    // Kursor rysuje się sam wewnątrz GUIList (animowany ">"),
-    // więc nie potrzebujemy już statycznej ramki z poprzedniej wersji.
-
     GUIRenderer_send_buffer();
 }
 
-/* --- Lifecycle & Task Logic --- */
+/**
+ * Updates list animation and triggers redraw if cursor position changes
+ */
 static void DeviceSettingsPage_on_tick(uint32_t delta_ms) {
-    float old_y = options_list.anim_y;
+    const float old_y = options_list.anim_y;
     GUIList_tick(&options_list, delta_ms);
 
     if (fabsf(options_list.anim_y - old_y) > 0.05f) {
@@ -172,7 +171,6 @@ static void DeviceSettingsPage_on_tick(uint32_t delta_ms) {
     }
 }
 
-/* --- Input Handling --- */
 static void DeviceSettingsPage_handle_input(ButtonCode button) {
     switch (button) {
         case BUTTON_CODE_UP:
@@ -190,7 +188,8 @@ static void DeviceSettingsPage_handle_input(ButtonCode button) {
             break;
 
         case BUTTON_CODE_CANCEL: {
-            GameSettings original = SettingsModel_get();
+            /* Restore persistent hardware settings on cancel */
+            const GameSettings original = SettingsModel_get();
             GUIRenderer_set_contrast(original.screen_brightness);
             AudioManager_set_volume(original.sound_loudness);
             AudioManager_play_sound(SOUND_UI_CANCEL);
@@ -199,6 +198,7 @@ static void DeviceSettingsPage_handle_input(ButtonCode button) {
         }
 
         case BUTTON_CODE_ACCEPT:
+            /* Persist session settings to storage */
             AudioManager_play_sound(SOUND_UI_SELECT);
             SettingsModel_save(s_draft_settings);
             SettingsPage_enter();
@@ -208,7 +208,6 @@ static void DeviceSettingsPage_handle_input(ButtonCode button) {
     }
 }
 
-/* --- Page Lifecycle --- */
 void DeviceSettingsPage_enter() {
     s_draft_settings = SettingsModel_get();
 
@@ -221,16 +220,14 @@ void DeviceSettingsPage_enter() {
         initialized = true;
     }
 
-    // Snap animacji
-    int visible_rows = options_list.base.height / 11;
-    int relative_row = options_list.selected_index % visible_rows;
-    options_list.anim_y = options_list.base.y + (relative_row * 11);
+    /* Snap animation targets on entry to prevent artifacts */
+    const int visible_rows = options_list.base.height / 11;
+    const int relative_row = options_list.selected_index % visible_rows;
+    options_list.anim_y = (float)(options_list.base.y + (relative_row * 11));
     options_list.needs_redraw = false;
 
-    Page page = {
-        .handle_input = DeviceSettingsPage_handle_input,
-        .on_tick = DeviceSettingsPage_on_tick  // Podpięcie ticku
-    };
+    Page page = {.handle_input = DeviceSettingsPage_handle_input,
+                 .on_tick = DeviceSettingsPage_on_tick};
     PageManager_switch_page(&page);
     DeviceSettingsPage_draw();
 }

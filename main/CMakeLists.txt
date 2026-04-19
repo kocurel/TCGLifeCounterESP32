@@ -4,11 +4,10 @@ idf_component_register(SRCS
                         "AudioManager.c"
 
                         "Keypad.c" "battery.c" "console_init.c"  
-                        "model/Button.c"  "ViewController.c" "main.c"
+                        "main.c"
                         "model/DiceRoller.c"
                         "model/Game.c"
                         "model/Settings.c"
-                        "model/Tests.c"
 
                         "app/pages/ChangeHistoryPage.c"
                         "app/pages/ValueNamesPage.c"

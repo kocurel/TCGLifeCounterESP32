@@ -1,6 +1,6 @@
 #include "MainPage.h"
 
-#include <math.h>  // Included for fabs() if needed, though simple arithmetic works too
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -14,8 +14,6 @@
 #include "model/Game.h"
 #include "model/Settings.h"
 
-/* --- Private Types --- */
-
 typedef struct {
     GUIComponent* focused_component;
     GUIVBox root_vbox;
@@ -26,30 +24,27 @@ typedef struct {
     GUILabel lbl_name_p1, lbl_name_p2, lbl_name_p3, lbl_name_p4;
     GUILabel lbl_hp_p1, lbl_hp_p2, lbl_hp_p3, lbl_hp_p4;
 
-    /* Animation State: Floating point values for smooth movement */
+    /* Floating point animation state for smooth linear interpolation */
     float anim_x;
     float anim_y;
     float anim_w;
     float anim_h;
 
-    /* Transaction Buffering: Temporary storage before committing to Game model
-     */
+    /* Session buffering to handle uncommitted HP changes */
     int32_t buffered_hp[4];
     bool is_dirty[4];
     uint32_t idle_timer_ms;
 } MainPageData;
 
-/* --- Private State --- */
-
 static MainPageData main_page = {0};
 static bool is_initialized = false;
 static int current_layout_mode = 0;
 
-/* --- Forward Declarations --- */
 static void MainPage_update(void);
 
-/* --- Internal Helpers --- */
-
+/**
+ * Resolves internal player ID based on current GUI focus
+ */
 static int MainPage_get_focused_player_id() {
     if (main_page.focused_component == (GUIComponent*)&main_page.box_p1)
         return 0;
@@ -62,12 +57,15 @@ static int MainPage_get_focused_player_id() {
     return 0;
 }
 
+/**
+ * Persists buffered changes to the Game model
+ */
 static void MainPage_commit_changes(int player_id) {
     if (player_id < 0 || player_id > 3 || !main_page.is_dirty[player_id])
         return;
 
-    int32_t current_model_val = Game_get_value(player_id, INDEX_HP);
-    int32_t new_val = main_page.buffered_hp[player_id];
+    const int32_t current_model_val = Game_get_value(player_id, INDEX_HP);
+    const int32_t new_val = main_page.buffered_hp[player_id];
 
     if (current_model_val != new_val) {
         Game_set_value(new_val, player_id, INDEX_HP);
@@ -76,8 +74,11 @@ static void MainPage_commit_changes(int player_id) {
     main_page.is_dirty[player_id] = false;
 }
 
+/**
+ * Evaluates win/loss conditions based on HP and Commander damage rules
+ */
 static bool MainPage_is_player_dead(int player_id) {
-    GameSettings settings = SettingsModel_get();
+    const GameSettings settings = SettingsModel_get();
 
     if (settings.dead_at_zero && Game_get_value(player_id, INDEX_HP) <= 0)
         return true;
@@ -92,10 +93,10 @@ static bool MainPage_is_player_dead(int player_id) {
     return false;
 }
 
-/* --- Layout Construction --- */
-
+/**
+ * Reconstructs the grid layout and navigation links based on player count
+ */
 static void MainPage_rebuild_layout(int player_count) {
-    // 1. Reset Containers
     GUIVBox_init(&main_page.root_vbox);
     GUIHBox_init(&main_page.row_top);
     GUIHBox_init(&main_page.row_bot);
@@ -123,13 +124,12 @@ static void MainPage_rebuild_layout(int player_count) {
     }
 
     if (player_count == 2) {
-        // Player 1: Rotated (Top)
+        /* Head-to-head layout: Player 1 rotated at top, Player 2 at bottom */
         GUILabel_upside_down_en(&main_page.lbl_name_p1, true);
         GUILabel_upside_down_en(&main_page.lbl_hp_p1, true);
         GUI_ADD_CHILDREN(&main_page.box_p1, &main_page.lbl_hp_p1,
                          &main_page.lbl_name_p1);
 
-        // Player 2: Normal (Bottom)
         GUILabel_upside_down_en(&main_page.lbl_name_p2, false);
         GUILabel_upside_down_en(&main_page.lbl_hp_p2, false);
         GUI_ADD_CHILDREN(&main_page.box_p2, &main_page.lbl_name_p2,
@@ -138,18 +138,15 @@ static void MainPage_rebuild_layout(int player_count) {
         GUI_ADD_CHILDREN(&main_page.root_vbox, &main_page.box_p1,
                          &main_page.box_p2);
         GUI_SET_SPACING(&main_page.root_vbox, 2);
-
-        // PRZYWRÓCONE LINKOWANIE
         GUI_LINK_VERTICAL(&main_page.box_p1, &main_page.box_p2);
 
     } else {
-        // Top row: Rotated
+        /* Four-player grid: Top row rotated, bottom row normal */
         for (int i = 0; i < 2; i++) {
             GUILabel_upside_down_en(names[i], true);
             GUILabel_upside_down_en(hps[i], true);
             GUI_ADD_CHILDREN(boxes[i], hps[i], names[i]);
         }
-        // Bottom row: Normal
         for (int i = 2; i < 4; i++) {
             GUILabel_upside_down_en(names[i], false);
             GUILabel_upside_down_en(hps[i], false);
@@ -178,8 +175,9 @@ static void MainPage_rebuild_layout(int player_count) {
     main_page.focused_component = (GUIComponent*)&main_page.box_p1;
 }
 
-/* --- Graphics & Rendering --- */
-
+/**
+ * Renders crown symbol near player labels for the current monarch
+ */
 static void MainPage_draw_monarch_indicator(int player_id, uint8_t x, uint8_t y,
                                             bool is_rotated) {
     if (!Game_is_monarch(player_id)) return;
@@ -199,7 +197,8 @@ static void MainPage_draw_monarch_indicator(int player_id, uint8_t x, uint8_t y,
 
 static void MainPage_update() {
     char str[32];
-    int count = SettingsModel_get().player_count;
+    const GameSettings settings = SettingsModel_get();
+    const int count = settings.player_count;
 
     GUILabel* labels_hp[4] = {&main_page.lbl_hp_p1, &main_page.lbl_hp_p2,
                               &main_page.lbl_hp_p3, &main_page.lbl_hp_p4};
@@ -223,13 +222,14 @@ static void MainPage_update() {
     GUIRenderer_clear_buffer();
     GUI_DRAW(&main_page.root_vbox);
 
-    // Draw Monarch Indicators
+    /* Selection frame interpolation using anim_ state */
     for (int i = 0; i < count; i++) {
         if (Game_is_monarch(i)) {
             uint8_t x, y, w, h;
             GUIComponent_get_xywh((GUIComponent*)boxes[i], &x, &y, &w, &h);
-            bool rotated = (i < 2 && count == 4) || (i == 0 && count == 2);
-            uint8_t crown_x = x + (w / 2) - 2;
+            const bool rotated =
+                (i < 2 && count == 4) || (i == 0 && count == 2);
+            const uint8_t crown_x = x + (w / 2) - 2;
 
             if (rotated)
                 MainPage_draw_monarch_indicator(i, crown_x, y + h - 5, true);
@@ -238,30 +238,27 @@ static void MainPage_update() {
         }
     }
 
-    // Draw Animated Selection Frame
-    // We use the 'anim_' float values for smooth transitions
     if (main_page.focused_component != NULL) {
-        GUIRenderer_draw_frame(
-            (uint8_t)(main_page.anim_x + 0.5f),  // +0.5f for proper rounding
-            (uint8_t)(main_page.anim_y + 0.5f),
-            (uint8_t)(main_page.anim_w + 0.5f),
-            (uint8_t)(main_page.anim_h + 0.5f));
+        GUIRenderer_draw_frame((uint8_t)(main_page.anim_x + 0.5f),
+                               (uint8_t)(main_page.anim_y + 0.5f),
+                               (uint8_t)(main_page.anim_w + 0.5f),
+                               (uint8_t)(main_page.anim_h + 0.5f));
     }
 
-    // Draw Buffered Delta Indicator
-    int pid = MainPage_get_focused_player_id();
+    /* Floating delta indicator for uncommitted quick-damage changes */
+    const int pid = MainPage_get_focused_player_id();
     if (main_page.is_dirty[pid]) {
-        int32_t current_model_val = Game_get_value(pid, INDEX_HP);
-        int32_t delta = main_page.buffered_hp[pid] - current_model_val;
+        const int32_t current_model_val = Game_get_value(pid, INDEX_HP);
+        const int32_t delta = main_page.buffered_hp[pid] - current_model_val;
 
         if (delta != 0) {
             char delta_str[16];
             snprintf(delta_str, sizeof(delta_str), "%+ld", (long)delta);
 
-            uint8_t box_w = (strlen(delta_str) * 6) + 6;
-            uint8_t box_h = 11;
-            uint8_t dx = 64 - (box_w / 2);
-            uint8_t dy = 32 - (box_h / 2);
+            const uint8_t box_w = (strlen(delta_str) * 6) + 6;
+            const uint8_t box_h = 11;
+            const uint8_t dx = 64 - (box_w / 2);
+            const uint8_t dy = 32 - (box_h / 2);
 
             GUIRenderer_set_color(0);
             GUIRenderer_draw_box(dx, dy, box_w, box_h);
@@ -275,10 +272,8 @@ static void MainPage_update() {
     GUIRenderer_send_buffer();
 }
 
-/* --- Callbacks & Input Handling --- */
-
 static void MainPage_editor_callback(int32_t new_value) {
-    int player_id = MainPage_get_focused_player_id();
+    const int player_id = MainPage_get_focused_player_id();
     Game_set_value(new_value, player_id, INDEX_HP);
     main_page.is_dirty[player_id] = false;
     MainPage_enter();
@@ -286,8 +281,8 @@ static void MainPage_editor_callback(int32_t new_value) {
 
 static void MainPage_handle_input(ButtonCode button) {
     GUIComponent* next_focus = NULL;
-    GameSettings settings = SettingsModel_get();
-    int pid = MainPage_get_focused_player_id();
+    const GameSettings settings = SettingsModel_get();
+    const int pid = MainPage_get_focused_player_id();
 
     switch (button) {
         case BUTTON_CODE_UP:
@@ -306,9 +301,10 @@ static void MainPage_handle_input(ButtonCode button) {
         case BUTTON_CODE_ACCEPT:
             main_page.idle_timer_ms = 0;
             if (settings.quick_dmg_en) {
-                int32_t step = (settings.starting_life > 1000)
-                                   ? 100
-                                   : (settings.starting_life > 100 ? 10 : 1);
+                const int32_t step =
+                    (settings.starting_life > 1000)
+                        ? 100
+                        : (settings.starting_life > 100 ? 10 : 1);
                 if (!main_page.is_dirty[pid]) {
                     main_page.buffered_hp[pid] = Game_get_value(pid, INDEX_HP);
                     main_page.is_dirty[pid] = true;
@@ -351,13 +347,11 @@ static void MainPage_handle_input(ButtonCode button) {
     if (next_focus != NULL) {
         MainPage_commit_changes(pid);
         main_page.focused_component = next_focus;
-        // MainPage_update();
     }
 }
 
-/* --- Lifecycle & Task Logic --- */
 void MainPage_on_tick(uint32_t delta_ms) {
-    // 1. Transaction Auto-Commit Logic
+    /* Auto-commit pending buffered changes after inactivity timeout */
     bool changes_pending = false;
     for (int i = 0; i < 4; i++) {
         if (main_page.is_dirty[i]) {
@@ -375,29 +369,26 @@ void MainPage_on_tick(uint32_t delta_ms) {
         }
     }
 
-    // 2. Animation Logic (Linear Interpolation with Delta Time Compensation)
+    /* Selection frame LERP animation logic */
     if (main_page.focused_component != NULL) {
         uint8_t target_x, target_y, target_w, target_h;
         GUIComponent_get_xywh(main_page.focused_component, &target_x, &target_y,
                               &target_w, &target_h);
 
-        float base_speed = 0.25f;
-        float time_factor = (float)delta_ms / 20.0f;
+        const float base_speed = 0.25f;
+        const float time_factor = (float)delta_ms / 20.0f;
         float final_speed = base_speed * time_factor;
 
-        if (final_speed > 0.9f)
-            final_speed = 0.9f;  // Nigdy nie pozwól na teleport w 1 klatkę
+        if (final_speed > 0.9f) final_speed = 0.9f;
 
-        // 2. Obliczamy ruch
         main_page.anim_x += ((float)target_x - main_page.anim_x) * final_speed;
         main_page.anim_y += ((float)target_y - main_page.anim_y) * final_speed;
         main_page.anim_w += ((float)target_w - main_page.anim_w) * final_speed;
         main_page.anim_h += ((float)target_h - main_page.anim_h) * final_speed;
 
-        // 3. Sprawdzamy sumę błędów (Manhattan distance), co jest czulsze dla
-        // skosów
-        float error = fabsf(main_page.anim_x - (float)target_x) +
-                      fabsf(main_page.anim_y - (float)target_y);
+        /* Evaluate movement error threshold to trigger view refresh */
+        const float error = fabsf(main_page.anim_x - (float)target_x) +
+                            fabsf(main_page.anim_y - (float)target_y);
 
         if (error > 0.1f) {
             MainPage_update();
@@ -406,7 +397,7 @@ void MainPage_on_tick(uint32_t delta_ms) {
 }
 
 void MainPage_enter() {
-    GameSettings settings = SettingsModel_get();
+    const GameSettings settings = SettingsModel_get();
 
     for (int i = 0; i < 4; i++) {
         main_page.is_dirty[i] = false;
@@ -435,13 +426,11 @@ void MainPage_enter() {
         is_initialized = true;
     }
 
-    // Rebuild layout if player count changed
     if (current_layout_mode != settings.player_count) {
         MainPage_rebuild_layout(settings.player_count);
     }
 
-    // Snap animation to target immediately on page enter (prevent flying in
-    // from 0,0)
+    /* Snap animation targets to prevent artifacts on page entry */
     if (main_page.focused_component != NULL) {
         uint8_t x, y, w, h;
         GUIComponent_get_xywh(main_page.focused_component, &x, &y, &w, &h);

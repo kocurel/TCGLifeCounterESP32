@@ -1,8 +1,7 @@
 #include "Debug.h"
 #include "GUIFramework.h"
 
-// --- Private Layout Delegate ---
-// Keeps the specific vertical layout logic hidden
+// Private Layout Delegate
 static void GUIVbox_update_layout(GUIComponent* base) {
     GUIVBox* self = (GUIVBox*)base;
     GUI_TRACE("GUIVbox_update_layout",
@@ -10,32 +9,26 @@ static void GUIVbox_update_layout(GUIComponent* base) {
 
     if (self == NULL) return;
 
-    int x = self->base.base.x;
-    int y = self->base.base.y;
-    int height = self->base.base.height;
-    int width = self->base.base.width;
-    int padding = self->base.padding;
-    int spacing = self->base.spacing;
-    int children_count = self->base.count;
+    const int x = self->base.base.x;
+    const int y = self->base.base.y;
+    const int height = self->base.base.height;
+    const int width = self->base.base.width;
+    const int padding = self->base.padding;
+    const int spacing = self->base.spacing;
+    const int children_count = self->base.count;
 
     if (children_count <= 0) return;
 
-    int child_height, child_width, available_height, height_remainder;
-
     // Calculate vertical space
-    available_height =
+    int available_height =
         height - (padding * 2) - (spacing * (children_count - 1));
 
-    // Safety check for negative size
     if (available_height < 0) available_height = 0;
 
-    child_height = available_height / children_count;
-    child_width = (width - padding * 2);
+    const int child_height = available_height / children_count;
+    const int child_width = (width - padding * 2);
 
-    // Safety check for width
-    if (child_width < 0) child_width = 0;
-
-    height_remainder = available_height % children_count;
+    const int height_remainder = available_height % children_count;
 
     for (int i = 0; i < children_count; i++) {
         GUIComponent* child = self->base.children[i];
@@ -59,8 +52,7 @@ static void GUIVbox_update_layout(GUIComponent* base) {
     }
 }
 
-// --- Public Initializer ---
-// Replaces GUIVBox_new
+// Public Initializer
 void GUIVBox_init(GUIVBox* self) {
     if (self == NULL) return;
 

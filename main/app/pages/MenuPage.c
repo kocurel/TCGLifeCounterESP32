@@ -36,16 +36,18 @@ typedef struct {
 static bool is_initialized = false;
 static MenuPageData menu_page = {0};
 
-/* --- GUIList Delegates --- */
-
+/**
+ * Returns total count of main menu options
+ */
 static int menu_get_count(void* data) { return MENU_OPT_COUNT; }
 
+/**
+ * Maps menu index to static label string
+ */
 static char* menu_item_to_string(void* data, int index) {
     if (index < 0 || index >= MENU_OPT_COUNT) return "???";
     return (char*)MENU_LABELS[index];
 }
-
-/* --- Drawing --- */
 
 static void MenuPage_draw() {
     GUIRenderer_clear_buffer();
@@ -53,31 +55,31 @@ static void MenuPage_draw() {
     GUI_DRAW(&menu_page.title_lbl);
     GUI_DRAW(&menu_page.menu_list);
 
-    // Render Pagination Arrows
+    /* Pagination indicator rendering logic */
     const int ROW_HEIGHT = 11;
-    int list_h = menu_page.menu_list.base.height;
-    int visible_rows = list_h / ROW_HEIGHT;
-    int current_idx = GUIList_get_current_index(&menu_page.menu_list);
+    const int list_h = menu_page.menu_list.base.height;
+    const int visible_rows = list_h / ROW_HEIGHT;
+    const int current_idx = GUIList_get_current_index(&menu_page.menu_list);
 
-    int current_page = current_idx / visible_rows;
-    int total_pages = (MENU_OPT_COUNT + visible_rows - 1) / visible_rows;
-    uint8_t arrow_x =
+    const int current_page = current_idx / visible_rows;
+    const int total_pages = (MENU_OPT_COUNT + visible_rows - 1) / visible_rows;
+    const uint8_t arrow_x =
         menu_page.menu_list.base.x + (menu_page.menu_list.base.width / 2);
 
     if (current_page > 0) {
-        uint8_t y = menu_page.menu_list.base.y - 1;
+        const uint8_t y = menu_page.menu_list.base.y - 1;
         GUIRenderer_draw_pixel(arrow_x, y);
         GUIRenderer_draw_line(arrow_x - 2, y + 2, arrow_x + 2, y + 2);
     }
 
     if (current_page < total_pages - 1) {
-        uint8_t y = menu_page.menu_list.base.y + list_h + 3;
+        const uint8_t y = menu_page.menu_list.base.y + list_h + 3;
         GUIRenderer_draw_line(arrow_x - 2, y, arrow_x + 2, y);
         GUIRenderer_draw_pixel(arrow_x, y + 2);
     }
 
-    // Battery info
-    int bat = System_get_battery_percentage();
+    /* System status overlay */
+    const int bat = System_get_battery_percentage();
     char bat_buf[12];
     snprintf(bat_buf, sizeof(bat_buf), "%d%%", bat);
     GUIRenderer_set_font_size(6);
@@ -86,19 +88,20 @@ static void MenuPage_draw() {
     GUIRenderer_send_buffer();
 }
 
-/* --- Input & Lifecycle --- */
-
 static void on_game_reset_confirmed() {
     Game_reset();
     MainPage_enter();
 }
 
+/**
+ * Updates list animation and triggers redraw only on significant cursor
+ * movement
+ */
 static void MenuPage_on_tick(uint32_t delta_ms) {
-    float old_y = menu_page.menu_list.anim_y;
+    const float old_y = menu_page.menu_list.anim_y;
 
     GUIList_tick(&menu_page.menu_list, delta_ms);
 
-    // Przerysuj tylko jeśli kursor się poruszył o zauważalny ułamek piksela
     if (fabsf(menu_page.menu_list.anim_y - old_y) > 0.05f) {
         MenuPage_draw();
     }
@@ -120,7 +123,8 @@ static void MenuPage_handle_input(ButtonCode button) {
 
         case BUTTON_CODE_ACCEPT:
             AudioManager_play_sound(SOUND_UI_SELECT);
-            int selected = GUIList_get_current_index(&menu_page.menu_list);
+            const int selected =
+                GUIList_get_current_index(&menu_page.menu_list);
             switch (selected) {
                 case MENU_OPT_HISTORY:
                     ChangeHistoryPage_enter(NULL);
@@ -159,9 +163,8 @@ void MenuPage_enter() {
         is_initialized = true;
     }
 
-    // Ustawienie początkowej pozycji animacji, aby kursor nie "nadlatywał" z
-    // góry
-    menu_page.menu_list.anim_y = menu_page.menu_list.base.y;
+    /* Immediate animation snap to avoid target overshoot on entry */
+    menu_page.menu_list.anim_y = (float)menu_page.menu_list.base.y;
 
     Page new_page = {.handle_input = MenuPage_handle_input,
                      .on_tick = MenuPage_on_tick};

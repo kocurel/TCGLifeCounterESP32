@@ -10,12 +10,9 @@
 #include "app/PageManager.h"
 #include "model/Game.h"
 
-/* --- Private State --- */
 static GUIList list = {0};
 static GUILabel player_lbl = {0};
 static int page_player_id = 0;
-
-/* --- Drawing --- */
 
 static void PlayerPage_draw() {
     GUIRenderer_clear_buffer();
@@ -24,11 +21,11 @@ static void PlayerPage_draw() {
     GUIRenderer_draw_horizontal_line(13);
     GUI_DRAW(&list);
 
-    // Pagination Indicators
+    /* Render pagination indicators based on scroll bounds */
     const int ROW_HEIGHT = 11;
-    int visible_rows = list.base.height / ROW_HEIGHT;
-    int current_idx = GUIList_get_current_index(&list);
-    int total = NUMBER_OF_VALUES;
+    const int visible_rows = list.base.height / ROW_HEIGHT;
+    const int current_idx = GUIList_get_current_index(&list);
+    const int total = NUMBER_OF_VALUES;
 
     if (current_idx >= visible_rows) {
         GUIRenderer_draw_pixel(64, list.base.y - 1);
@@ -40,33 +37,32 @@ static void PlayerPage_draw() {
     GUIRenderer_send_buffer();
 }
 
+/**
+ * Updates scroll animation and triggers redraw if cursor position changes
+ */
 static void PlayerPage_on_tick(uint32_t delta_ms) {
-    // 1. Wykonaj krok animacji
-    float old_anim_y = list.anim_y;
+    const float old_anim_y = list.anim_y;
     GUIList_tick(&list, delta_ms);
 
-    // 2. Sprawdź czy kursor się ruszył (animacja płynie)
+    /* Detect active animation flow */
     if (fabsf(list.anim_y - old_anim_y) > 0.05f) {
         list.needs_redraw = true;
     }
 
-    // 3. Jeśli lista zgłasza potrzebę odświeżenia (przez animację LUB input)
+    /* Redraw only if requested by animation or input state */
     if (list.needs_redraw) {
         PlayerPage_draw();
-        list.needs_redraw = false;  // Reset flagi po rysowaniu
+        list.needs_redraw = false;
     }
 }
 
 static void PlayerPage_handle_input(ButtonCode button);
-/* --- Callbacks & Handlers --- */
 
 /**
- * Returns from the Value Editor and commits the new value to the model
+ * Commits edited value to the game model and refreshes the page
  */
 static void PlayerPage_callback(int32_t value) {
     Game_set_value(value, page_player_id, GUIList_get_current_index(&list));
-
-    // Restore page state
     PlayerPage_enter(page_player_id);
 }
 
@@ -90,7 +86,7 @@ static void PlayerPage_handle_input(ButtonCode button) {
             return;
 
         case BUTTON_CODE_ACCEPT: {
-            int value_index = GUIList_get_current_index(&list);
+            const int value_index = GUIList_get_current_index(&list);
             ValueEditorPage_enter(Game_get_player_name(page_player_id),
                                   Game_get_value_name(value_index), value_index,
                                   Game_get_value(page_player_id, value_index),
@@ -105,20 +101,18 @@ static void PlayerPage_handle_input(ButtonCode button) {
     }
 }
 
-/* --- Page Lifecycle --- */
-
 void PlayerPage_enter(int player_id) {
     page_player_id = player_id;
 
-    // Przekazujemy ID gracza jako data_source (rzutowane na void*)
+    /* Initialize list with player ID as data source context */
     GUIList_init(&list, (void*)(intptr_t)player_id, delegate_get_value_count,
                  NULL, delegate_format_player_value, NULL);
 
     GUI_SET_POS(&list, 0, 15);
     GUI_SET_SIZE(&list, 118, 44);
 
-    // Snap animacji
-    list.anim_y = list.base.y;
+    /* Reset animation state */
+    list.anim_y = (float)list.base.y;
 
     GUILabel_init(&player_lbl, Game_get_player_name(player_id));
     GUI_SET_SIZE(&player_lbl, 128, 12);

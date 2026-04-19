@@ -17,11 +17,9 @@ typedef enum {
 #define BUZZER_TIMER LEDC_TIMER_0
 #define BUZZER_MODE LEDC_LOW_SPEED_MODE
 #define BUZZER_CHANNEL LEDC_CHANNEL_0
-#define BUZZER_DUTY_50 2048  // 50% duty cycle for max volume
 #define BUZZER_DUTY_RES LEDC_TIMER_13_BIT
 #define BUZZER_MAX_DUTY 8191
 
-// Funkcja do dynamicznej zmiany głośności
 // Queue configuration
 #define AUDIO_QUEUE_LEN 10
 // Initialize the LEDC timer and background task

@@ -15,7 +15,7 @@
 #define SETTINGS_VAL_NAME_LEN 12
 
 typedef struct {
-    // --- Device (Sprzęt) ---
+    // Device
     uint8_t screen_brightness;
     uint8_t sound_loudness;
     uint8_t screen_timeout_min;
@@ -23,17 +23,15 @@ typedef struct {
     bool sound_enabled;
     bool quick_dmg_en;
 
-    // --- Game Rules (Zasady) ---
+    // Game Rules
     uint16_t starting_life;
     uint8_t player_count;
     bool dead_at_zero;
     bool cmd_dmg_rule;
     bool cmd_mode_en;
 
-    // --- Persistent Data ---
+    // Persistent Data
     char player_names[4][PLAYER_NAME_MAX_LEN];
-
-    // [NEW] Custom names for values (HP, Poison, etc.)
     char value_names[SETTINGS_VAL_COUNT][SETTINGS_VAL_NAME_LEN];
 
 } GameSettings;
@@ -42,8 +40,6 @@ void SettingsModel_init();
 GameSettings SettingsModel_get();
 void SettingsModel_save(GameSettings new_settings);
 void SettingsModel_save_player_name(int player_id, const char* name);
-
-// [NEW] Function to save a specific value name
 void SettingsModel_save_value_name(int value_index, const char* name);
 
 #endif

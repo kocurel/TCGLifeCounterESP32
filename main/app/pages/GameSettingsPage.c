@@ -11,23 +11,22 @@
 #include "app/PageManager.h"
 #include "model/Settings.h"
 
-/* --- Constants & Enums --- */
-enum {
+typedef enum {
     OPT_START_LIFE,
     OPT_PLAYER_COUNT,
     OPT_DEAD_AT_ZERO,
     OPT_CMD_EN,
     OPT_CMD_DMG_RULE,
     OPT_COUNT,
-};
+} SettingOption;
 
-/* --- Private State --- */
 static GUIList options_list;
 static char s_list_buffer[32];
 static GameSettings s_draft_settings;
 
-/* --- Internal Helpers --- */
-
+/**
+ * Returns total number of available game settings
+ */
 static int settings_get_count(void* data) { return OPT_COUNT; }
 
 /**
@@ -69,7 +68,7 @@ static char* settings_item_to_string(void* item, int index) {
 }
 
 /**
- * Logic for cycling through discrete game setting values
+ * Cycles through discrete game setting values based on input direction
  */
 static void modify_setting(int index, int direction) {
     AudioManager_play_sound(SOUND_UI_MOVE);
@@ -88,8 +87,7 @@ static void modify_setting(int index, int direction) {
                     break;
                 }
             }
-            if (!found)
-                current_idx = 3;  // Default to 40 if current is non-standard
+            if (!found) current_idx = 3;
 
             if (direction > 0) {
                 current_idx = (current_idx + 1) % count;
@@ -101,11 +99,8 @@ static void modify_setting(int index, int direction) {
         }
 
         case OPT_PLAYER_COUNT:
-            if (s_draft_settings.player_count == 2) {
-                s_draft_settings.player_count = 4;
-            } else {
-                s_draft_settings.player_count = 2;
-            }
+            s_draft_settings.player_count =
+                (s_draft_settings.player_count == 2) ? 4 : 2;
             break;
 
         case OPT_DEAD_AT_ZERO:
@@ -121,40 +116,32 @@ static void modify_setting(int index, int direction) {
             break;
     }
 
-    // WAŻNE: Po zmianie wartości ustawiamy flagę, aby odświeżyć tekst na liście
+    /* Request redraw to reflect updated setting value in list */
     options_list.needs_redraw = true;
 }
 
-/* --- Drawing --- */
-
 static void GameSettingsPage_draw() {
     GUIRenderer_clear_buffer();
-
-    // List rysuje teraz własny kursor (animowane ">")
     GUI_DRAW(&options_list);
-
     GUIRenderer_send_buffer();
 }
 
-/* --- Lifecycle & Task Logic --- */
-
+/**
+ * Updates list animation and triggers redraw on significant cursor movement
+ */
 static void GameSettingsPage_on_tick(uint32_t delta_ms) {
-    float old_y = options_list.anim_y;
+    const float old_y = options_list.anim_y;
     GUIList_tick(&options_list, delta_ms);
 
-    // Sprawdź czy kursor jest w ruchu
     if (fabsf(options_list.anim_y - old_y) > 0.05f) {
         options_list.needs_redraw = true;
     }
 
-    // Odśwież ekran jeśli flaga jest podniesiona
     if (options_list.needs_redraw) {
         GameSettingsPage_draw();
         options_list.needs_redraw = false;
     }
 }
-
-/* --- Input Handling --- */
 
 static void GameSettingsPage_handle_input(ButtonCode button) {
     switch (button) {
@@ -175,7 +162,7 @@ static void GameSettingsPage_handle_input(ButtonCode button) {
             SettingsPage_enter();
             return;
         case BUTTON_CODE_ACCEPT:
-            // Save local draft settings to persistent storage
+            /* Persist draft settings to storage */
             AudioManager_play_sound(SOUND_UI_SELECT);
             SettingsModel_save(s_draft_settings);
             SettingsPage_enter();
@@ -183,13 +170,10 @@ static void GameSettingsPage_handle_input(ButtonCode button) {
         default:
             break;
     }
-    // Usunięto draw() - on_tick i flaga załatwiają sprawę
 }
 
-/* --- Page Lifecycle --- */
-
 void GameSettingsPage_enter() {
-    // Sync draft state with the current persistent settings
+    /* Initialize session state with persistent settings */
     s_draft_settings = SettingsModel_get();
 
     static bool initialized = false;
@@ -201,10 +185,10 @@ void GameSettingsPage_enter() {
         initialized = true;
     }
 
-    // Snap animacji na starcie (aby kursor nie "nadlatywał")
-    int visible_rows = options_list.base.height / 11;
-    int relative_row = options_list.selected_index % visible_rows;
-    options_list.anim_y = options_list.base.y + (relative_row * 11);
+    /* Snap animation to avoid artifacts on entry */
+    const int visible_rows = options_list.base.height / 11;
+    const int relative_row = options_list.selected_index % visible_rows;
+    options_list.anim_y = (float)(options_list.base.y + (relative_row * 11));
     options_list.needs_redraw = false;
 
     Page page = {.handle_input = GameSettingsPage_handle_input,
