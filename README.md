@@ -18,5 +18,11 @@ When I made the project I used three main components:
   2. [u8g2](https://github.com/olikraus/u8g2)
   3. [u8g2-hal-esp-idf](https://github.com/mkfrey/u8g2-hal-esp-idf)
 
-# GUI Library
+# GUIFramework
 <img src="documentation/images/GUIClassDiagram.png" alt="Class diagram" width="600"/>
+
+When designing this device I expected I would need a way to easily design a UI.
+I decided to go with a grid-like system using Labels nexted in VBoxes and HBoxes.
+For an easier time programming I added tried to emulate inheritance and OOP in C using vtables.
+
+Later on, I added a GUIList component that uses the delegate design pattern to access the underlying data.
