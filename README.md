@@ -19,4 +19,4 @@ When I made the project I used three main components:
   3. [u8g2-hal-esp-idf](https://github.com/mkfrey/u8g2-hal-esp-idf)
 
 # GUI Library
-<img src="documentation/images/GUIClassDiagram.png" alt="Class diagram" width="400"/>
+<img src="documentation/images/GUIClassDiagram.png" alt="Class diagram" width="600"/>
