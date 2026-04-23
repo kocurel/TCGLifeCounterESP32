@@ -24,7 +24,7 @@
       "otherItems": false,
       "pads": false,
       "text": false,
-      "tracks": false,
+      "tracks": true,
       "vias": false,
       "zones": false
     },
@@ -123,7 +123,7 @@
       "otherItems": true,
       "pins": true,
       "symbols": true,
-      "text": false,
+      "text": true,
       "wires": true
     }
   }

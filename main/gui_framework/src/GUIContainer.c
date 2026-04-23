@@ -39,19 +39,19 @@ void GUIContainer_init(GUIContainer* self, void(layout)(GUIComponent* base)) {
         return;
     }
 
-    // 1. Initialize Base Component (sets base properties to 0, vtable to NULL)
+    // Initialize Base Component (sets base properties to 0, vtable to NULL)
     GUIComponent_init(&self->base);
 
-    // 2. Assign V-Table
+    // Assign V-Table
     self->base.layout = layout;
     self->base.draw = GUIContainer_draw;
 
-    // 3. Initialize Container-Specific State
+    // Initialize Container-Specific State
     self->count = 0;
     self->padding = 0;
     self->spacing = 0;
 
-    // 4. MEMORY SAFETY FIX: Zero out the children array.
+    // Zero out the children array.
     memset(self->children, 0, sizeof(self->children));
 }
 

@@ -134,6 +134,8 @@ void keypad_scan_task(void* pvParameters) {
                     /* Auto-repeat and turbo logic */
                     k->hold_timer++;
                     if (k->hold_timer >= HOLD_THRESHOLD_TICKS) {
+                        // repeat_delta has a constant offset for easier
+                        // calculations
                         const int repeat_delta =
                             k->hold_timer - HOLD_THRESHOLD_TICKS;
                         int current_rate = REPEAT_RATE_SLOW_TICKS;

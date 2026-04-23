@@ -101,7 +101,7 @@ void PowerManager_reset_timer() {
 
 bool PowerManager_is_display_off() { return s_display_is_off; }
 
-/* --- Tasks --- */
+/* --- Task --- */
 
 static void power_manager_task(void* arg) {
     // Cache settings to avoid constant NVS access in the loop
@@ -147,7 +147,6 @@ void PowerManager_init() {
     esp_pm_configure(&pm_config);
 #endif
 
-    // Increased stack size to 3072 to prevent Stack Protection Fault
     xTaskCreate(power_manager_task, "PowerMgr", 3072, NULL, 1, NULL);
 
     ESP_LOGI(TAG, "Initialized with 3KB stack.");

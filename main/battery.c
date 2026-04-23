@@ -1,6 +1,7 @@
 #include "battery.h"
 
 #include "Debug.h"
+#include "PowerManager.h"
 #include "System.h"
 #include "driver/gpio.h"
 #include "esp_adc/adc_oneshot.h"
@@ -97,7 +98,13 @@ int read_battery_voltage_mv(void) {
 void read_battery_level() {
     const int mv = read_battery_voltage_mv();
     const int battery_level = get_battery_percentage(mv);
+    // Automatic shut-off at low battery voltage
+    if (mv < 3300) {
+        ESP_LOGW("PWR", "Battery critical! Entering hibernation.");
+        PowerManager_deep_sleep();
+    }
     System_set_battery_percentage(battery_level);
+    return;
 }
 
 /**
