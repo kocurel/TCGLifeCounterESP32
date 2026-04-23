@@ -67,4 +67,13 @@ In the development stage I used a command line task to emulate keypad input
 that I really don't use anymore but I left it in the code
 just in case I have a use for it in the future.
 
+## The buzzer
+The buzzer was added so the device has audible feedback on stuff like errors and device waking up.
+I control it using the LEDC library of ESP-IDF to play simple tones.
+
+## The key matrix
+To save GPIO pins I went with a 3x3 switch matrix. I run a FreeRTOS task that scans the matrix every 5 ms.
+For debouncing I use 8 bit unsigned integers as shift registers. When the last three bits of the register are 1's
+the matrix reads a press. Similarly, when the last 3 bits of the register are 0's the matrix reads a release.
+
 **In this prototype I have not yet introduced a way to permanently save game state between sessions**
