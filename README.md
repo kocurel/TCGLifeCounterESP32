@@ -9,7 +9,7 @@ Anticipating players making mistakes, the device tracks change history
 letting the player undo to a selected point in time.
 
 As an added extra, I included a dice page that lets the user simulate dice throws using esp_random().
-The included dice options are (coin, d3, d4, d6, d8, d10, d12, d20, d100). It's possible to throw 1-4 dice at once and reroll any of the result.
+The included dice options are (coin, d3, d4, d6, d8, d10, d12, d20, d100). It's possible to throw 1-4 dice at once and reroll any of the results.
 
 <img src="documentation/images/device_front.png" alt="3D Kicad render" width="400"/>
 A 3D render generated in Kicad
