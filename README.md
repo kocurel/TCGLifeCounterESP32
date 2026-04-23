@@ -11,6 +11,10 @@ letting the player undo to a selected point in time.
 <img src="documentation/images/device_front.png" alt="3D Kicad render" width="400"/>
 A 3D render generated in Kicad
 
+# The main interface
+<img src="documentation/images/magic.png" alt="MtG commander gameplay" width="400"/>
+<img src="documentation/images/yugioh.png" alt="Yugioh gameplay" width="400"/>
+
 # Hardware
 The main components of the device are:
 1. [SEEED XIAO ESP32-C3](https://botland.store/esp32-wifi-and-bt-modules/22878-seeed-xiao-esp32-s3-wifibluetooth-seeedstudio-113991114.html)
