@@ -20,6 +20,14 @@ The main components of the device are:
 5. 10x 1N4148 diodes
 6. A 1050mAh LiPo battery
 
+
+## The schematics
+
+<img src="documentation/images/schematic1.png" alt="Kicad schematic page 1" width="600"/>
+<img src="documentation/images/schematic2.png" alt="Kicad schematic page 2" width="600"/>
+
+
+
 # Software
 When I made the project I used three main components:
 1. ESP-IDF
