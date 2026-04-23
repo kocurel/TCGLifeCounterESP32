@@ -12,8 +12,7 @@ letting the player undo to a selected point in time.
 A 3D render generated in Kicad
 
 # The main interface
-<img src="documentation/images/magic.png" alt="MtG commander gameplay" width="400"/>
-<img src="documentation/images/yugioh.png" alt="Yugioh gameplay" width="400"/>
+<img src="documentation/images/magic.png" alt="MtG commander gameplay" width="400"/> <img src="documentation/images/yugioh.png" alt="Yugioh gameplay" width="400"/>
 
 # Hardware
 The main components of the device are:
