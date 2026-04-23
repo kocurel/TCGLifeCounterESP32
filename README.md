@@ -26,8 +26,10 @@ I decided to go with a grid-like system using Labels nexted in VBoxes and HBoxes
 For an easier time programming I added tried to emulate inheritance and OOP in C using vtables.
 
 Later on, I added a GUIList component that uses the delegate design pattern to access the underlying data.
-commander_view
+
 <img src="documentation/images/commander_view.jpg" alt="Commander Page" width="300"/> <img src="documentation/images/name_edit_view.jpg" alt="Name Edit Page" width="300"/>
 
 Using nested containers I was able to get perfectly even grids in my UI without too many manual adjustements.
 
+Thanks to the navigation pointers inside the GUIComponent designing the UI navigation was really easy.
+For extra simplicity I added GUI_LINK_VERTICAL and GUI_LINK_HORIZONTAL macros that automatically assign the pointers.
