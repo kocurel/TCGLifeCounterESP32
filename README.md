@@ -23,8 +23,8 @@ The main components of the device are:
 
 ## The schematics
 
-<img src="documentation/images/schematic1.png" alt="Kicad schematic page 1" width="600"/>
-<img src="documentation/images/schematic2.png" alt="Kicad schematic page 2" width="600"/>
+<img src="documentation/images/schematic1.png" alt="Kicad schematic page 1" width="900"/>
+<img src="documentation/images/schematic2.png" alt="Kicad schematic page 2" width="900"/>
 
 
 
