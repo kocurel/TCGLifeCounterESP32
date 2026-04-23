@@ -91,7 +91,7 @@ the matrix reads a press. Similarly, when the last 3 bits of the register are 0'
 To ensure a smooth user experience, I interface with the SSD1309 OLED display via I2C at 800 kHz. 
 This high clock speed allows for fluid animations and a high UI refresh rate.
 
-To minimize quiescent current draw during inactivity, I implemented a PMOS high-side switch circuit. 
+To minimize standby current draw during inactivity, I implemented a PMOS high-side switch circuit. 
 This allows the firmware to completely cut off the VCC rail of the display, effectively extending the battery life.
 
 **In this prototype I have not yet introduced a way to permanently save game state between sessions**
