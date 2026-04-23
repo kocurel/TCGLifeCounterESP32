@@ -56,7 +56,7 @@ For extra simplicity I added GUI_LINK_VERTICAL and GUI_LINK_HORIZONTAL macros th
 ## The features
 For a better user experience I included a few extra features:
 1. Battery level tracking (using ADC and a simple linear interpolation).
-2. Automatic, adjustible screen shut-off to save battery life.
+2. Automatic, adjustible display timeout to save battery life.
 3. Automatic, adjustible power-off (deep sleep) under extended inactivity.
 4. Long press of any of the switches reads as multiple presses, going into turbo mode when held for over 1.2s.
 
@@ -67,7 +67,7 @@ I used NVS to store data between sessions:
 3. Value names
 
 ## FreeRTOS
-I went with a modular deisgn based on FreeRTOS tasks for easy concurrency handling.
+I went with a modular design based on FreeRTOS tasks for easy concurrency handling.
 The main tasks include:
 1. The main loop that handles rendering and input handling
 2. The keypad task that scans the key matrix every 5 ms
@@ -84,7 +84,7 @@ I control it using the LEDC library of ESP-IDF to play simple tones.
 
 ## The key matrix
 To save GPIO pins I went with a 3x3 switch matrix. I run a FreeRTOS task that scans the matrix every 5 ms.
-For debouncing I use 8 bit unsigned integers as shift registers. When the last three bits of the register are 1's
+For debouncing I use 8 bit unsigned integers as software shift registers. When the last three bits of the register are 1's
 the matrix reads a press. Similarly, when the last 3 bits of the register are 0's the matrix reads a release.
 
 **In this prototype I have not yet introduced a way to permanently save game state between sessions**
