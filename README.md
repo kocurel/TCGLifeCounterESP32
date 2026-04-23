@@ -22,11 +22,11 @@ The main components of the device are:
 
 # Software
 When I made the project I used three main components:
-  1. ESP-IDF
-  2. [u8g2](https://github.com/olikraus/u8g2)
-  3. [u8g2-hal-esp-idf](https://github.com/mkfrey/u8g2-hal-esp-idf)
+1. ESP-IDF
+2. [u8g2](https://github.com/olikraus/u8g2)
+3. [u8g2-hal-esp-idf](https://github.com/mkfrey/u8g2-hal-esp-idf)
 
-# GUIFramework
+## GUIFramework
 <img src="documentation/images/GUIClassDiagram.png" alt="Class diagram" width="600"/>
 
 When designing this device I expected I would need a way to easily design a UI.
@@ -40,3 +40,31 @@ Later on, I added a GUIList component that uses the delegate design pattern to a
 Using nested containers I was able to get perfectly even grids in my UI without too many manual adjustements.
 The navigation pointers inside the GUIComponent made designing the UI navigation really easy.
 For extra simplicity I added GUI_LINK_VERTICAL and GUI_LINK_HORIZONTAL macros that automatically assign the pointers.
+
+# About the firmware
+## The features
+For a better user experience I included a few extra features:
+1. Battery level tracking (using ADC and a simple linear interpolation).
+2. Automatic, adjustible screen shut 0off to save battery life.
+3. Automatic, adjustible power-off (deep sleep) under extended inactivity.
+4. Long press of any of the switches reads as multiple presses, going into turbo mode when held for over 1.2s.
+
+## The non-volatile storage
+I used NVS to store data between sessions:
+1. Device settings
+2. Player names
+3. Value names
+
+## FreeRTOS
+I went with a modular deisgn based on FreeRTOS tasks for easy concurrency handling.
+The main tasks include:
+1. The main loop that handles rendering and input handling
+2. The keypad task that scans the key matrix every 5 ms
+3. The battery level read task that reads the battery level every 1 s
+4. The audio manager task that uses a non-blocking queue for audio playback
+
+In the development stage I used a command line task to emulate keypad input
+that I really don't use anymore but I left it in the code
+just in case I have a use for it in the future.
+
+**In this prototype I have not yet introduced a way to permanently save game state between sessions**
