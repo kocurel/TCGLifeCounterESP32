@@ -30,8 +30,8 @@ When I made the project I used three main components:
 <img src="documentation/images/GUIClassDiagram.png" alt="Class diagram" width="600"/>
 
 When designing this device I expected I would need a way to easily design a UI.
-I decided to go with a grid-like system using Labels nexted in VBoxes and HBoxes.
-For an easier time programming I added tried to emulate inheritance and OOP in C using vtables.
+I decided to go with a grid-like system using Labels nested in VBoxes and HBoxes.
+For an easier time programming I tried to emulate inheritance and OOP in C using vtables.
 
 Later on, I added a GUIList component that uses the delegate design pattern to access the underlying data.
 
@@ -45,7 +45,7 @@ For extra simplicity I added GUI_LINK_VERTICAL and GUI_LINK_HORIZONTAL macros th
 ## The features
 For a better user experience I included a few extra features:
 1. Battery level tracking (using ADC and a simple linear interpolation).
-2. Automatic, adjustible screen shut 0off to save battery life.
+2. Automatic, adjustible screen shut-off to save battery life.
 3. Automatic, adjustible power-off (deep sleep) under extended inactivity.
 4. Long press of any of the switches reads as multiple presses, going into turbo mode when held for over 1.2s.
 
