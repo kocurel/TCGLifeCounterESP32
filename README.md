@@ -1,5 +1,13 @@
 # An electronic ESP32-C3-powered life counter for Trading Card Games. 
 ## Made in mind with the players of Magic the Gathering and Yu-Gi-Oh.
+
+The main goal for this project was to implement the basic LifeTap features.
+I expanded on some of the features by tracking more variables 
+(letting the player rename the value names as they see fit).
+
+Anticipating players making mistakes, the device tracks change history 
+letting the player undo to a selected point in time.
+
 <img src="documentation/images/device_front.png" alt="3D Kicad render" width="400"/>
 A 3D render generated in Kicad
 
