@@ -19,7 +19,7 @@ A 3D render generated in Kicad
 
 # Hardware
 The main components of the device are:
-1. [SEEED XIAO ESP32-C3](https://botland.store/esp32-wifi-and-bt-modules/22878-seeed-xiao-esp32-s3-wifibluetooth-seeedstudio-113991114.html)
+1. [SEEED XIAO ESP32-C3](https://botland.store/esp32-wifi-and-bt-modules/21859-seeed-xiao-esp32-c3-wifibluetooth-seeedstudio-113991054.html)
 2. [msalamon SSD1309 2.42" OLED display](https://sklep.msalamon.pl/produkt/wyswietlacz-oled-242-128x64px-niebieski/)
 3. [A 3x3 12x12mm tactile switch matrix](https://www.tme.eu/pl/en/details/ts24n/microswitches-tact/knitter-switch/ts-24-n/)
 4. A passive buzzer
