@@ -51,7 +51,7 @@ Later on, I added a GUIList component that uses the delegate design pattern to a
 
 <img src="documentation/images/commander_view.jpg" alt="Commander Page" width="300"/> <img src="documentation/images/name_edit_view.jpg" alt="Name Edit Page" width="300"/>
 
-Using nested containers I was able to get perfectly even grids in my UI without too many manual adjustements.
+Using nested containers I was able to get perfectly even grids in my UI without too many manual adjustments.
 The navigation pointers inside the GUIComponent made designing the UI navigation really easy.
 For extra simplicity I added GUI_LINK_VERTICAL and GUI_LINK_HORIZONTAL macros that automatically assign the pointers.
 
@@ -59,8 +59,8 @@ For extra simplicity I added GUI_LINK_VERTICAL and GUI_LINK_HORIZONTAL macros th
 ## The features
 For a better user experience I included a few extra features:
 1. Battery level tracking (using ADC and a simple linear interpolation).
-2. Automatic, adjustible display timeout to save battery life.
-3. Automatic, adjustible power-off (deep sleep) under extended inactivity.
+2. Automatic, adjustable display timeout to save battery life.
+3. Automatic, adjustable power-off (deep sleep) under extended inactivity.
 4. Long press of any of the switches reads as multiple presses, going into turbo mode when held for over 1.2s.
 
 ## The non-volatile storage
